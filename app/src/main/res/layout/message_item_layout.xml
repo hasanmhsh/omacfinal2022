@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:app="http://schemas.android.com/apk/res-auto" xmlns:android="http://schemas.android.com/apk/res/android">
+    <data>
+        <variable
+            name="message"
+            type="hasan.mohamed.shehata.myapplication.models.Message" />
+    </data>
+<FrameLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_margin="3dp"
+    android:paddingTop="@dimen/margin_l"
+    android:paddingStart="@dimen/margin_l"
+    android:paddingEnd="@dimen/margin_l">
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/message_view_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/general_text_padding"
+        android:translationZ="4dp"
+        style="@style/NonPressableStyle">
+
+        <TextView
+            android:id="@+id/sender_name_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+
+            style="@style/SecondaryTextStyle"/>
+        <TextView
+            android:id="@+id/textOfMessageTv"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margin_m"
+            app:layout_constraintTop_toBottomOf="@+id/sender_name_tv"
+            android:text="@{message.currentMessageText}"
+            style="@style/PrimaryTextStyle"/>
+        <Switch
+            android:id="@+id/is_to_show_translated_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margin_m"
+            app:layout_constraintTop_toBottomOf="@id/textOfMessageTv"
+            app:layout_constraintStart_toStartOf="parent"/>
+        <ImageButton
+            android:id="@+id/delete_message_but"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_baseline_delete_forever_24"
+            android:background="@drawable/transparent_button_background"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+        <ImageButton
+            android:id="@+id/message_tts_but"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margin_m"
+            android:src="@drawable/ic_baseline_volume_up_24"
+            android:background="@drawable/transparent_button_background"
+            android:layout_marginStart="@dimen/margin_l"
+            app:layout_constraintStart_toEndOf="@id/is_to_show_translated_text"
+            app:layout_constraintTop_toBottomOf="@id/textOfMessageTv"/>
+
+
+
+
+
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</FrameLayout>
+</layout>

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<font-family xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+
+    <font android:fontStyle="normal"
+        android:fontWeight="200"
+        android:font="@font/nunitoextralight"/>
+        
+            <font android:fontStyle="italic"
+        android:fontWeight="200"
+        android:font="@font/nunitoextralightitalic"/>
+
+    <font android:fontStyle="normal"
+        android:fontWeight="300"
+        android:font="@font/nunitolight"/>
+        
+            <font android:fontStyle="italic"
+        android:fontWeight="300"
+        android:font="@font/nunitolightitalic"/>
+
+    <font android:fontStyle="normal"
+        android:fontWeight="400"
+        android:font="@font/nunitoregular"/>
+
+    <font android:fontStyle="normal"
+        android:fontWeight="500"
+        android:font="@font/nunitomedium"/>
+        
+            <font android:fontStyle="italic"
+        android:fontWeight="500"
+        android:font="@font/nunitomediumitalic"/>
+
+    <font android:fontStyle="normal"
+        android:fontWeight="600"
+        android:font="@font/nunitosemibold"/>
+        
+            <font android:fontStyle="italic"
+        android:fontWeight="600"
+        android:font="@font/nunitosemibolditalic"/>
+
+    <font android:fontStyle="normal"
+        android:fontWeight="700"
+        android:font="@font/nunitobold"/>
+        
+            <font android:fontStyle="italic"
+        android:fontWeight="700"
+        android:font="@font/nunitobolditalic"/>
+
+    <font android:fontStyle="normal"
+        android:fontWeight="800"
+        android:font="@font/nunitoextrabold"/>
+        
+            <font android:fontStyle="italic"
+        android:fontWeight="800"
+        android:font="@font/nunitoextrabolditalic"/>
+
+    <font android:fontStyle="normal"
+        android:fontWeight="900"
+        android:font="@font/nunitoblack"/>
+        
+            <font android:fontStyle="italic"
+        android:fontWeight="900"
+        android:font="@font/nunitoblackitalic"/>
+        
+
+
+</font-family>

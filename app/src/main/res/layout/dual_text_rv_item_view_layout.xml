@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:app="http://schemas.android.com/apk/res-auto">
+    <data>
+        <variable
+            name="dualtext"
+            type="hasan.mohamed.shehata.myapplication.models.ListItemBindableItemContentProvider" />
+    </data>
+    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/dual_text_rv_item_container"
+        android:layout_marginBottom="@dimen/margin_l"
+        style="@style/PressableStyle">
+
+        <ImageView
+            android:id="@+id/dual_text_logo_iv"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_marginBottom="@dimen/margin_m"
+            android:layout_marginStart="@dimen/margin_m"
+            android:layout_marginEnd="@dimen/margin_l"
+            android:layout_marginTop="@dimen/margin_m"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/primatry_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toEndOf="@id/dual_text_logo_iv"
+            app:layout_constraintTop_toTopOf="@id/dual_text_logo_iv"
+            app:layout_constraintBottom_toTopOf="@id/secondary_tv"
+            android:gravity="start"
+            style="@style/PrimaryTextStyle"
+            android:text="@{dualtext.primaryText}"
+            />
+        <com.google.android.material.textview.MaterialTextView
+            android:visibility="gone"
+            android:id="@+id/secondary_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{dualtext.secondaryText}"
+            app:layout_constraintStart_toEndOf="@id/dual_text_logo_iv"
+            app:layout_constraintTop_toBottomOf="@+id/primatry_tv"
+            app:layout_constraintBottom_toBottomOf="@id/dual_text_logo_iv"
+            android:gravity="start"
+            style="@style/SecondaryTextStyle"/>
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

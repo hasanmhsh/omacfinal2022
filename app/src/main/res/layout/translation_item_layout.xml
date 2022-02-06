@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout>
+    <data>
+        <variable
+            name="translation"
+            type="hasan.mohamed.shehata.myapplication.models.TranslationItem" />
+    </data>
+    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:padding="@dimen/general_text_padding"
+        style="@style/NonPressableStyle">
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/text_translation_translate_label_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{translation.languageTitle}"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            style="@style/PrimaryTextStyle"/>
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/text_translation_translate_language_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/SecondaryTextStyle"
+            app:layout_constraintStart_toEndOf="@id/text_translation_translate_label_tv"
+            app:layout_constraintTop_toTopOf="@id/text_translation_translate_label_tv"
+            app:layout_constraintBottom_toBottomOf="@id/text_translation_translate_label_tv"
+            android:text="@{translation.language.languageName}"/>
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/text_translation_translate_from_text_et"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:enabled="@{translation.isEditable}"
+            android:lines="6"
+            android:hint="@string/enter_text_here"
+            android:text="@={translation.text}"
+            android:scrollbarAlwaysDrawVerticalTrack="true"
+            app:flow_wrapMode="aligned"
+            app:layout_constraintTop_toBottomOf="@id/text_translation_translate_label_tv"/>
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/text_translation_translate_from_choose_language_but"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margin_m"
+            android:layout_marginBottom="@dimen/margin_l"
+            app:layout_constraintTop_toBottomOf="@id/text_translation_translate_from_text_et"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:visibility="gone"
+            android:text="@string/select_language"/>
+
+        <ImageButton
+            android:id="@+id/tts_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_baseline_volume_up_24"
+            app:layout_constraintTop_toTopOf="@id/text_translation_translate_from_choose_language_but"
+            app:layout_constraintStart_toStartOf="@id/text_translation_translate_from_text_et"
+            android:visibility="@{translation.TTSButtonVisibility}"
+            />
+
+        <ImageButton
+            android:id="@+id/asr_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_baseline_mic_24"
+            app:layout_constraintTop_toTopOf="@id/text_translation_translate_from_choose_language_but"
+            app:layout_constraintStart_toEndOf="@id/tts_button"
+            android:visibility="@{translation.ASRButtonVisibility}"
+            />
+        <ImageButton
+            android:id="@+id/delete_item_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_baseline_close_24"
+            android:background="#00000000"
+            android:visibility="@{translation.closeButtonVisibility}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="@id/text_translation_translate_label_tv"
+            app:layout_constraintTop_toTopOf="@id/text_translation_translate_label_tv"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/select_language_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/select_language"
+            android:visibility="@{translation.selectLanguageButtonVisibility}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/text_translation_translate_from_text_et"/>
+
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

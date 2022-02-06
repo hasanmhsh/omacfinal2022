@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:app="http://schemas.android.com/apk/res-auto">
+    <data>
+        <variable
+            name="user"
+            type="hasan.mohamed.shehata.myapplication.models.User" />
+    </data>
+    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="@dimen/margin_l"
+        android:keepScreenOn="true">
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/call_window_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/Calling"
+            android:textSize="@dimen/margin_l"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_margin="@dimen/margin_m"
+            app:layout_constraintEnd_toEndOf="parent"/>
+        <com.google.android.material.textview.MaterialTextView
+            style="@style/PrimaryTextStyle"
+            android:id="@+id/caller_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{user.username}"
+            android:textSize="@dimen/medium_text_size"
+            app:layout_constraintTop_toBottomOf="@id/call_window_label"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_margin="@dimen/margin_m"
+            app:layout_constraintEnd_toEndOf="parent"/>
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/respond_but"
+            app:layout_constraintTop_toBottomOf="@id/caller_name"
+            android:src="@drawable/ic_baseline_phone_24"
+            style="@style/ElegantButtonStyle1"
+            android:padding="@dimen/margin_m"
+            app:layout_constraintEnd_toStartOf="@id/reject_but"
+            app:layout_constraintStart_toStartOf="parent"/>
+
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/reject_but"
+            app:layout_constraintTop_toBottomOf="@id/caller_name"
+            android:src="@drawable/ic_baseline_call_end_24"
+            style="@style/ElegantButtonStyle1"
+            android:padding="@dimen/margin_m"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/respond_but"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

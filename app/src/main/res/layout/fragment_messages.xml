@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout>
+    <data>
+        <variable
+            name="user"
+            type="hasan.mohamed.shehata.myapplication.models.User" />
+    </data>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.messages.MessageFragment"
+    android:keepScreenOn="true">
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        android:background="@drawable/my_user_header_background"
+        android:translationZ="7dp"
+        android:padding="10dp">
+        <ImageView
+            android:translationZ="15dp"
+            android:id="@+id/header_my_msg_image_view"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_marginStart="@dimen/padding_very_large"
+            android:background="@drawable/user1"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            />
+
+        <TextView
+            android:id="@+id/msg_list_header_name_box"
+            android:layout_width="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/msg_list_header_lng_box"
+            android:text="@{user.username}"
+            android:layout_marginEnd="30dp"
+            android:layout_height="wrap_content"
+
+
+            android:fontFamily="@font/nunito"
+            android:textFontWeight="500"
+            android:textSize="15sp"
+            android:textColor="@color/white"/>
+        <TextView
+            android:id="@+id/msg_list_header_lng_box"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="3dp"
+            android:text="@{user.userlanguage.languageName}"
+            android:layout_marginEnd="30dp"
+            app:layout_constraintTop_toBottomOf="@id/msg_list_header_name_box"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+
+
+            android:fontFamily="@font/nunito"
+            android:textFontWeight="400"
+            android:textSize="10sp"
+            android:textColor="@color/white"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+    <androidx.recyclerview.widget.RecyclerView
+        app:layout_constraintVertical_weight="10"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="82dp"
+        app:layout_constraintTop_toTopOf="parent"
+        android:id="@+id/fragment_recycler_view"
+        android:layout_marginBottom="125sp" />
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:padding="@dimen/margin_m"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/controls_container"
+        android:translationZ="5dp"
+        style="@style/NonPressableStyleNoMargin">
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/continousRecognitionContainer"
+            android:visibility="gone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/margin_xs"
+
+            app:layout_constraintBottom_toTopOf="@id/sending_text_et">
+            <Switch
+                android:id="@+id/continuous_recognition_switch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/margin_m"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+
+                app:layout_constraintBottom_toBottomOf="parent"/>
+            <TextView
+                android:paddingStart="5dp"
+                android:paddingEnd="5dp"
+                android:textSize="15sp"
+                android:textColor="@color/black"
+                android:fontFamily="@font/roadrage"
+                android:textStyle="normal"
+                android:id="@+id/continuous_recognition_label"
+                android:layout_width="match_parent"
+                android:layout_marginStart="50dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toEndOf="@id/continuous_recognition_switch"
+                app:layout_constraintTop_toTopOf="@id/continuous_recognition_switch"
+                android:text="Continuous listening (Enable with Headphone only)"
+                app:layout_constraintBottom_toBottomOf="@id/continuous_recognition_switch"/>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+    <EditText
+        android:translationZ="4dp"
+        android:id="@+id/sending_text_et"
+        android:layout_width="match_parent"
+        android:layout_height="70sp"
+        android:layout_marginTop="@dimen/margin_m"
+        android:layout_marginBottom="@dimen/margin_m"
+        android:layout_marginStart="80dp"
+        android:layout_marginEnd="80dp"
+        android:lines="4"
+
+        android:minEms="8"
+        android:padding="@dimen/margin_xs"
+        android:textSize="@dimen/small_text_size"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/send_but"
+        android:background="@drawable/textboxbackground"
+        />
+        <!--        app:layout_constraintHeight_default="wrap"-->
+        <!--        app:layout_constraintVertical_weight="2"-->
+        <!--        app:layout_constraintWidth_default="spread"-->
+        <!--        android:scaleType="fitXY"-->
+    <ImageButton
+        android:translationZ="4dp"
+        android:id="@+id/send_but"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_baseline_send_50"
+        android:background="@drawable/round_button_light"
+        android:layout_margin="@dimen/margin_m"
+        android:padding="7dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/sending_text_et"
+        app:layout_constraintBottom_toBottomOf="@id/sending_text_et"
+        />
+    <ImageButton
+        android:translationZ="4dp"
+        android:id="@+id/recognize_voice_but"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_baseline_mic_50"
+        android:background="@drawable/round_button_light"
+        android:layout_margin="@dimen/margin_m"
+        android:padding="7dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/sending_text_et"
+        app:layout_constraintBottom_toBottomOf="@id/sending_text_et"/>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

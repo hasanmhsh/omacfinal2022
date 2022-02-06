@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout>
+    <data>
+        <variable
+            name="fromLanguage"
+            type="hasan.mohamed.shehata.myapplication.models.Language" />
+        <variable
+            name="toLanguage"
+            type="hasan.mohamed.shehata.myapplication.models.Language" />
+    </data>
+    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:padding="@dimen/general_text_padding"
+        tools:context=".ui.texttranslation.TextTranslationFragment">
+    
+        <TextView
+            android:visibility="gone"
+            android:id="@+id/text_translation"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:textAlignment="center"
+            android:textSize="20sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/text_translation_translate_label_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/translate_from"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            style="@style/PrimaryTextStyle"/>
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/text_translation_translate_language_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/SecondaryTextStyle"
+            app:layout_constraintStart_toEndOf="@id/text_translation_translate_label_tv"
+            app:layout_constraintTop_toTopOf="@id/text_translation_translate_label_tv"
+            app:layout_constraintBottom_toBottomOf="@id/text_translation_translate_label_tv"
+            android:text="@{fromLanguage.languageName}"/>
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/text_translation_translate_from_text_et"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:lines="6"
+            android:hint="@string/enter_text_here"
+            android:scrollbarAlwaysDrawVerticalTrack="true"
+            app:flow_wrapMode="aligned"
+            app:layout_constraintTop_toBottomOf="@id/text_translation_translate_label_tv"/>
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/text_translation_translate_from_choose_language_but"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margin_m"
+            android:layout_marginBottom="@dimen/margin_l"
+            app:layout_constraintTop_toBottomOf="@id/text_translation_translate_from_text_et"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:text="Select language"/>
+
+
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/text_translation_translate_to_label_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/translate_to"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/text_translation_translate_from_choose_language_but"
+            style="@style/PrimaryTextStyle"/>
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/text_translation_translate_to_language_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/SecondaryTextStyle"
+            app:layout_constraintStart_toEndOf="@id/text_translation_translate_to_label_tv"
+            app:layout_constraintTop_toTopOf="@id/text_translation_translate_to_label_tv"
+            app:layout_constraintBottom_toBottomOf="@id/text_translation_translate_to_label_tv"
+            android:text="@{toLanguage.languageName}"/>
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/text_translation_translate_to_text_et"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:lines="6"
+            android:hint="@string/enter_text_here"
+            android:scrollbarAlwaysDrawVerticalTrack="true"
+            app:flow_wrapMode="aligned"
+            app:layout_constraintTop_toBottomOf="@id/text_translation_translate_to_language_tv"/>
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/text_translation_translate_to_choose_language_but"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margin_m"
+            android:layout_marginBottom="@dimen/margin_l"
+            app:layout_constraintTop_toBottomOf="@id/text_translation_translate_to_text_et"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:text="Select language"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/check_model_existance_download_if_not_exist_but"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margin_m"
+            android:layout_marginBottom="@dimen/margin_l"
+            app:layout_constraintTop_toBottomOf="@id/text_translation_translate_to_choose_language_but"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:text="Check model"/>
+            
+    
+    
+    
+    
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

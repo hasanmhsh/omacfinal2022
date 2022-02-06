@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+
+    <group android:checkableBehavior="single">
+<!--        <item-->
+<!--            android:id="@+id/nav_home"-->
+<!--            android:icon="@drawable/ic_menu_camera"-->
+<!--            android:title="@string/menu_home" />-->
+        <item
+            android:id="@+id/nav_users"
+            android:icon="@drawable/ic_baseline_people_alt_24"
+            android:title="@string/calls_and_chats" />
+<!--        <item-->
+<!--            android:id="@+id/nav_messages"-->
+<!--            android:icon="@drawable/ic_menu_messages"-->
+<!--            android:title="@string/menu_slideshow" />-->
+<!--        <item-->
+<!--            android:id="@+id/textTranslationFragment"-->
+<!--            android:icon="@drawable/ic_baseline_translate_24"-->
+<!--            android:title="@string/text_translation" />-->
+
+        <item
+            android:id="@+id/translationFragment2"
+            android:icon="@drawable/ic_baseline_translate_24"
+            android:title="@string/translation" />
+
+    </group>
+
+    <group android:checkableBehavior="single">
+        <!--        <item-->
+        <!--            android:id="@+id/nav_home"-->
+        <!--            android:icon="@drawable/ic_menu_camera"-->
+        <!--            android:title="@string/menu_home" />-->
+        <item
+            android:id="@+id/nav_home"
+            android:icon="@drawable/ic_baseline_contact_support_24"
+            android:title="@string/about" />
+        <!--        <item-->
+        <!--            android:id="@+id/nav_messages"-->
+        <!--            android:icon="@drawable/ic_menu_messages"-->
+        <!--            android:title="@string/menu_slideshow" />-->
+        <!--        <item-->
+        <!--            android:id="@+id/textTranslationFragment"-->
+        <!--            android:icon="@drawable/ic_baseline_translate_24"-->
+        <!--            android:title="@string/text_translation" />-->
+
+
+
+    </group>
+</menu>

@@ -1,0 +1,675 @@
+package hasan.mohamed.shehata.myapplication.ui.messages;
+
+import android.app.Activity;
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.CompoundButton;
+import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import java.io.Closeable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import hasan.mohamed.shehata.myapplication.AppDatabase;
+import hasan.mohamed.shehata.myapplication.R;
+import hasan.mohamed.shehata.myapplication.Utils;
+import hasan.mohamed.shehata.myapplication.async.AsyncPinger;
+import hasan.mohamed.shehata.myapplication.databinding.FragmentMessagesBinding;
+import hasan.mohamed.shehata.myapplication.internet.APIClient;
+import hasan.mohamed.shehata.myapplication.languages.ASR_Enhanced;
+import hasan.mohamed.shehata.myapplication.languages.HMSTransloator;
+import hasan.mohamed.shehata.myapplication.languages.TTS;
+import hasan.mohamed.shehata.myapplication.models.ListItemBindableItemContentProvider;
+import hasan.mohamed.shehata.myapplication.models.Message;
+import hasan.mohamed.shehata.myapplication.models.UnreadReceivedMessage;
+import hasan.mohamed.shehata.myapplication.models.User;
+import hasan.mohamed.shehata.myapplication.templates.GeneralPopupWindow;
+import hasan.mohamed.shehata.myapplication.templates.GeneralRecyclerViewAdapter;
+import hasan.mohamed.shehata.myapplication.types.AsrResultCallbacks;
+import hasan.mohamed.shehata.myapplication.types.AsyncPingerProvider;
+import hasan.mohamed.shehata.myapplication.types.DownloadCallbacks;
+import hasan.mohamed.shehata.myapplication.types.FabActionType;
+import hasan.mohamed.shehata.myapplication.types.FabSource;
+import hasan.mohamed.shehata.myapplication.types.MessageFragmentReverseCallbacks;
+import hasan.mohamed.shehata.myapplication.types.NewMessagesConsumer;
+import hasan.mohamed.shehata.myapplication.types.PermissionRequestProvider;
+import hasan.mohamed.shehata.myapplication.types.SpeakerProvider;
+import hasan.mohamed.shehata.myapplication.views.MessageView;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
+public class MessageFragment extends Fragment implements SpeakerProvider, MessageFragmentReverseCallbacks {
+
+
+    public static final String BUNDLE_KEY_FOR_ME_USER = "hasan.mohamed.shehata.myapplication.MeUser";
+    public static final String BUNDLE_KEY_FOR_BUDDY_USER = "hasan.mohamed.shehata.myapplication.MyBuddyUser";
+    public static final String BUNDLE_KEY_FOR_IS_FOR_CALL = "hasan.mohamed.shehata.myapplication.BUNDLE_KEY_FOR_IS_FOR_CALL";
+    private MessageViewModel messagesViewModel;
+    private FragmentMessagesBinding binding;
+    private User buddy;
+    private User me;
+    private HMSTransloator translator;
+    private TTS tts;
+    private TTS translatedTTS;
+    private Closeable progressWindow;
+    private boolean isListeningNow = false;
+    private AsyncPinger pinger;
+    private boolean isForCall;
+    private Thread asrThread;
+    private AtomicBoolean inhibiteSendingTerminateMessageOnDestroyCallback = new AtomicBoolean(false);
+    private ASR_Enhanced asr;
+    private AsrResultCallbacks asrResultCallbacks = new AsrResultCallbacks() {
+        @Override
+        public void voiceRecognized(String result) {
+            if(isForCall){
+                if(binding!=null)
+                    if(binding.sendingTextEt !=null){
+                        binding.sendingTextEt.getText().clear();
+                    }
+                sendMessageFromString(result);
+            }
+        }
+
+        @Override
+        public void partialVoiceRecognized(String partialResult) {
+            // Already shown bu ASR_Enhanced
+        }
+    };
+    // Hypothis is the text which is recognized from speech
+
+
+    public void say(Message message , boolean isTranslatedTextShown){
+        String ttsText = "";
+        boolean isToUseTranslatedTTS = false;
+//        isToUseTranslatedTTS = isTranslatedTextShown;   //debug
+        if(isTranslatedTextShown){
+            if(message.getSenderid() == me.getUserid()) {
+                isToUseTranslatedTTS = true;
+                ttsText = message.getMessagetranslatedtext();
+//                if (translatedTTS != null) {
+//                    if (buddy.getUserlanguage() == Language.Arabic) {
+//                        ttsText = message.getMessagemoshakkaltext();
+//                    } else {
+//                        ttsText = message.getMessagetranslatedtext();
+//                    }
+//                }
+            }
+            else{
+                isToUseTranslatedTTS = false;
+                ttsText = message.getMessagetranslatedtext();
+//                if (translatedTTS != null) {
+//                    if (me.getUserlanguage() == Language.Arabic) {
+//                        ttsText = message.getMessagemoshakkaltext();
+//                    } else {
+//                        ttsText = message.getMessagetranslatedtext();
+//                    }
+//                }
+            }
+        }
+        else{
+            if(message.getSenderid() == me.getUserid()) {
+                isToUseTranslatedTTS = false;
+                ttsText = message.getMessagetext();
+//                if (translatedTTS != null) {
+//                    if (me.getUserlanguage() == Language.Arabic) {
+//                        ttsText = message.getMessagemoshakkaltext();
+//                    } else {
+//                        ttsText = message.getMessagetext();
+//                    }
+//                }
+            }
+            else{
+                isToUseTranslatedTTS = true;
+                ttsText = message.getMessagetext();
+//                if (translatedTTS != null) {
+//                    if (buddy.getUserlanguage() == Language.Arabic) {
+//                        ttsText = message.getMessagemoshakkaltext();
+//                    } else {
+//                        ttsText = message.getMessagetext();
+//                    }
+//                }
+            }
+        }
+
+        if(isToUseTranslatedTTS){
+            if(translatedTTS != null) {
+                translatedTTS.speak(ttsText);
+//                translatedTTS.speak(message.getMessagetranslatedtext());
+            }
+        }
+        else{
+            if(tts != null) {
+                tts.speak(ttsText);
+//                translatedTTS.speak(message.getMessagetext());
+            }
+        }
+    }
+
+    private void makeTTS(){
+        if(tts != null)
+            tts.release();
+        tts = new TTS(getContext(), me.getUserlanguage());
+        if(translatedTTS != null)
+            translatedTTS.release();
+        translatedTTS = new TTS(getContext(), buddy.getUserlanguage());
+    }
+
+
+    private void openProgressWindow(String title){
+        closeProgressWindow();
+        progressWindow = GeneralPopupWindow.makeProgressWindow(getContext(), title, false);
+    }
+    private void closeProgressWindow(){
+        if(progressWindow != null){
+            try{
+                progressWindow.close();
+            }
+            catch(Exception e){
+            }
+        }
+    }
+
+//    public MessageFragment(User buddy) {
+//        super();
+//        this.buddy = buddy;
+//    }
+
+    public View onCreateView(@NonNull LayoutInflater inflater,
+                             ViewGroup container, Bundle savedInstanceState) {
+
+        messagesViewModel =
+                new ViewModelProvider(this).get(MessageViewModel.class);
+        if(getArguments().containsKey(BUNDLE_KEY_FOR_ME_USER)) {
+            me = (User) getArguments().getSerializable(BUNDLE_KEY_FOR_ME_USER);
+            messagesViewModel.getMeLiveData().setValue(me);
+        }
+        if(getArguments().containsKey(BUNDLE_KEY_FOR_BUDDY_USER)) {
+            buddy = (User) getArguments().getSerializable(BUNDLE_KEY_FOR_BUDDY_USER);
+            messagesViewModel.getBuddyLiveData().setValue(buddy);
+        }
+        if(getArguments().containsKey(BUNDLE_KEY_FOR_IS_FOR_CALL)){
+            isForCall = getArguments().getBoolean(BUNDLE_KEY_FOR_IS_FOR_CALL);
+            messagesViewModel.getIsForCall().setValue(isForCall);
+        }
+
+
+
+        binding = FragmentMessagesBinding.inflate(inflater, container, false);
+        View root = binding.getRoot();
+        binding.setUser(new User());
+
+//        messagesViewModel.getBuddyLiveData().observe(getViewLifecycleOwner(), new Observer<User>() {
+//            @Override
+//            public void onChanged(User user) {
+//                buddy = user;
+//                AppDatabase.getUserDao().loadUser(Utils.getUserID(getContext())).observe(getViewLifecycleOwner(), new Observer<User>() {
+//                    @Override
+//                    public void onChanged(User user) {
+//                        me = user;
+//                        binding.textMessages.setText(buddy.getUsername());
+//                        messagesViewModel.getMeLiveData().setValue(me);
+//                        makeASR();
+//                        makeTTS();
+//                        // Prepare Translation Model
+//                        if(user.getUserlanguage() != null && buddy.getUserlanguage() != null) {
+//                            if (user.getUserlanguage() != buddy.getUserlanguage()) {
+//                                translator = new HMSTransloator(getContext(), me.getUserlanguage(), buddy.getUserlanguage(), null, null, null, null, new DownloadCallbacks() {
+//                                    @Override
+//                                    public void downloadCompleted() {
+//                                        getDatasetFromDB();
+//                                    }
+//                                }, false);
+//                            } else {
+//                                getDatasetFromDB();
+//                            }
+//                        }
+//                    }
+//                });
+//            }
+//        });
+//
+//        if(isForCall && false){
+//            binding.sendingTextEt.setVisibility(View.GONE);
+//            binding.recognizeVoiceBut.setVisibility(View.GONE);
+//            binding.sendBut.setVisibility(View.GONE);
+//            binding.controlsContainer.setVisibility(View.GONE);
+//        }
+//
+//        final TextView textView = binding.textMessages;
+//        messagesViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {
+//            @Override
+//            public void onChanged(@Nullable String s) {
+////                textView.setText(s);
+//            }
+//        });
+//
+//        messagesViewModel.getMutableLiveData().observe(getViewLifecycleOwner(), new Observer<List<ListItemBindableItemContentProvider>>() {
+//            @Override
+//            public void onChanged(List<ListItemBindableItemContentProvider> listItemBindableItemContentProviders) {
+////                initList(listItemBindableItemContentProviders);
+//            }
+//        });
+//
+//        messagesViewModel.getTextInSendBox().observe(getViewLifecycleOwner(), new Observer<String>() {
+//            @Override
+//            public void onChanged(String s) {
+//                binding.sendingTextEt.setText(s);
+//            }
+//        });
+//
+//        messagesViewModel.getIsForCall().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+//            @Override
+//            public void onChanged(Boolean aBoolean) {
+//                isForCall = aBoolean;
+//            }
+//        });
+//
+//        binding.sendBut.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                sendMessageFromString(binding.sendingTextEt.getText().toString());
+////                final Message newMessage = new Message();
+////                newMessage.setSenderid(me.getUserid());
+////                newMessage.setReceiverid(buddy.getUserid());
+////                newMessage.setMessagetext(binding.sendingTextEt.getText().toString());
+////                newMessage.setIsToShowTranslatedText(true);
+////                if(buddy.getUserlanguage() != me.getUserlanguage()){
+////                    translator.translateMessageAsync(newMessage, new NewMessagesConsumer() {
+////                        @Override
+////                        public void newMessage(long senderUserId, Message message) {
+////                            // Not implemented
+////                        }
+////
+////                        @Override
+////                        public void sendAndSaveThisMessage(final Message message) {
+////                            shakkelha(message);
+////                        }
+////                    });
+////                }
+////                else{
+////                    newMessage.setMessagetranslatedtext(newMessage.getMessagetext());
+////                    shakkelha(newMessage);
+////                }
+//            }
+//        });
+//
+//
+//        pinger = ((AsyncPingerProvider)getActivity()).getCurrentPinger();
+
+
+
+        return root;
+    }
+
+
+
+    private void sendMessage(Message message) {
+        final GeneralRecyclerViewAdapter<MessageView> adapter = (GeneralRecyclerViewAdapter<MessageView>) binding.fragmentRecyclerView.getAdapter();
+        APIClient.getAPIInterface(getContext()).createNewMessage(message).enqueue(new Callback<Message>() {
+            @Override
+            public void onResponse(Call<Message> call, Response<Message> response) {
+                if(response.isSuccessful()){
+                    final Message msg = response.body();
+                    msg.setIsToShowTranslatedText(false);
+                    if(adapter != null){
+                        adapter.newMessage(me.getUserid(),msg);
+                    }
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if(!checkIfControlMessage(msg))
+                                AppDatabase.getMessageDao().insertAll(msg);
+                        }
+                    }).start();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Message> call, Throwable t) {
+                call.cancel();
+            }
+        });
+
+    }
+
+    private void sendMessageFromString(String string){
+        final Message newMessage = new Message();
+        newMessage.setSenderid(me.getUserid());
+        newMessage.setReceiverid(buddy.getUserid());
+        newMessage.setMessagetext(string);
+        newMessage.setIsToShowTranslatedText(false);
+        if(buddy.getUserlanguage() != me.getUserlanguage()){
+            translator.translateMessageAsync(newMessage, new NewMessagesConsumer() {
+                @Override
+                public void newMessage(long senderUserId, Message message) {
+                    // Not implemented
+                }
+
+                @Override
+                public void sendAndSaveThisMessage(final Message message) {
+                    message.setIsToShowTranslatedText(false);
+                    shakkelha(message);
+                }
+            });
+        }
+        else{
+            newMessage.setMessagetranslatedtext(newMessage.getMessagetext());
+            shakkelha(newMessage);
+        }
+    }
+
+    private void shakkelha(final Message message){
+
+        sendMessage(message);
+
+
+
+
+
+//        String textToTashkeel = null;
+//        if(me.getUserlanguage() == Language.Arabic){
+//            textToTashkeel = message.getMessagetext();
+//        }
+//        else if(buddy.getUserlanguage() == Language.Arabic){
+//            textToTashkeel = message.getMessagetranslatedtext();
+//        }
+//        if(textToTashkeel != null) {
+//            APIClient.getAPIInterface().shakkel(new Moshakkal(textToTashkeel)).enqueue(new Provider<MoshakkalResult>() {
+//                @Override
+//                public void onResponse(Call<MoshakkalResult> call, Response<MoshakkalResult> response) {
+//                    if(response.isSuccessful()){
+//                        message.setMessagemoshakkaltext(response.body().getMoshakkalText());
+//                        sendMessage(message);
+//                    }
+//                }
+//
+//                @Override
+//                public void onFailure(Call<MoshakkalResult> call, Throwable t) {
+//                    call.cancel();
+//                }
+//            });
+//        }
+//        else{
+//            sendMessage(message);
+//        }
+    }
+
+    private boolean checkIfControlMessage(Message message) {
+        String control = message.getMessagemoshakkaltext();
+        if(control != null){
+            if(control.equals("Calling") ||control.equals("Accept") || control.equals("Busy") || control.equals("Terminate"))
+                return true;
+        }
+        return false;
+    }
+
+    private void getDatasetFromDB() {
+//        if(getContext() != null) {
+            AppDatabase.getMessageDao().getMyMessages(Utils.getUserID(getContext()), buddy.getUserid()).observe(getActivity(), new Observer<List<Message>>() {
+                @Override
+                public void onChanged(List<Message> messages) {
+                    List<ListItemBindableItemContentProvider> list = new ArrayList<>();
+                    if (messages != null) {
+
+//                    list = new ArrayList<>(messages);
+                        for (Message msg : messages) {
+                            if (!checkIfControlMessage(msg)) {
+                                list.add(msg);
+                            }
+                        }
+                    }
+                    initList(list);
+
+                }
+            });
+//        }
+    }
+
+    private void makeASR() {
+        asr = new ASR_Enhanced(
+                getActivity(),
+                (PermissionRequestProvider) getActivity(),
+                me.getUserlanguage(),
+                binding.recognizeVoiceBut,
+                R.drawable.ic_baseline_mic_50,
+                R.drawable.ic_baseline_mic_off_50,
+                binding.sendingTextEt,
+                asrResultCallbacks
+                );
+    }
+
+    private void initList(List<ListItemBindableItemContentProvider> listItemBindableItemContentProviders) {
+        if(binding == null || binding.fragmentRecyclerView == null)
+            return;
+        GeneralRecyclerViewAdapter<MessageView> adapter = new GeneralRecyclerViewAdapter<MessageView>(getContext(), listItemBindableItemContentProviders, null, MessageView.class, FabActionType.None,null, buddy,this,binding.fragmentRecyclerView,me);
+        binding.fragmentRecyclerView.setAdapter(adapter);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        binding.fragmentRecyclerView.setHasFixedSize(false);
+        // use a linear layout manager
+        LinearLayoutManager layoutManager = new LinearLayoutManager(getContext(), RecyclerView.VERTICAL, false);
+        binding.fragmentRecyclerView.setLayoutManager(layoutManager);
+        clearUnreadFlags();
+
+        messagesViewModel.getBuddyLiveData().observe(getViewLifecycleOwner(), new Observer<User>() {
+            @Override
+            public void onChanged(User user) {
+                buddy = user;
+                AppDatabase.getUserDao().loadUser(Utils.getUserID(getContext())).observe(getViewLifecycleOwner(), new Observer<User>() {
+                    @Override
+                    public void onChanged(User user) {
+                        me = user;
+                        binding.setUser(buddy);
+                        binding.getUser().drawLogo(binding.headerMyMsgImageView);
+                        messagesViewModel.getMeLiveData().setValue(me);
+                        makeASR();
+                        makeTTS();
+                        // Prepare Translation Model
+                        if(user.getUserlanguage() != null && buddy.getUserlanguage() != null) {
+                            if (user.getUserlanguage() != buddy.getUserlanguage()) {
+                                translator = new HMSTransloator(getContext(), me.getUserlanguage(), buddy.getUserlanguage(), null, null, null, null, new DownloadCallbacks() {
+                                    @Override
+                                    public void downloadCompleted() {
+//                                        getDatasetFromDB();
+                                    }
+                                }, false);
+                            } else {
+//                                getDatasetFromDB();
+                            }
+                        }
+                    }
+                });
+            }
+        });
+
+        if(isForCall && false){
+            binding.sendingTextEt.setVisibility(View.GONE);
+            binding.recognizeVoiceBut.setVisibility(View.GONE);
+            binding.sendBut.setVisibility(View.GONE);
+            binding.controlsContainer.setVisibility(View.GONE);
+        }
+
+//        final TextView textView = binding.textMessages;
+        messagesViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {
+            @Override
+            public void onChanged(@Nullable String s) {
+//                textView.setText(s);
+            }
+        });
+
+        messagesViewModel.getMutableLiveData().observe(getViewLifecycleOwner(), new Observer<List<ListItemBindableItemContentProvider>>() {
+            @Override
+            public void onChanged(List<ListItemBindableItemContentProvider> listItemBindableItemContentProviders) {
+//                initList(listItemBindableItemContentProviders);
+            }
+        });
+
+        messagesViewModel.getTextInSendBox().observe(getViewLifecycleOwner(), new Observer<String>() {
+            @Override
+            public void onChanged(String s) {
+                binding.sendingTextEt.setText(s);
+            }
+        });
+
+        messagesViewModel.getIsForCall().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean aBoolean) {
+                isForCall = aBoolean;
+            }
+        });
+
+        binding.sendBut.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                sendMessageFromString(binding.sendingTextEt.getText().toString());
+                binding.sendingTextEt.getText().clear();
+//                final Message newMessage = new Message();
+//                newMessage.setSenderid(me.getUserid());
+//                newMessage.setReceiverid(buddy.getUserid());
+//                newMessage.setMessagetext(binding.sendingTextEt.getText().toString());
+//                newMessage.setIsToShowTranslatedText(true);
+//                if(buddy.getUserlanguage() != me.getUserlanguage()){
+//                    translator.translateMessageAsync(newMessage, new NewMessagesConsumer() {
+//                        @Override
+//                        public void newMessage(long senderUserId, Message message) {
+//                            // Not implemented
+//                        }
+//
+//                        @Override
+//                        public void sendAndSaveThisMessage(final Message message) {
+//                            shakkelha(message);
+//                        }
+//                    });
+//                }
+//                else{
+//                    newMessage.setMessagetranslatedtext(newMessage.getMessagetext());
+//                    shakkelha(newMessage);
+//                }
+            }
+        });
+
+        getDatasetFromDB();
+
+        pinger = ((AsyncPingerProvider)getActivity()).getCurrentPinger();
+
+        binding.continuousRecognitionSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                asr.setContinuousRecognition(b);
+            }
+        });
+        if(isForCall){
+            binding.continousRecognitionContainer.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void clearUnreadFlags() {
+        final long id = buddy.getID();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                AppDatabase.getUnreadReceivedMessageNotificationDao().deleteSenderUnreadNotifications(id);
+                List<UnreadReceivedMessage> list = AppDatabase.getUnreadReceivedMessageNotificationDao().getAll();
+                if(pinger!=null)
+                    pinger.notifyUnreadItemsDatabaseUpdated();
+                if(Utils.getGlobalPinger() != null)
+                    Utils.getGlobalPinger().notifyUnreadItemsDatabaseUpdated();
+            }
+        }).start();
+    }
+
+    @Override
+    public void onDestroyView() {
+
+//        ((AsyncPingerProvider)getActivity()).getCurrentPinger().releaseStatus();
+        super.onDestroyView();
+        if(isForCall && !inhibiteSendingTerminateMessageOnDestroyCallback.get()) {
+            pinger.sendTerminateMessage();
+            pinger.setFreeStatus();
+        }
+        messagesViewModel.getTextInSendBox().setValue(binding.sendingTextEt.getText().toString());
+        try {
+            GeneralRecyclerViewAdapter adapter = ((GeneralRecyclerViewAdapter) binding.fragmentRecyclerView.getAdapter());
+            if (adapter != null) {
+                adapter.release();
+                messagesViewModel.getMutableLiveData().setValue(adapter.getDataset());
+            }
+        }
+        catch (Exception e){e.printStackTrace();}
+        binding = null;
+        AsyncPinger currentPinger = ((AsyncPingerProvider)getActivity()).getCurrentPinger();
+        if(currentPinger != null)
+            currentPinger.setNormalRate();
+        if(asr != null)
+            asr.release();
+        if(tts != null)
+            tts.release();
+        if(translatedTTS != null)
+            translatedTTS.release();
+        clearUnreadFlags();
+        try{asrThread.interrupt();}catch(Exception e){e.printStackTrace();}
+        try{asrThread.interrupt();}catch(Exception e){e.printStackTrace();}
+        try{asrThread.interrupt();}catch(Exception e){e.printStackTrace();}
+        try{asrThread.interrupt();}catch(Exception e){e.printStackTrace();}
+        try{asrThread.interrupt();}catch(Exception e){e.printStackTrace();}
+        try{asrThread.interrupt();}catch(Exception e){e.printStackTrace();}
+        try{asrThread.interrupt();}catch(Exception e){e.printStackTrace();}
+        try{asrThread.interrupt();}catch(Exception e){e.printStackTrace();}
+
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+//        ((FabSource)getActivity()).refreshFab();
+        if(buddy != null){
+            ((Activity)getActivity()).setTitle(buddy.getUsername());
+        }
+        ((FabSource)getActivity()).disableFab();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        try {
+            GeneralRecyclerViewAdapter adapter = ((GeneralRecyclerViewAdapter) binding.fragmentRecyclerView.getAdapter());
+            if (adapter != null) {
+//                adapter.release();
+                messagesViewModel.getMutableLiveData().setValue(adapter.getDataset());
+            }
+        }
+        catch (Exception e){e.printStackTrace();}
+
+    }
+
+    @Override
+    public void speak(Message message) {
+        say(message, message.getIsToShowTranslatedText());
+    }
+
+    @Override
+    public boolean isForCall() {
+        return isForCall;
+    }
+
+    @Override
+    public void pleaseMessageFragmentDontSendTerminateMessageAtOnDestroyCallbackBecauseIWillDoInAsyncPinger() {
+        inhibiteSendingTerminateMessageOnDestroyCallback.set(true);
+    }
+}
