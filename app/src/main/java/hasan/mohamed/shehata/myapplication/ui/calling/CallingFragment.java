@@ -20,6 +20,7 @@ import android.view.WindowManager;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import hasan.mohamed.shehata.myapplication.TranslationMainActivity;
 import hasan.mohamed.shehata.myapplication.Utils;
 import hasan.mohamed.shehata.myapplication.databinding.FragmentCallingBinding;
 import hasan.mohamed.shehata.myapplication.models.User;
@@ -49,7 +50,13 @@ public class CallingFragment extends Fragment implements CallDialogReverseCallba
     private boolean isReceivingCall;
     private AtomicBoolean isToCallRejectInDestroy = new AtomicBoolean(true);
 
+    @Override
+    public void onResume() {
+        super.onResume();
 
+        // This is to hide nav bar
+        ((TranslationMainActivity)getActivity()).resetUIStateDelayed();
+    }
 
     private FragmentCallingBinding binding;
 
@@ -73,10 +80,12 @@ public class CallingFragment extends Fragment implements CallDialogReverseCallba
 
         binding = FragmentCallingBinding.inflate(inflater, container, false);
 
-        if(caller != null)
+        if(caller != null) {
             binding.setUser(caller);
+        }
         else
             binding.setUser(new User());
+
 
         isToCallRejectInDestroy.set(true);
 
@@ -118,13 +127,19 @@ public class CallingFragment extends Fragment implements CallDialogReverseCallba
 
     private void prepareViewForCallReceptionOrCalling(){
         if(isReceivingCall){
-            binding.callWindowLabel.setText("Received call from");
+            binding.callWindowLabel.setText("Incoming call");
             binding.respondBut.setVisibility(View.VISIBLE);
         }
         else{
 
-            binding.callWindowLabel.setText("Calling.....");
+            binding.callWindowLabel.setText("Outgoing call");
             binding.respondBut.setVisibility(View.GONE);
+        }
+
+        if(caller != null) {
+            User user = new User();
+            user.setUserid(caller.getUserid());
+            user.drawCircularLogoWithActivity(binding.userImageCallingFragment, (TranslationMainActivity)getActivity());
         }
     }
 

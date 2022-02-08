@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -44,6 +45,7 @@ public class UsersFragment extends Fragment implements TranslationMainActivity.M
         binding = FragmentUsersBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
+        getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
         binding.setUser(new User());
 
         final TextView textView = binding.usersTitle;
@@ -137,6 +139,9 @@ public class UsersFragment extends Fragment implements TranslationMainActivity.M
             if (binding.mainContainer != null && binding.mainContainer.getVisibility() != View.GONE)
                 binding.mainContainer.setVisibility(View.GONE);
         }
+
+        // This is to hide nav bar
+        ((TranslationMainActivity)getActivity()).resetUIStateDelayed();
     }
 
     @Override

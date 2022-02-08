@@ -3,7 +3,45 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/Hasan/AndroidStudioProjects/myapplication/app/src/main/res/drawable/box_backround_blue_rounded.xml" value="0.196" />
+        <entry key="..\:/Users/Hasan/AndroidStudioProjects/myapplication/app/src/main/res/drawable/buddy_message_pressable_background.xml" value="0.196" />
+        <entry key="..\:/Users/Hasan/AndroidStudioProjects/myapplication/app/src/main/res/drawable/buddy_message_pressable_background_pressed.xml" value="0.196" />
+        <entry key="..\:/Users/Hasan/AndroidStudioProjects/myapplication/app/src/main/res/drawable/buddy_message_pressable_background_released.xml" value="0.196" />
+        <entry key="..\:/Users/Hasan/AndroidStudioProjects/myapplication/app/src/main/res/drawable/chat_background_tiles.xml" value="0.196" />
+        <entry key="..\:/Users/Hasan/AndroidStudioProjects/myapplication/app/src/main/res/drawable/circle_calling_fragment.xml" value="0.1965" />
+        <entry key="..\:/Users/Hasan/AndroidStudioProjects/myapplication/app/src/main/res/drawable/circular_green_solid_background_button.xml" value="0.1965" />
+        <entry key="..\:/Users/Hasan/AndroidStudioProjects/myapplication/app/src/main/res/drawable/circular_green_solid_background_button_pressed.xml" value="0.22" />
+        <entry key="..\:/Users/Hasan/AndroidStudioProjects/myapplication/app/src/main/res/drawable/circular_green_solid_background_button_released.xml" value="0.22" />
+        <entry key="..\:/Users/Hasan/AndroidStudioProjects/myapplication/app/src/main/res/drawable/circular_notification_red_background.xml" value="0.22" />
+        <entry key="..\:/Users/Hasan/AndroidStudioProjects/myapplication/app/src/main/res/drawable/circular_red_solid_background_button.xml" value="0.22" />
+        <entry key="..\:/Users/Hasan/AndroidStudioProjects/myapplication/app/src/main/res/drawable/circular_red_solid_background_button_pressed.xml" value="0.22" />
+        <entry key="..\:/Users/Hasan/AndroidStudioProjects/myapplication/app/src/main/res/drawable/circular_red_solid_background_button_released.xml" value="0.22" />
+        <entry key="..\:/Users/Hasan/AndroidStudioProjects/myapplication/app/src/main/res/drawable/ic_baseline_call_24.xml" value="0.196" />
+        <entry key="..\:/Users/Hasan/AndroidStudioProjects/myapplication/app/src/main/res/drawable/ic_baseline_call_end_24.xml" value="0.196" />
+        <entry key="..\:/Users/Hasan/AndroidStudioProjects/myapplication/app/src/main/res/drawable/ic_baseline_call_end_60.xml" value="0.196" />
+        <entry key="..\:/Users/Hasan/AndroidStudioProjects/myapplication/app/src/main/res/drawable/ic_baseline_close_24.xml" value="0.196" />
+        <entry key="..\:/Users/Hasan/AndroidStudioProjects/myapplication/app/src/main/res/drawable/ic_baseline_cloud_download_24.xml" value="0.196" />
+        <entry key="..\:/Users/Hasan/AndroidStudioProjects/myapplication/app/src/main/res/drawable/ic_baseline_contact_support_24.xml" value="0.196" />
+        <entry key="..\:/Users/Hasan/AndroidStudioProjects/myapplication/app/src/main/res/drawable/ic_baseline_delete_forever_24.xml" value="0.196" />
+        <entry key="..\:/Users/Hasan/AndroidStudioProjects/myapplication/app/src/main/res/drawable/ic_baseline_g_translate_24.xml" value="0.196" />
+        <entry key="..\:/Users/Hasan/AndroidStudioProjects/myapplication/app/src/main/res/drawable/ic_baseline_language_24.xml" value="0.196" />
+        <entry key="..\:/Users/Hasan/AndroidStudioProjects/myapplication/app/src/main/res/drawable/ic_baseline_message_24.xml" value="0.196" />
+        <entry key="..\:/Users/Hasan/AndroidStudioProjects/myapplication/app/src/main/res/drawable/ic_baseline_mic_24.xml" value="0.196" />
+        <entry key="..\:/Users/Hasan/AndroidStudioProjects/myapplication/app/src/main/res/drawable/ic_baseline_mic_50.xml" value="0.196" />
+        <entry key="..\:/Users/Hasan/AndroidStudioProjects/myapplication/app/src/main/res/drawable/ic_baseline_mic_off_50.xml" value="0.196" />
+        <entry key="..\:/Users/Hasan/AndroidStudioProjects/myapplication/app/src/main/res/drawable/ic_baseline_people_alt_24.xml" value="0.196" />
+        <entry key="..\:/Users/Hasan/AndroidStudioProjects/myapplication/app/src/main/res/drawable/ic_baseline_person_110.xml" value="0.196" />
+        <entry key="..\:/Users/Hasan/AndroidStudioProjects/myapplication/app/src/main/res/drawable/ic_baseline_person_144.xml" value="0.196" />
+        <entry key="..\:/Users/Hasan/AndroidStudioProjects/myapplication/app/src/main/res/drawable/ic_baseline_person_60.xml" value="0.196" />
+        <entry key="..\:/Users/Hasan/AndroidStudioProjects/myapplication/app/src/main/res/drawable/ic_baseline_person_72.xml" value="0.196" />
+        <entry key="..\:/Users/Hasan/AndroidStudioProjects/myapplication/app/src/main/res/drawable/ic_baseline_person_72_green.xml" value="0.196" />
+        <entry key="..\:/Users/Hasan/AndroidStudioProjects/myapplication/app/src/main/res/drawable/ic_baseline_phone_60.xml" value="0.196" />
+        <entry key="..\:/Users/Hasan/AndroidStudioProjects/myapplication/app/src/main/res/drawable/ic_baseline_phone_missed_24.xml" value="0.196" />
+        <entry key="..\:/Users/Hasan/AndroidStudioProjects/myapplication/app/src/main/res/drawable/ic_baseline_send_50.xml" value="0.196" />
         <entry key="..\:/Users/Hasan/AndroidStudioProjects/myapplication/app/src/main/res/drawable/item_background.xml" value="0.196" />
+        <entry key="..\:/Users/Hasan/AndroidStudioProjects/myapplication/app/src/main/res/drawable/my_message_pressable_background.xml" value="0.196" />
+        <entry key="..\:/Users/Hasan/AndroidStudioProjects/myapplication/app/src/main/res/drawable/my_message_pressable_background_pressed.xml" value="0.196" />
+        <entry key="..\:/Users/Hasan/AndroidStudioProjects/myapplication/app/src/main/res/drawable/my_message_pressable_background_released.xml" value="0.196" />
         <entry key="..\:/Users/Hasan/AndroidStudioProjects/myapplication/app/src/main/res/drawable/my_user_header_background.xml" value="0.1965" />
         <entry key="..\:/Users/Hasan/AndroidStudioProjects/myapplication/app/src/main/res/drawable/pressable_background.xml" value="0.1965" />
         <entry key="..\:/Users/Hasan/AndroidStudioProjects/myapplication/app/src/main/res/drawable/pressable_background_night.xml" value="0.1965" />
@@ -11,24 +49,33 @@
         <entry key="..\:/Users/Hasan/AndroidStudioProjects/myapplication/app/src/main/res/drawable/pressable_background_released.xml" value="0.1965" />
         <entry key="..\:/Users/Hasan/AndroidStudioProjects/myapplication/app/src/main/res/drawable/round_button_light.xml" value="0.196" />
         <entry key="..\:/Users/Hasan/AndroidStudioProjects/myapplication/app/src/main/res/drawable/round_button_released_light.xml" value="0.196" />
+        <entry key="..\:/Users/Hasan/AndroidStudioProjects/myapplication/app/src/main/res/drawable/round_red_button_pressed_light.xml" value="0.1965" />
+        <entry key="..\:/Users/Hasan/AndroidStudioProjects/myapplication/app/src/main/res/drawable/round_red_button_released_light.xml" value="0.1965" />
+        <entry key="..\:/Users/Hasan/AndroidStudioProjects/myapplication/app/src/main/res/drawable/signin_signup_button_background_pressed.xml" value="0.196" />
+        <entry key="..\:/Users/Hasan/AndroidStudioProjects/myapplication/app/src/main/res/drawable/signin_signup_button_background_released.xml" value="0.196" />
+        <entry key="..\:/Users/Hasan/AndroidStudioProjects/myapplication/app/src/main/res/drawable/signup_button_background_pressed.xml" value="0.196" />
+        <entry key="..\:/Users/Hasan/AndroidStudioProjects/myapplication/app/src/main/res/drawable/signup_button_background_released.xml" value="0.196" />
         <entry key="..\:/Users/Hasan/AndroidStudioProjects/myapplication/app/src/main/res/drawable/transparent_button_background.xml" value="0.1965" />
         <entry key="..\:/Users/Hasan/AndroidStudioProjects/myapplication/app/src/main/res/drawable/transparent_button_background_pressed.xml" value="0.1965" />
         <entry key="..\:/Users/Hasan/AndroidStudioProjects/myapplication/app/src/main/res/drawable/user_item_background.xml" value="0.1965" />
+        <entry key="..\:/Users/Hasan/AndroidStudioProjects/myapplication/app/src/main/res/drawable/white_upper_rounded_background.xml" value="0.1595" />
         <entry key="..\:/Users/Hasan/AndroidStudioProjects/myapplication/app/src/main/res/font/helvetica.xml" value="0.21875" />
         <entry key="..\:/Users/Hasan/AndroidStudioProjects/myapplication/app/src/main/res/font/helveticabold.xml" value="0.21875" />
         <entry key="..\:/Users/Hasan/AndroidStudioProjects/myapplication/app/src/main/res/font/nunito.xml" value="0.21875" />
         <entry key="..\:/Users/Hasan/AndroidStudioProjects/myapplication/app/src/main/res/layout/activity_translation_main.xml" value="0.1" />
+        <entry key="..\:/Users/Hasan/AndroidStudioProjects/myapplication/app/src/main/res/layout/app_bar_translation_main.xml" value="0.21302083333333333" />
         <entry key="..\:/Users/Hasan/AndroidStudioProjects/myapplication/app/src/main/res/layout/fragment_calling.xml" value="0.16302083333333334" />
         <entry key="..\:/Users/Hasan/AndroidStudioProjects/myapplication/app/src/main/res/layout/fragment_download.xml" value="0.16302083333333334" />
         <entry key="..\:/Users/Hasan/AndroidStudioProjects/myapplication/app/src/main/res/layout/fragment_home.xml" value="0.16302083333333334" />
         <entry key="..\:/Users/Hasan/AndroidStudioProjects/myapplication/app/src/main/res/layout/fragment_login.xml" value="0.18854166666666666" />
         <entry key="..\:/Users/Hasan/AndroidStudioProjects/myapplication/app/src/main/res/layout/fragment_messages.xml" value="0.18802083333333333" />
         <entry key="..\:/Users/Hasan/AndroidStudioProjects/myapplication/app/src/main/res/layout/fragment_splash.xml" value="0.16302083333333334" />
-        <entry key="..\:/Users/Hasan/AndroidStudioProjects/myapplication/app/src/main/res/layout/fragment_splash2.xml" value="0.16458333333333333" />
+        <entry key="..\:/Users/Hasan/AndroidStudioProjects/myapplication/app/src/main/res/layout/fragment_splash2.xml" value="0.18" />
         <entry key="..\:/Users/Hasan/AndroidStudioProjects/myapplication/app/src/main/res/layout/fragment_users.xml" value="0.16458333333333333" />
         <entry key="..\:/Users/Hasan/AndroidStudioProjects/myapplication/app/src/main/res/layout/general_list_view_layout.xml" value="0.18854166666666666" />
         <entry key="..\:/Users/Hasan/AndroidStudioProjects/myapplication/app/src/main/res/layout/layout_download_window.xml" value="0.67" />
         <entry key="..\:/Users/Hasan/AndroidStudioProjects/myapplication/app/src/main/res/layout/message_item_layout.xml" value="0.37604166666666666" />
+        <entry key="..\:/Users/Hasan/AndroidStudioProjects/myapplication/app/src/main/res/layout/sign_up_in_layout.xml" value="0.21302083333333333" />
         <entry key="..\:/Users/Hasan/AndroidStudioProjects/myapplication/app/src/main/res/layout/users_list_item_layout.xml" value="0.18854166666666666" />
       </map>
     </option>

@@ -1,6 +1,8 @@
 package hasan.mohamed.shehata.myapplication;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.Matrix;
 import android.media.MediaPlayer;
 import android.net.ConnectivityManager;
 import android.net.NetworkCapabilities;
@@ -333,6 +335,15 @@ public class Utils {
         });
     }
 
+    public static Bitmap AngleBitmapRotation(double ang, Bitmap bm)
+    {
+        Matrix m = new Matrix();
+        m.postRotate((float) ang);
+        Bitmap newbm = Bitmap.createBitmap(bm, 0, 0, bm.getWidth(), bm.getHeight(), m, true);
+        return newbm;
+    }
+
+
     public static void changeUser(Context context){
 
     }
@@ -341,5 +352,9 @@ public class Utils {
 
     // This key for Text To Speech Service API only
     public static final String currentGoogleCloudAccessToken = "AIzaSyCSp1FCBvdUzvcoNXd3urnu9uOOVtS4ezI";
+
+
+
+
 
 }

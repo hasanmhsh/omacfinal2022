@@ -82,7 +82,16 @@ public class MessageView  extends FrameLayout implements BindableItem {
             }
         });
 
-        binding.messageTtsBut.setOnClickListener(new View.OnClickListener() {
+//        binding.messageTtsBut.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                // Start tts
+////                Toast.makeText(getContext() , binding.getMessage().getMessagetext(), Toast.LENGTH_SHORT).show();
+//                selectionReceiver.provideSpeaker().speak(binding.getMessage());
+//            }
+//        });
+
+        binding.messageViewContainer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 // Start tts
@@ -152,9 +161,22 @@ public class MessageView  extends FrameLayout implements BindableItem {
 
         if(msg.getSenderid() == myID){
             // Iam sender
+            binding.buddyMsgLogo.setVisibility(GONE);
+            binding.buddyMsgTriangle.setVisibility(GONE);
+            binding.myMsgLogo.setVisibility(VISIBLE);
+            binding.myMsgTriangle.setVisibility(VISIBLE);
+            binding.messageViewContainer.setBackgroundResource(R.drawable.my_message_pressable_background);
+            binding.senderNameTv.setTextColor(getResources().getColor(R.color.my_message_text_color));
+            binding.textOfMessageTv.setTextColor(getResources().getColor(R.color.my_message_text_color));
+            binding.senderNameTv.setTextColor(getResources().getColor(R.color.my_message_label_text_color));
+            final User me = new User();
+            me.setUserid(myID);
+            me.drawCircularLogo(binding.myMsgLogo);
+
+
             binding.getMessage().setIsToShowTranslatedText(false);
             binding.isToShowTranslatedText.setChecked(false);
-            setmarg(binding.messageViewContainer,(int)densitytopixels(getContext(),70.0f),0,0,0);
+//            setmarg(binding.messageViewContainer,(int)densitytopixels(getContext(),70.0f),0,0,0);
 
 
 
@@ -167,7 +189,19 @@ public class MessageView  extends FrameLayout implements BindableItem {
             // Iam receiver
 //            params.setMargins(marginL, marginL, margin, marginL);
 //            binding.messageViewContainer.setBackgroundResource(R.drawable.received_message_background);
-            setmarg(binding.messageViewContainer,0,0,(int)densitytopixels(getContext(),70.0f),0);
+//            setmarg(binding.messageViewContainer,0,0,(int)densitytopixels(getContext(),70.0f),0);
+
+            binding.buddyMsgLogo.setVisibility(VISIBLE);
+            binding.buddyMsgTriangle.setVisibility(VISIBLE);
+            binding.myMsgLogo.setVisibility(GONE);
+            binding.myMsgTriangle.setVisibility(GONE);
+            binding.senderNameTv.setTextColor(getResources().getColor(R.color.buddy_message_text_color));
+            binding.textOfMessageTv.setTextColor(getResources().getColor(R.color.buddy_message_text_color));
+            binding.messageViewContainer.setBackgroundResource(R.drawable.buddy_message_pressable_background);
+            binding.senderNameTv.setTextColor(getResources().getColor(R.color.buddy_message_label_text_color));
+            final User me = new User();
+            me.setUserid(binding.getMessage().getSenderid());
+            me.drawCircularLogo(binding.buddyMsgLogo);
         }
 
 //        binding.messageViewContainer.setLayoutParams(params);

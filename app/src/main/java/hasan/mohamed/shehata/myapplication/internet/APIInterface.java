@@ -11,6 +11,7 @@ import hasan.mohamed.shehata.myapplication.models.*;
 
 import hasan.mohamed.shehata.myapplication.types.LoginResult;
 import hasan.mohamed.shehata.myapplication.types.MessageDeletionResult;
+import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -67,9 +68,13 @@ public interface APIInterface {
     Observable<OverloadedPingResult> pingToKeepOnlineAndGetRequiredInfo2(@Path("myid") long myid);
 
 //    @Streaming
+//    @Multipart
+//    @POST("users/photo/upload/{id}")
+//    Call<JSONResult> uploadPhoto(@Path("id") long id, @Part("file\"; filename=\"pp.png\" ") RequestBody file);//Request body import
+
     @Multipart
     @POST("users/photo/upload/{id}")
-    Call<JSONResult> uploadPhoto(@Path("id") long id, @Part("file\"; filename=\"pp.png\" ") RequestBody file);//Request body import
+    Call<JSONResult> uploadPhoto(@Path("id") long id, @Part MultipartBody.Part file);//Request body import
 
 
 //    @Streaming

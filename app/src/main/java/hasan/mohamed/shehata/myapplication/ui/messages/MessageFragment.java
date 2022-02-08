@@ -1,12 +1,17 @@
 package hasan.mohamed.shehata.myapplication.ui.messages;
 
 import android.app.Activity;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.CompoundButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -22,7 +27,9 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import hasan.mohamed.shehata.myapplication.AppDatabase;
+import hasan.mohamed.shehata.myapplication.MainTranslationActivityViewModel;
 import hasan.mohamed.shehata.myapplication.R;
+import hasan.mohamed.shehata.myapplication.TranslationMainActivity;
 import hasan.mohamed.shehata.myapplication.Utils;
 import hasan.mohamed.shehata.myapplication.async.AsyncPinger;
 import hasan.mohamed.shehata.myapplication.databinding.FragmentMessagesBinding;
@@ -307,7 +314,6 @@ public class MessageFragment extends Fragment implements SpeakerProvider, Messag
 //
 //
 //        pinger = ((AsyncPingerProvider)getActivity()).getCurrentPinger();
-
 
 
         return root;
@@ -642,7 +648,14 @@ public class MessageFragment extends Fragment implements SpeakerProvider, Messag
             ((Activity)getActivity()).setTitle(buddy.getUsername());
         }
         ((FabSource)getActivity()).disableFab();
+
+
+        // This is to hide nav bar
+        ((TranslationMainActivity)getActivity()).resetUIStateDelayed();
+
     }
+
+
 
     @Override
     public void onPause() {

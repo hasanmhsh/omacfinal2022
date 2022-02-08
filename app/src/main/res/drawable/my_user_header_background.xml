@@ -7,7 +7,7 @@
 
             <gradient android:startColor="#CA9CFF"/>
             <gradient android:centerColor="#966FFF"/>
-            <gradient android:endColor="#6D38FF"/>
+            <gradient android:endColor="@color/huddle_background_color"/>
 
         </shape>
     </item>

@@ -11,9 +11,11 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -839,14 +841,21 @@ public class AsyncPinger implements Serializable, CallCenter, AsyncPingerCallbac
 
 
 
-    private HashMap<Long, ImageReady> avatarListeners = new HashMap<Long, ImageReady>();
+    private HashMap<Long, ArrayDeque<ImageReady>> avatarListeners = new HashMap<>();
     public void registerImageReadyListenerOrGetImageIfExist(long userid, ImageReady imageReady){
         synchronized (userAvatars) {
             if (userAvatars.containsKey(userid)) {
                 imageReady.imageReady(userid, userAvatars.get(userid));
             } else {
                 imageReady.imageReady(userid, null);
-                avatarListeners.put(userid, imageReady);
+                if(avatarListeners.containsKey(userid) && avatarListeners.get(userid) != null){
+                    avatarListeners.get(userid).offer(imageReady);
+                }
+                else {
+                    ArrayDeque<ImageReady> userImageReadyObjects = new ArrayDeque<>();
+                    userImageReadyObjects.offer(imageReady);
+                    avatarListeners.put(userid, userImageReadyObjects);
+                }
             }
         }
     }
@@ -896,41 +905,80 @@ public class AsyncPinger implements Serializable, CallCenter, AsyncPingerCallbac
 
 
 
-    private void getUserAvatar(final long userid){
-        Call<ResponseBody> c = APIClient.getAPIInterface(context).downloadPhoto(userid);
-        c.enqueue(new Callback<ResponseBody>() {
-            @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                if(response.isSuccessful()){
-                    Headers headers = response.headers();
-                    long currentId = Long.parseLong(headers.get("id"));
-                    byte [] imageBytes = null;
-                    try {
-                        imageBytes = response.body().bytes();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    if(imageBytes != null) {
-                        Bitmap bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
-                        userAvatars.put(currentId,bitmap);
-                        if (avatarListeners.containsKey(userid)) {
-                            avatarListeners.get(currentId).imageReady(currentId,bitmap);
-                        }
-                    }
-                }
-            }
+//    private void getUserAvatar(final long userid){
+//        Call<ResponseBody> c = APIClient.getAPIInterface(context).downloadPhoto(userid);
+//        c.enqueue(new Callback<ResponseBody>() {
+//            @Override
+//            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+//                if(response.isSuccessful()){
+//                    Headers headers = response.headers();
+//                    long currentId = Long.parseLong(headers.get("id"));
+//                    byte [] imageBytes = null;
+//                    try {
+//                        imageBytes = response.body().bytes();
+//                    } catch (IOException e) {
+//                        e.printStackTrace();
+//                    }
+//                    if(imageBytes != null) {
+//                        Bitmap bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
+//                        userAvatars.put(currentId,bitmap);
+//                        if (avatarListeners.containsKey(userid)) {
+//                            avatarListeners.get(currentId).imageReady(currentId,bitmap);
+//                        }
+//                    }
+//                }
+//            }
+//
+//            @Override
+//            public void onFailure(Call<ResponseBody> call, Throwable t) {
+//                call.cancel();
+//                call.request();
+//                String [] parts = call.request().url().toString().split("/");
+//                long id = Long.parseLong(parts[parts.length -1]);
+//                getUserAvatar(id);
+//            }
+//        });
+//
+//    }
+//
+//
+//    private void checkImagesOfAvatarAsyncOld() {
+//        synchronized (avatarUsersList) {
+//            boolean isCurrentUserAvatarExist = false;
+//            for (User user : avatarUsersList) {
+//                synchronized (userAvatars) {
+//                    isCurrentUserAvatarExist = userAvatars.containsKey(user.getUserid());
+//                }
+//                if (!isCurrentUserAvatarExist) {
+//                    try {
+//                        byte[] bytes = APIClient.getAPIInterface(context).downloadPhoto(user.getUserid()).execute().body().bytes();
+//                        Bitmap avatar = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+//                        synchronized (userAvatars) {
+//                            userAvatars.put(user.getUserid(), avatar);
+//                        }
+//                        final long i = user.getUserid();
+//                        Utils.runOnUIThread(new Runnable() {
+//                            @Override
+//                            public void run() {
+//                                synchronized (userAvatars) {
+//                                    if (avatarListeners.get(i) != null && userAvatars.containsKey(i)) {
+//                                        avatarListeners.get(i).imageReady(i, userAvatars.get(i));
+//                                        avatarListeners.remove(i);
+//                                    }
+//                                }
+//                            }
+//                        });
+//                    } catch (Exception e) {
+//                        e.printStackTrace();
+//                    }
+//
+//                }
+//
+//            }
+//        }
+//    }
 
-            @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
-                call.cancel();
-                call.request();
-                String [] parts = call.request().url().toString().split("/");
-                long id = Long.parseLong(parts[parts.length -1]);
-                getUserAvatar(id);
-            }
-        });
 
-    }
 
 
     private void checkImagesOfAvatarAsync() {
@@ -941,30 +989,42 @@ public class AsyncPinger implements Serializable, CallCenter, AsyncPingerCallbac
                     isCurrentUserAvatarExist = userAvatars.containsKey(user.getUserid());
                 }
                 if (!isCurrentUserAvatarExist) {
-                    try {
-                        byte[] bytes = APIClient.getAPIInterface(context).downloadPhoto(user.getUserid()).execute().body().bytes();
-                        Bitmap avatar = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-                        synchronized (userAvatars) {
-                            userAvatars.put(user.getUserid(), avatar);
-                        }
-                        final long i = user.getUserid();
-                        Utils.runOnUIThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                synchronized (userAvatars) {
-                                    if (avatarListeners.get(i) != null && userAvatars.containsKey(i)) {
-                                        avatarListeners.get(i).imageReady(i, userAvatars.get(i));
-                                        avatarListeners.remove(i);
+                    APIClient.getAPIInterface(context).downloadPhoto(user.getUserid()).enqueue(new Callback<ResponseBody>() {
+                        @Override
+                        public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                            if (response.isSuccessful()) {
+                                try {
+                                    byte[] bytes = response.body().bytes();
+                                    Bitmap avatar = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                                    synchronized (userAvatars) {
+                                        userAvatars.put(user.getUserid(), avatar);
+                                        final long i = user.getUserid();
+                                        if (avatarListeners.containsKey(i) && avatarListeners.get(i) != null && userAvatars.containsKey(i)) {
+                                            ArrayDeque<ImageReady> userImageReadyObjs = avatarListeners.get(i);
+                                            for (ImageReady imageReady: userImageReadyObjs) {
+                                                imageReady.imageReady(i , userAvatars.get(i));
+                                            }
+                                            avatarListeners.remove(i);
+                                        }
                                     }
+
+                                } catch (IOException e) {
+                                    e.printStackTrace();
                                 }
                             }
-                        });
-                    } catch (Exception e) {
+                        }
+
+                        @Override
+                        public void onFailure(Call<ResponseBody> call, Throwable t) {
+                            call.cancel();
+                        }
+                    });
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-
                 }
-
             }
         }
     }

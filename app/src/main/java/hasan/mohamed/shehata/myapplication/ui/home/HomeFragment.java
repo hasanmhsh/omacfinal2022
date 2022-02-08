@@ -14,6 +14,7 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import hasan.mohamed.shehata.myapplication.R;
+import hasan.mohamed.shehata.myapplication.TranslationMainActivity;
 import hasan.mohamed.shehata.myapplication.databinding.FragmentHomeBinding;
 import hasan.mohamed.shehata.myapplication.types.FabSource;
 
@@ -51,5 +52,8 @@ public class HomeFragment extends Fragment {
     public void onResume() {
         super.onResume();
         ((FabSource)getActivity()).refreshFab();
+
+        // This is to hide nav bar
+        ((TranslationMainActivity)getActivity()).resetUIStateDelayed();
     }
 }

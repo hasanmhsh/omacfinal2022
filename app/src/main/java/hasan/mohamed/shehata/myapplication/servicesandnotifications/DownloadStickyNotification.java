@@ -107,7 +107,7 @@ public class DownloadStickyNotification implements ProgressBar {
                 context,
                 DOWNLOAD_NOTIFICATION_PENDING_INTENT_ID,
                 intent,
-                PendingIntent.FLAG_UPDATE_CURRENT
+                PendingIntent.FLAG_IMMUTABLE
         );
     }
 

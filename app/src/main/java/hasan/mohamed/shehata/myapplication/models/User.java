@@ -24,6 +24,8 @@ import java.io.Serializable;
 import java.util.HashSet;
 
 import hasan.mohamed.shehata.myapplication.R;
+import hasan.mohamed.shehata.myapplication.TranslationMainActivity;
+import hasan.mohamed.shehata.myapplication.Utils;
 import hasan.mohamed.shehata.myapplication.async.AsyncPinger;
 import hasan.mohamed.shehata.myapplication.types.AsyncPingerProvider;
 import hasan.mohamed.shehata.myapplication.types.Gender;
@@ -343,7 +345,13 @@ public class User extends BaseObservable implements ListItemBindableItemContentP
         if(lastInstanceOfImageView != null) {
             if (this.userid == userid) {
                 RequestOptions requestOptions = new RequestOptions();
-                requestOptions = requestOptions.transforms(new CenterCrop(), new RoundedCorners(60));
+
+                if(isLogoCircular){
+                    requestOptions = requestOptions.circleCrop();
+                }
+                else {
+                    requestOptions = requestOptions.transforms(new CenterCrop(), new RoundedCorners(60));
+                }
                 Glide
                         .with(lastInstanceOfImageView.getContext())
                         .load(image)
@@ -353,10 +361,16 @@ public class User extends BaseObservable implements ListItemBindableItemContentP
         }
     }
 
+    @Override
+    public long getUserId() {
+        return userid;
+    }
+
     @Ignore
     private ImageView lastInstanceOfImageView;
     @Override
     public void drawLogo(ImageView view) {
+        isLogoCircular = false;
 
 //        RequestOptions requestOptions = new RequestOptions();
 //        requestOptions = requestOptions.transforms(new CenterCrop(), new RoundedCorners(60));
@@ -367,6 +381,26 @@ public class User extends BaseObservable implements ListItemBindableItemContentP
 //                .into(view);
         lastInstanceOfImageView = view;
         AsyncPinger asyncPinger = ((AsyncPingerProvider)view.getContext()).getCurrentPinger();
+        if(asyncPinger != null){
+            asyncPinger.registerImageReadyListenerOrGetImageIfExist(userid,this);
+        }
+    }
+
+    @Ignore
+    private boolean isLogoCircular = false;
+    public void drawCircularLogo(ImageView view){
+        isLogoCircular = true;
+        lastInstanceOfImageView = view;
+        AsyncPinger asyncPinger = ((AsyncPingerProvider)view.getContext()).getCurrentPinger();
+        if(asyncPinger != null){
+            asyncPinger.registerImageReadyListenerOrGetImageIfExist(userid,this);
+        }
+    }
+
+    public void drawCircularLogoWithActivity(ImageView view, TranslationMainActivity activity) {
+        isLogoCircular = true;
+        lastInstanceOfImageView = view;
+        AsyncPinger asyncPinger = ((AsyncPingerProvider)activity).getCurrentPinger();
         if(asyncPinger != null){
             asyncPinger.registerImageReadyListenerOrGetImageIfExist(userid,this);
         }

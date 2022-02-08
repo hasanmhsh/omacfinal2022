@@ -1,16 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout>
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+ >
     <data>
         <variable
             name="user"
             type="hasan.mohamed.shehata.myapplication.models.User" />
     </data>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+<androidx.constraintlayout.widget.ConstraintLayout
+    android:id="@+id/message_fragment_root_container"
     android:layout_width="match_parent"
+    android:fitsSystemWindows="true"
     android:layout_height="match_parent"
     tools:context=".ui.messages.MessageFragment"
+    android:background="@drawable/chat_background_tiles"
     android:keepScreenOn="true">
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -18,6 +23,7 @@
         app:layout_constraintTop_toTopOf="parent"
         android:background="@drawable/my_user_header_background"
         android:translationZ="7dp"
+        android:fitsSystemWindows="true"
         android:padding="10dp">
         <ImageView
             android:translationZ="15dp"
@@ -25,6 +31,7 @@
             android:layout_width="60dp"
             android:layout_height="60dp"
             android:layout_marginStart="@dimen/padding_very_large"
+            android:fitsSystemWindows="true"
             android:background="@drawable/user1"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -39,6 +46,7 @@
             app:layout_constraintBottom_toTopOf="@id/msg_list_header_lng_box"
             android:text="@{user.username}"
             android:layout_marginEnd="30dp"
+            android:fitsSystemWindows="true"
             android:layout_height="wrap_content"
 
 
@@ -53,6 +61,7 @@
             android:layout_marginTop="3dp"
             android:text="@{user.userlanguage.languageName}"
             android:layout_marginEnd="30dp"
+            android:fitsSystemWindows="true"
             app:layout_constraintTop_toBottomOf="@id/msg_list_header_name_box"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -73,7 +82,8 @@
         android:layout_marginTop="82dp"
         app:layout_constraintTop_toTopOf="parent"
         android:id="@+id/fragment_recycler_view"
-        android:layout_marginBottom="125sp" />
+        android:fitsSystemWindows="true"
+        android:layout_marginBottom="70sp" />
 
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -83,12 +93,14 @@
         android:layout_height="wrap_content"
         android:id="@+id/controls_container"
         android:translationZ="5dp"
-        style="@style/NonPressableStyleNoMargin">
+        android:fitsSystemWindows="true"
+        >
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/continousRecognitionContainer"
             android:visibility="gone"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:fitsSystemWindows="true"
             android:padding="@dimen/margin_xs"
 
             app:layout_constraintBottom_toTopOf="@id/sending_text_et">
@@ -97,6 +109,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="@dimen/margin_m"
+                android:fitsSystemWindows="true"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
 
@@ -105,6 +118,7 @@
                 android:paddingStart="5dp"
                 android:paddingEnd="5dp"
                 android:textSize="15sp"
+                android:fitsSystemWindows="true"
                 android:textColor="@color/black"
                 android:fontFamily="@font/roadrage"
                 android:textStyle="normal"
@@ -121,11 +135,12 @@
         android:translationZ="4dp"
         android:id="@+id/sending_text_et"
         android:layout_width="match_parent"
-        android:layout_height="70sp"
+        android:layout_height="50sp"
+        android:fitsSystemWindows="true"
         android:layout_marginTop="@dimen/margin_m"
         android:layout_marginBottom="@dimen/margin_m"
-        android:layout_marginStart="80dp"
-        android:layout_marginEnd="80dp"
+        android:layout_marginStart="70dp"
+        android:layout_marginEnd="70dp"
         android:lines="4"
 
         android:minEms="8"
@@ -142,12 +157,14 @@
     <ImageButton
         android:translationZ="4dp"
         android:id="@+id/send_but"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/ic_baseline_send_50"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:fitsSystemWindows="true"
         android:background="@drawable/round_button_light"
         android:layout_margin="@dimen/margin_m"
-        android:padding="7dp"
+        android:padding="10dp"
+        android:scaleType="centerInside"
+        android:src="@drawable/ic_baseline_send_50"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@id/sending_text_et"
         app:layout_constraintBottom_toBottomOf="@id/sending_text_et"
@@ -155,12 +172,14 @@
     <ImageButton
         android:translationZ="4dp"
         android:id="@+id/recognize_voice_but"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/ic_baseline_mic_50"
+        android:layout_width="50dp"
+        android:fitsSystemWindows="true"
+        android:layout_height="50dp"
         android:background="@drawable/round_button_light"
+        android:scaleType="centerInside"
+        android:src="@drawable/ic_baseline_mic_50"
         android:layout_margin="@dimen/margin_m"
-        android:padding="7dp"
+        android:padding="10dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@id/sending_text_et"
         app:layout_constraintBottom_toBottomOf="@id/sending_text_et"/>

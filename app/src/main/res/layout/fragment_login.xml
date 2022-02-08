@@ -15,7 +15,7 @@
     android:layout_height="match_parent"
     android:background="?attr/fullscreenBackgroundColor"
     android:theme="@style/ThemeOverlay.MyApplication.FullscreenContainer"
-    android:paddingTop="@dimen/padding_large"
+
     android:paddingBottom="@dimen/padding_very_large"
     tools:context=".ui.login.LoginFragment">
 
@@ -40,10 +40,24 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:fitsSystemWindows="true">
+
+        <ImageView
+            android:id="@+id/huddlebanner"
+            android:layout_width="match_parent"
+            android:layout_height="198dp"
+            android:background="@drawable/technology1"
+            android:scaleType="centerCrop"
+            android:src="@drawable/huddle_banner"
+            android:tintMode="multiply"
+            app:tint="#DDDDDDDD" />
+
         <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_marginTop="180dp"
+            android:background="@drawable/white_upper_rounded_background"
             android:padding="@dimen/margin_l">
+
             <TextView
                 android:id="@+id/sign_in_up_welcome_tv"
                 android:gravity="top"
@@ -64,38 +78,35 @@
                 android:orientation="horizontal"
                 android:layout_marginBottom="@dimen/padding_large"
                 android:id="@+id/sininsignup_buts_container">
+
+
                 <Button
-                    android:id="@+id/signup_but"
+                    android:id="@+id/signin_but"
+                    android:layout_marginEnd="@dimen/margin_l"
+                    android:layout_weight="1"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toStartOf="@id/signin_but"
+                    android:textColor="@color/white"
+                    android:textAllCaps="false"
+                    android:background="@drawable/signin_button_background"
+
+                    android:text="Login"/>
+
+                <Button
+                    android:id="@+id/signup_but"
+                    android:layout_marginStart="@dimen/margin_l"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
                     android:layout_marginEnd="@dimen/margin_m"
                     android:layout_weight="1"
                     android:textColor="@color/white"
                     android:textAllCaps="false"
                     android:background="@drawable/signup_button_background"
                     android:text="Signup"/>
-
-                <Button
-                    android:id="@+id/signin_but"
-                    android:layout_marginStart="@dimen/margin_m"
-                    android:layout_weight="1"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    android:textColor="@color/white"
-                    android:textAllCaps="false"
-                    android:background="@drawable/signin_button_background"
-                    app:layout_constraintStart_toEndOf="@id/signup_but"
-                    app:layout_constraintTop_toTopOf="parent"
-
-                    android:text="Login"/>
             </LinearLayout>
 
             <ImageButton
-
+                android:visibility="gone"
                 android:id="@+id/select_photo_but"
                 android:layout_width="140dp"
                 android:layout_height="140dp"
@@ -130,6 +141,7 @@
                 android:backgroundTint="@color/myAccent1"
                 app:layout_constraintTop_toBottomOf="@id/select_photo_but"
                 android:padding="@dimen/padding_large"
+                android:visibility="gone"
                 />
             <EditText
                 android:id="@+id/user_email"
@@ -162,6 +174,7 @@
                 android:inputType="textPassword"
                 />
             <EditText
+                android:visibility="gone"
                 android:id="@+id/retypepasswordet"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -194,6 +207,7 @@
                 app:layout_constraintTop_toBottomOf="@id/retypepasswordet"
                 />
             <TextView
+                android:visibility="gone"
                 android:id="@+id/user_language"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -207,6 +221,7 @@
                 android:padding="@dimen/padding_large"
                 />
             <Button
+                android:visibility="gone"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/select_language_but"

@@ -32,14 +32,14 @@
             android:exported="false" />
 
         <activity
+            android:windowSoftInputMode="stateVisible|adjustResize"
             android:name=".TranslationMainActivity"
             android:configChanges="orientation|keyboardHidden"
             android:exported="true"
             android:fitsSystemWindows="true"
             android:label="Translated Voice calls"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.MyApplication.NoActionBar"
-            android:windowSoftInputMode="adjustPan|adjustResize" >
+            android:theme="@style/Theme.MyApplication.NoActionBar" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

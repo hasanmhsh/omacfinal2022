@@ -39,10 +39,11 @@ public class APIClient {
             httpsClientForAWS = new OkHttpClient.Builder().readTimeout(8, TimeUnit.SECONDS).hostnameVerifier(new HostnameVerifier() {
                 @Override
                 public boolean verify(String s, SSLSession sslSession) {
-                    if("35.85.30.28".equals(s))
-                        return true;
-                    else
-                        return false;
+                    return true;
+//                    if("35.85.30.28".equals(s))
+//                        return true;
+//                    else
+//                        return false;
                 }
             });
 //        URL url = null;

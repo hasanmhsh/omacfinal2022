@@ -18,7 +18,10 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Matrix;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -31,6 +34,10 @@ import android.view.WindowManager;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.load.resource.bitmap.CenterCrop;
+import com.bumptech.glide.load.resource.bitmap.DownsampleStrategy;
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
@@ -42,6 +49,7 @@ import java.io.FileOutputStream;
 
 import hasan.mohamed.shehata.myapplication.AppDatabase;
 import hasan.mohamed.shehata.myapplication.R;
+import hasan.mohamed.shehata.myapplication.TranslationMainActivity;
 import hasan.mohamed.shehata.myapplication.Utils;
 import hasan.mohamed.shehata.myapplication.databinding.FragmentLoginBinding;
 import hasan.mohamed.shehata.myapplication.internet.APIClient;
@@ -65,6 +73,7 @@ import hasan.mohamed.shehata.myapplication.types.StartedACtivityResultsProvider;
 import hasan.mohamed.shehata.myapplication.types.StartedActivityResultsListener;
 import hasan.mohamed.shehata.myapplication.types.StatusOfServerObject;
 import okhttp3.MediaType;
+import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -81,7 +90,7 @@ public class LoginFragment extends Fragment implements BindableItem, StartedActi
     private Language selectedLanguage;
     private Closeable progressWindow;
     private LifecycleOwner lifeCycleOwner;
-    private boolean isSignup = true;
+    private boolean isSignup = false;
     private Bitmap pickedPhoto;
     private File pickedPhotoFile;
     private String pickedPhotoPath;
@@ -102,7 +111,7 @@ public class LoginFragment extends Fragment implements BindableItem, StartedActi
             @Override
             public void onChanged(Boolean aBoolean) {
                 if(aBoolean == null){
-                    isLoginView = false;
+                    isLoginView = true;
                 }
                 else {
                     isLoginView = aBoolean;
@@ -452,6 +461,7 @@ public class LoginFragment extends Fragment implements BindableItem, StartedActi
     }
     private void signUpButtonPressed(){
         isSignup = true;
+        isLoginView = false;
 //        binding.signupBut.setBackgroundResource(R.drawable.signin_signup_button_background_pressed);
 //        binding.signupBut.setTextColor(getContext().getResources().getColor(R.color.light_blue_600));
 //        binding.signinBut.setBackgroundResource(R.drawable.signin_signup_button_background_released);
@@ -519,6 +529,7 @@ public class LoginFragment extends Fragment implements BindableItem, StartedActi
 
     private void signInButtonPressed(){
         isSignup = false;
+        isLoginView = true;
 //        binding.signinBut.setBackgroundResource(R.drawable.signin_signup_button_background_pressed);
 //        binding.signinBut.setTextColor(getContext().getResources().getColor(R.color.light_blue_600));
 //        binding.signupBut.setBackgroundResource(R.drawable.signin_signup_button_background_released);
@@ -606,6 +617,9 @@ public class LoginFragment extends Fragment implements BindableItem, StartedActi
         if (getActivity() != null && getActivity().getWindow() != null) {
             getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
         }
+
+        // This is to hide nav bar
+        ((TranslationMainActivity)getActivity()).resetUIStateDelayed();
     }
 
     @Override
@@ -791,58 +805,112 @@ public class LoginFragment extends Fragment implements BindableItem, StartedActi
     }
 
 
+
+
     private void compressImage(String url){
 //        Bitmap b = BitmapFactory.decodeFile("Pass your file path");
 // original measurements
+        Uri uri = Uri.parse(url);
+//        pickedPhotoPath = uri.getEncodedPath();
+//        url=pickedPhotoPath;
         if(url==null){
             return;
         }
-        final int destWidth = 300;//or the width you need
+        final int destWidth = 130;//or the width you need
         thiz = this;
-        Glide.with(this)
-                .asBitmap()
-                .load(url)
-                .into(new CustomTarget<Bitmap>() {
-                    @Override
-                    public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
-                        int origWidth = resource.getWidth();
-                        int origHeight = resource.getHeight();
-                        if(origWidth > destWidth) {
-                            RequestOptions myOptions = new RequestOptions()
-                                    .override(destWidth, destWidth * origHeight / origWidth);//.circleCrop();
-                            Glide.with(thiz.getContext())
-                                    .asBitmap()
-//                                    .apply(myOptions)
-                                    .load(resource)
-                                    .override(destWidth, destWidth * origHeight / origWidth)
-                                    .centerCrop()
-                                    .into(new CustomTarget<Bitmap>() {
-                                        @Override
-                                        public void onResourceReady(@NonNull Bitmap resource2, @Nullable Transition<? super Bitmap> transition) {
-                                            int origWidth = resource2.getWidth();
-                                            int origHeight = resource2.getHeight();
-                                            finalizeCompression(resource2);
-                                        }
+        Bitmap bitmap = null;
+        try {
+            bitmap = MediaStore.Images.Media.getBitmap(this.getActivity().getContentResolver(), uri);
 
-                                        @Override
-                                        public void onLoadCleared(@Nullable Drawable placeholder2) {
-                                        }
-                                    });
-                        }
-                        else{
-                            finalizeCompression(resource);
-                        }
-                    }
+        }
+        catch(Exception e){
+            return;
+        }
+        int origWidth = bitmap.getWidth();
+        int origHeight = bitmap.getHeight();
+        if(origWidth > destWidth) {
+            Bitmap scaledBm = Bitmap.createScaledBitmap(bitmap, destWidth, destWidth * origHeight / origWidth, true);
 
-                    @Override
-                    public void onLoadCleared(@Nullable Drawable placeholder) {
-                    }
-                });
+            finalizeCompression(scaledBm);
+        }
+        else
+            finalizeCompression(bitmap);
+//        Glide.with(this)
+//                .asBitmap()
+//                .load(url)
+//                .into(new CustomTarget<Bitmap>() {
+//                    @Override
+//                    public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+//                        int origWidth = resource.getWidth();
+//                        int origHeight = resource.getHeight();
+//                        if(origWidth > destWidth) {
+//
+//                            RequestOptions myOptions = new RequestOptions()
+//                                    .override(destWidth, destWidth * origHeight / origWidth);//.circleCrop();
+//                            Glide.with(thiz.getContext())
+//                                    .asBitmap()
+////                                    .apply(myOptions)
+//                                    .load(resource)
+//                                    .override(destWidth, destWidth * origHeight / origWidth)
+//                                    .centerCrop()
+//                                    .into(new CustomTarget<Bitmap>() {
+//                                        @Override
+//                                        public void onResourceReady(@NonNull Bitmap resource2, @Nullable Transition<? super Bitmap> transition) {
+//                                            int origWidth = resource2.getWidth();
+//                                            int origHeight = resource2.getHeight();
+//                                            finalizeCompression(resource2);
+//                                        }
+//
+//                                        @Override
+//                                        public void onLoadCleared(@Nullable Drawable placeholder2) {
+//                                        }
+//                                    });
+//                        }
+//                        else{
+//                            finalizeCompression(resource);
+//                        }
+//                    }
+//
+//                    @Override
+//                    public void onLoadCleared(@Nullable Drawable placeholder) {
+//                    }
+//                });
 
     }
 
     private void finalizeCompression(Bitmap bitmap){
+
+//        Drawable resizedImage = null;
+//        Bitmap resizedBitmap = null;
+//        int origWidth = bitmap.getWidth();
+//        int origHeight = bitmap.getHeight();
+//        final int destWidth = 120;
+//        try{
+//            resizedImage = Glide
+//                    .with(getActivity())
+//                    .load(bitmap)
+//                    .override(destWidth, destWidth * origHeight / origWidth)
+//                    .submit()
+//                    .get();
+//
+//            resizedBitmap = Bitmap.createBitmap(destWidth, destWidth * origHeight / origWidth, Bitmap.Config.ARGB_8888);
+//            Canvas canvas = new Canvas(resizedBitmap);
+//            resizedImage.setBounds(0, 0, destWidth, destWidth * origHeight / origWidth);
+//            resizedImage.draw(canvas);
+//
+//        }
+//        catch(Exception e){
+//            e.printStackTrace();
+//        }
+//
+//        bitmap = resizedBitmap;
+
+
+
         ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+//        if(bitmap.getWidth() != 130){
+//            bitmap = Utils.AngleBitmapRotation(90.0D,bitmap);
+//        }
         bitmap.compress(Bitmap.CompressFormat.PNG,100 , outStream);
         File f = new File(
                 getContext().getFilesDir().getPath() // /data/user/0/hasan.mohamed.shehata.myapplication/files/myphoto34532.png
@@ -872,7 +940,9 @@ public class LoginFragment extends Fragment implements BindableItem, StartedActi
     private void postPhoto(final long myid){
         if(pickedPhotoFile != null){
             RequestBody fbody = RequestBody.create(pickedPhotoFile, MediaType.parse("image/*"));
-            APIClient.getAPIInterface(getContext()).uploadPhoto(myid,fbody).enqueue(new Callback<JSONResult>() {
+            MultipartBody.Part body =
+                    MultipartBody.Part.createFormData("file", pickedPhotoFile.getName(), fbody);
+            APIClient.getAPIInterface(getContext()).uploadPhoto(myid,body).enqueue(new Callback<JSONResult>() {
                 @Override
                 public void onResponse(Call<JSONResult> call, Response<JSONResult> response) {
 //                    Toast.makeText(getContext(), response.body().getResult(), Toast.LENGTH_LONG).show();

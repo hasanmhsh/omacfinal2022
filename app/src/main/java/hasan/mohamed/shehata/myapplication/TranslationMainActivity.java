@@ -8,12 +8,14 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Menu;
+import android.view.ViewTreeObserver;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.TextView;
@@ -158,47 +160,49 @@ public class TranslationMainActivity extends AppCompatActivity implements FabSou
                         ;
 //                getWindow().getDecorView().setSystemUiVisibility(viewFlags);
                 Window w = getWindow();
-                w.setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
+//                w.setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
 
             }
-        }, 8000);
+        }, 4000);
         if(getActionBar() !=null)
             getActionBar().hide();
         viewFlags =
 
-                View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
-                        | View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
-                | View.SYSTEM_UI_FLAG_LOW_PROFILE
-                | View.SYSTEM_UI_FLAG_FULLSCREEN
-                | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+//                View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
+                         View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+                 |View.SYSTEM_UI_FLAG_LOW_PROFILE
+//                 |View.SYSTEM_UI_FLAG_FULLSCREEN
+                 |View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+//
                 | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
                 | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
-//        getWindow().getDecorView().setSystemUiVisibility(viewFlags);
+                |View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
+        getWindow().getDecorView().setSystemUiVisibility(viewFlags);
         Window w = getWindow();
         w.setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
 
         // Code below is to handle presses of Volume up or Volume down.
         // Without this, after pressing volume buttons, the navigation bar will
         // show up and won't hide
-        final View decorView = getWindow().getDecorView();
-        decorView
-                .setOnSystemUiVisibilityChangeListener(new View.OnSystemUiVisibilityChangeListener()
-                {
-
-                    @Override
-                    public void onSystemUiVisibilityChange(int visibility)
-                    {
-                        if((visibility & View.SYSTEM_UI_FLAG_FULLSCREEN) == 0)
-                        {
-                            decorView.setSystemUiVisibility(viewFlags);
-                        }
-                    }
-                });
+//        final View decorView = getWindow().getDecorView();
+//        decorView
+//                .setOnSystemUiVisibilityChangeListener(new View.OnSystemUiVisibilityChangeListener()
+//                {
+//
+//                    @Override
+//                    public void onSystemUiVisibilityChange(int visibility)
+//                    {
+//                        if((visibility & View.SYSTEM_UI_FLAG_FULLSCREEN) == 0)
+//                        {
+//                            decorView.setSystemUiVisibility(viewFlags);
+//                        }
+//                    }
+//                });
 
 
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         Utils.registerPoster(binding.getRoot());
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 
         APIClient.getAPIInterface(this).getAllUsers().enqueue(new Callback<List<User>>() {
             @Override
@@ -212,7 +216,22 @@ public class TranslationMainActivity extends AppCompatActivity implements FabSou
             }
         });
 
-        // Internet availablity checker
+//        binding.drawerLayout.getViewTreeObserver().addOnGlobalLayoutListener(new
+//                                           ViewTreeObserver.OnGlobalLayoutListener() {
+//                                               @Override
+//                                               public void onGlobalLayout() {
+//                                                   Rect r = new Rect();
+//                                                   binding.drawerLayout.getWindowVisibleDisplayFrame(r);
+//                                                   int screenHeight = binding.drawerLayout.getRootView().getHeight();
+//                                                   int keypadHeight = screenHeight - r.bottom;
+//                                                   if (keypadHeight > screenHeight * 0.15) {
+//                                                       Toast.makeText(thiz,"Keyboard is showing",Toast.LENGTH_LONG).show();
+//                                                   } else {
+////                                                       Toast.makeText(thiz,"keyboard closed",Toast.LENGTH_LONG).show();
+//                                                   }
+//                                               }
+//                                           });
+//         Internet availablity checker
 
     }
 
@@ -643,6 +662,38 @@ public class TranslationMainActivity extends AppCompatActivity implements FabSou
         }
     }
 
+    @Override
+    protected void onPostResume() {
+        super.onPostResume();
+        resetUIState();
+    }
+
+    private void resetUIState() {
+        viewFlags =
+
+//                View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
+                        View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+                        |View.SYSTEM_UI_FLAG_LOW_PROFILE
+//                 |View.SYSTEM_UI_FLAG_FULLSCREEN
+                        |View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+//
+                        | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        |View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
+        getWindow().getDecorView().setSystemUiVisibility(viewFlags);
+        Window w = getWindow();
+        w.setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
+    }
+
+    public void resetUIStateDelayed(){
+        Utils.runOnUIThreadPostDelayed(new Runnable() {
+            @Override
+            public void run() {
+                resetUIState();
+            }
+        });
+    }
+
     private void changeUser() {
         Utils.unsetUserCreated(this,currentUser);
         showUserDialog();
@@ -654,6 +705,7 @@ public class TranslationMainActivity extends AppCompatActivity implements FabSou
         if(Utils.isUserCreated(this))
             createPingerIfNotCreated();
     }
+
 
     @Override
     public void requireInternetPermission(PermissionRequestCallbacks permissionRequestCallbacks) {
