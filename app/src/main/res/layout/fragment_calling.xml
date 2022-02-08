@@ -41,8 +41,8 @@
         <FrameLayout
             android:id="@+id/user_image_container_calling_fragment"
             android:layout_marginTop="60dp"
-            android:layout_width="135dp"
-            android:layout_height="155dp"
+            android:layout_width="140dp"
+            android:layout_height="140dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/call_window_label"
