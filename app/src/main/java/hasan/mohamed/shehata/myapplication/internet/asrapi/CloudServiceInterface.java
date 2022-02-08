@@ -20,6 +20,8 @@ import com.google.cloud.speech.v1.StreamingRecognizeRequest;
 import com.google.cloud.speech.v1.StreamingRecognizeResponse;
 import com.google.protobuf.ByteString;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -203,7 +205,7 @@ public class CloudServiceInterface {
 //                Utils.currentGoogleCloudAccessToken = result.getTokenValue();
 //            }
 
-            if (backgroundThreadHandler != null) {
+            if (backgroundThreadHandler != null && result != null) {
                 backgroundThreadHandler.postDelayed(runnable,
                         Math.max(result.getExpirationTime().getTime() - System.currentTimeMillis() - TOKEN_THRESHOLD_TIME, TOKEN_TIME_PERIOD));
             }
@@ -222,8 +224,17 @@ public class CloudServiceInterface {
                 }
             }
 
-            final InputStream incomingData = appcntxt.getResources().openRawResource(R.raw.omacprojectcredentials);
+//            final InputStream incomingData = appcntxt.getResources().openRawResource(R.raw.omacprojectcredentials);
+
+            File f = new File(
+                    appcntxt.getFilesDir().getPath() // /data/user/0/hasan.mohamed.shehata.myapplication/files/myphoto34532.png
+//                Environment.getExternalStorageDirectory() //  /storage/o
+                            + File.separator + "clientkey34546.json");
+
+            InputStream incomingData = null;
+
             try {
+                incomingData = new FileInputStream(f);
                 final GoogleCredentials scoped = GoogleCredentials.fromStream(incomingData).createScoped(CLOUD_SERVICE_URL);
                 final AccessToken cred23 = scoped.refreshAccessToken();
                 presistedData.edit()
@@ -233,6 +244,10 @@ public class CloudServiceInterface {
                 return cred23;
             } catch (IOException e) {
                 e.printStackTrace();
+            }
+            finally {
+                if(incomingData != null)
+                    try{incomingData.close();}catch (Exception e){e.printStackTrace();}
             }
             return null;
         }

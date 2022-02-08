@@ -3,6 +3,7 @@ import android.graphics.Bitmap;
 
 import java.util.List;
 
+import hasan.mohamed.shehata.myapplication.types.JSONKey;
 import hasan.mohamed.shehata.myapplication.types.JSONResult;
 import io.reactivex.Observable;
 import io.reactivex.rxjava3.observables.ConnectableObservable;
@@ -76,6 +77,12 @@ public interface APIInterface {
     @POST("users/photo/upload/{id}")
     Call<JSONResult> uploadPhoto(@Path("id") long id, @Part MultipartBody.Part file);//Request body import
 
+
+    @GET("download/tts/key")
+    Call<JSONKey> downloadGoogleKey();
+
+    @GET("download/asr/clientkey")
+    Call<ResponseBody> downloadGoogleClientKey();//Request body import
 
 //    @Streaming
     @POST("users/photo/download/withid/{id}")

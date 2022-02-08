@@ -351,7 +351,17 @@ public class Utils {
 
 
     // This key for Text To Speech Service API only
-    public static final String currentGoogleCloudAccessToken = "AIzaSyCSp1FCBvdUzvcoNXd3urnu9uOOVtS4ezI";
+    private static String currentGoogleCloudAccessToken = "AIzaSyCSp1FCBvdUzvcoNXd3urnu9uOOVtS4ezI";//AIzaSyCSp1FCBvdUzvcoNXd3urnu9uOOVtS4ezI
+
+    public static void setGoogleKey(String key){
+        if(key != null && key.length() >0)
+            currentGoogleCloudAccessToken = key;
+
+    }
+
+    public static String getGoogleKey(){
+        return currentGoogleCloudAccessToken;
+    }
 
 
 

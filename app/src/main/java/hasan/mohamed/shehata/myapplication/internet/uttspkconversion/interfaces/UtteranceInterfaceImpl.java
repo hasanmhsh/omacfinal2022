@@ -22,19 +22,20 @@ public class UtteranceInterfaceImpl implements UtteranceInterface {
 
     public UtteranceInterfaceImpl(RemoteAuthSettings cfg) {
         cloudCfg = cfg;
+        cfg.setAuthCred(Utils.getGoogleKey());
     }
 
     private Response startCobnnection(RemoteAuthSettings cfg) throws IOException {
 //        synchronized (Utils.currentGoogleCloudAccessToken){
             if(this.cloudCfg!=null)
-                this.cloudCfg.setAuthCred(Utils.currentGoogleCloudAccessToken);
+                this.cloudCfg.setAuthCred(Utils.getGoogleKey());
             if(cfg!=null)
-                cfg.setAuthCred(Utils.currentGoogleCloudAccessToken);
+                cfg.setAuthCred(Utils.getGoogleKey());
 //        }
         OkHttpClient connection = new OkHttpClient();
         Request overload = new Request.Builder()
                 .url(cfg.getut2pkurls())
-                .addHeader(cfg.getAuthCredParams(), Utils.currentGoogleCloudAccessToken)
+                .addHeader(cfg.getAuthCredParams(), Utils.getGoogleKey())
                 .build();
 
         return connection.newCall(overload).execute();

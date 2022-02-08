@@ -164,7 +164,7 @@ public class TTS {
     private void createTTSAsyncArabic() {
 //        utt2SpkRemoteService = AllRemoteServicesOrganizer.create("AIzaSyDk-7P9RSXf6MH1uzcktKTYX0LcYspG0S8"); //debug key
 
-        utt2SpkRemoteService = AllRemoteServicesOrganizer.create(Utils.currentGoogleCloudAccessToken); //release key
+        utt2SpkRemoteService = AllRemoteServicesOrganizer.create(Utils.getGoogleKey()); //release key
 
 // Load google cloud UtterancePack and select the languageCode and voiceName with index (0 ~ N).
         UtterancePack utterancePack = utt2SpkRemoteService.load();

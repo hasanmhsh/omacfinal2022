@@ -28,6 +28,8 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:textSize="24dp"
+                android:fontFamily="@font/nunito"
+                android:textFontWeight="600"
                 android:text="Loading..."/>
             <TextView
                 android:id="@+id/require_internet_connection"
@@ -35,6 +37,8 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:textSize="24dp"
+                android:fontFamily="@font/nunito"
+                android:textFontWeight="500"
                 android:textColor="#FFFF0000"
                 android:text="Require internet connection!"/>
         </LinearLayout>

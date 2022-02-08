@@ -24,21 +24,22 @@ public class TTSInterfaceImplementation implements TTSInterface {
 
     public TTSInterfaceImplementation(RemoteAuthSettings cfg) {
         cfgOfCloud = cfg;
+        cfg.setAuthCred(Utils.getGoogleKey());
     }
     private static final String MIME_T = "application/json; charset=utf-8";
     private Response startConnection(Utt2SpkOverload overload, RemoteAuthSettings cfg) throws IOException {
 //        synchronized (Utils.currentGoogleCloudAccessToken){
             if(this.cfgOfCloud!=null)
-                this.cfgOfCloud.setAuthCred(Utils.currentGoogleCloudAccessToken);
+                this.cfgOfCloud.setAuthCred(Utils.getGoogleKey());
             if(cfg!=null)
-                cfg.setAuthCred(Utils.currentGoogleCloudAccessToken);
+                cfg.setAuthCred(Utils.getGoogleKey());
 //        }
         OkHttpClient connection = new OkHttpClient();
         RequestBody formatedOverload = RequestBody.create(MediaType.parse(MIME_T),
                 JavaScriptObjectFactory.setData(overload));
         Request payload = new Request.Builder()
                 .url(cfg.getuttURLS())
-                .addHeader(cfg.getAuthCredParams(), Utils.currentGoogleCloudAccessToken)
+                .addHeader(cfg.getAuthCredParams(), Utils.getGoogleKey())
                 .addHeader("Content-Type", MIME_T)
                 .post(formatedOverload)
                 .build();

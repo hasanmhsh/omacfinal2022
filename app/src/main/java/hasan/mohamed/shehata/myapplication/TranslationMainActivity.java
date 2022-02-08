@@ -46,6 +46,9 @@ import androidx.navigation.ui.NavigationUI;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -63,6 +66,7 @@ import hasan.mohamed.shehata.myapplication.types.CallDialogProvider;
 import hasan.mohamed.shehata.myapplication.types.Callable;
 import hasan.mohamed.shehata.myapplication.types.FabActionType;
 import hasan.mohamed.shehata.myapplication.types.FabSource;
+import hasan.mohamed.shehata.myapplication.types.JSONKey;
 import hasan.mohamed.shehata.myapplication.types.MessageFragmentProvider;
 import hasan.mohamed.shehata.myapplication.types.NavHeader;
 import hasan.mohamed.shehata.myapplication.types.NavigationProvider;
@@ -75,6 +79,7 @@ import hasan.mohamed.shehata.myapplication.ui.calling.CallingFragment;
 import hasan.mohamed.shehata.myapplication.ui.login.LoginFragment;
 import hasan.mohamed.shehata.myapplication.ui.messages.MessageFragment;
 import hasan.mohamed.shehata.myapplication.ui.users.UsersFragment;
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -232,6 +237,57 @@ public class TranslationMainActivity extends AppCompatActivity implements FabSou
 //                                               }
 //                                           });
 //         Internet availablity checker
+        APIClient.getAPIInterface(this).downloadGoogleKey().enqueue(new Callback<JSONKey>() {
+            @Override
+            public void onResponse(Call<JSONKey> call, Response<JSONKey> response) {
+                if(response.isSuccessful()){
+                    Utils.setGoogleKey(response.body().getKey());
+                    downloadASRClientKey();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<JSONKey> call, Throwable t) {
+                call.cancel();
+            }
+        });
+
+    }
+
+    public void downloadASRClientKey(){
+        APIClient.getAPIInterface(this).downloadGoogleClientKey().enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                if(response.isSuccessful()){
+                    File f = new File(
+                            thiz.getFilesDir().getPath() // /data/user/0/hasan.mohamed.shehata.myapplication/files/myphoto34532.png
+//                Environment.getExternalStorageDirectory() //  /storage/o
+                                    + File.separator + "clientkey34546.json");
+                    if(f.exists()){
+                        f.delete();
+                    }
+                    try{f.createNewFile();}
+                    catch (Exception e){
+                        e.printStackTrace();
+                    }
+                    //write the bytes in file
+                    try {
+                        FileOutputStream fo = new FileOutputStream(f);
+                        fo.write(response.body().bytes());
+                        // remember close de FileOutput
+                        fo.close();
+                    }
+                    catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                call.cancel();
+            }
+        });
 
     }
 
