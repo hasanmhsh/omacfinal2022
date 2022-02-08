@@ -105,7 +105,7 @@
 
                     android:fontFamily="@font/nunito"
                     android:textFontWeight="500"
-                    android:textSize="16sp"
+                    android:textSize="17sp"
                     android:textColor="@color/darkTextColor"/>
                 <TextView
                     android:layout_width="wrap_content"
@@ -119,7 +119,7 @@
 
                     android:fontFamily="@font/nunito"
                     android:textFontWeight="400"
-                    android:textSize="10sp"
+                    android:textSize="13sp"
                     android:textColor="@color/darkTextColor"/>
             </androidx.constraintlayout.widget.ConstraintLayout>
             <TextView
