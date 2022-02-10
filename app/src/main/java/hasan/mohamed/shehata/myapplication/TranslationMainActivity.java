@@ -237,59 +237,11 @@ public class TranslationMainActivity extends AppCompatActivity implements FabSou
 //                                               }
 //                                           });
 //         Internet availablity checker
-        APIClient.getAPIInterface(this).downloadGoogleKey().enqueue(new Callback<JSONKey>() {
-            @Override
-            public void onResponse(Call<JSONKey> call, Response<JSONKey> response) {
-                if(response.isSuccessful()){
-                    Utils.setGoogleKey(response.body().getKey());
-                    downloadASRClientKey();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<JSONKey> call, Throwable t) {
-                call.cancel();
-            }
-        });
+            Utils.executeKeysFetchRequest(this);
 
     }
 
-    public void downloadASRClientKey(){
-        APIClient.getAPIInterface(this).downloadGoogleClientKey().enqueue(new Callback<ResponseBody>() {
-            @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                if(response.isSuccessful()){
-                    File f = new File(
-                            thiz.getFilesDir().getPath() // /data/user/0/hasan.mohamed.shehata.myapplication/files/myphoto34532.png
-//                Environment.getExternalStorageDirectory() //  /storage/o
-                                    + File.separator + "clientkey34546.json");
-                    if(f.exists()){
-                        f.delete();
-                    }
-                    try{f.createNewFile();}
-                    catch (Exception e){
-                        e.printStackTrace();
-                    }
-                    //write the bytes in file
-                    try {
-                        FileOutputStream fo = new FileOutputStream(f);
-                        fo.write(response.body().bytes());
-                        // remember close de FileOutput
-                        fo.close();
-                    }
-                    catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
 
-            @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
-                call.cancel();
-            }
-        });
-
-    }
 
     private void initInternetConnectionStatusNotifier(){
         internetAvailabilityChecker  = new InternetAvailabilityChecker();

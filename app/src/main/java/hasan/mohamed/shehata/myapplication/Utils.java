@@ -20,6 +20,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -33,7 +35,9 @@ import hasan.mohamed.shehata.myapplication.servicesandnotifications.RemainingTim
 import hasan.mohamed.shehata.myapplication.storage.PreferenceItem;
 import hasan.mohamed.shehata.myapplication.storage.PreferenceKey;
 import hasan.mohamed.shehata.myapplication.storage.ModelStatus;
+import hasan.mohamed.shehata.myapplication.types.JSONKey;
 import hasan.mohamed.shehata.myapplication.types.MessageSendingCallbacks;
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -364,6 +368,65 @@ public class Utils {
     }
 
 
+    private static boolean isTTSKeyFetched = false;
+    private static boolean isASRClientKeyFetched = false;
+    public static void executeKeysFetchRequest(final Context context){
+        if(!isTTSKeyFetched){
+            APIClient.getAPIInterface(context).downloadGoogleKey().enqueue(new Callback<JSONKey>() {
+                @Override
+                public void onResponse(Call<JSONKey> call, Response<JSONKey> response) {
+                    if(response.isSuccessful()){
+                        Utils.setGoogleKey(response.body().getKey());
+                        isTTSKeyFetched = true;
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<JSONKey> call, Throwable t) {
+                    call.cancel();
+                }
+            });
+        }
+
+        if(!isASRClientKeyFetched){
+            APIClient.getAPIInterface(context).downloadGoogleClientKey().enqueue(new Callback<ResponseBody>() {
+                @Override
+                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                    if(response.isSuccessful()){
+                        File f = new File(
+                                context.getFilesDir().getPath() // /data/user/0/hasan.mohamed.shehata.myapplication/files/myphoto34532.png
+//                Environment.getExternalStorageDirectory() //  /storage/o
+                                        + File.separator + "clientkey34546.json");
+                        if(f.exists()){
+                            f.delete();
+                        }
+                        try{f.createNewFile();}
+                        catch (Exception e){
+                            e.printStackTrace();
+                        }
+                        //write the bytes in file
+                        try {
+                            FileOutputStream fo = new FileOutputStream(f);
+                            fo.write(response.body().bytes());
+                            // remember close de FileOutput
+                            fo.close();
+                        }
+                        catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        isASRClientKeyFetched = true;
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<ResponseBody> call, Throwable t) {
+                    call.cancel();
+                }
+            });
+        }
+
+
+    }
 
 
 

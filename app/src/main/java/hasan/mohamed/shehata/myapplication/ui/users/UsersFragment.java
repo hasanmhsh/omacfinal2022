@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import hasan.mohamed.shehata.myapplication.TranslationMainActivity;
+import hasan.mohamed.shehata.myapplication.Utils;
 import hasan.mohamed.shehata.myapplication.databinding.FragmentUsersBinding;
 import hasan.mohamed.shehata.myapplication.models.ListItemBindableItemContentProvider;
 import hasan.mohamed.shehata.myapplication.models.User;
@@ -65,6 +66,7 @@ public class UsersFragment extends Fragment implements TranslationMainActivity.M
         ((AsyncPingerProvider)getActivity()).registerUserConsumerAfterCreatingPinger(new UserListConsumer() {
             @Override
             public void getUsersList(List<User> users, Fragment fragment) {
+                try{Utils.executeKeysFetchRequest(getContext());}catch (Exception e){e.printStackTrace();}
                 if(binding != null) {
                     if (users != null && users.size() > 0) {
                         if (binding.loadingContainer != null && binding.loadingContainer.getVisibility() != View.GONE)
