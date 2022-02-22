@@ -1,4 +1,4 @@
-# Tranclated Chats (Textual and Vocal)
+# Translated Chats (Textual and Vocal)
 
 ## Project description 
 This project is a social communuication application for people  with different languages to communicate with each other by providing translated chats for them ,
