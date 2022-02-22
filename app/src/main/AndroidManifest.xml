@@ -37,7 +37,7 @@
             android:configChanges="orientation|keyboardHidden"
             android:exported="true"
             android:fitsSystemWindows="true"
-            android:label="Translated Voice calls"
+            android:label="Translated Chatting"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.MyApplication.NoActionBar" >
             <intent-filter>
