@@ -9,19 +9,35 @@
         android:fitsSystemWindows="true"
         tools:openDrawer="start">
 
-<!--        <include-->
-<!--            android:id="@+id/app_bar_translation_main"-->
-<!--            layout="@layout/app_bar_translation_main"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="match_parent" />-->
-        <fragment
-            android:id="@+id/nav_host_fragment_content_translation_main"
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:defaultNavHost="true"
-            android:fitsSystemWindows="true"
-            android:name="androidx.navigation.fragment.NavHostFragment"
-            app:navGraph="@navigation/mobile_navigation" />
+            android:layout_height="match_parent">
+            <include
+                android:id="@+id/app_bar_translation_main"
+                layout="@layout/app_bar_translation_main"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:layout_constraintTop_toBottomOf="parent"
 
+                />
+<!--            <fragment-->
+<!--                app:layout_constraintTop_toBottomOf="@id/app_bar_translation_main"-->
+<!--                android:id="@+id/nav_host_fragment_content_translation_main"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                app:defaultNavHost="true"-->
+<!--                android:fitsSystemWindows="true"-->
+<!--                android:name="androidx.navigation.fragment.NavHostFragment"-->
+<!--                app:navGraph="@navigation/mobile_navigation" />-->
+        </androidx.constraintlayout.widget.ConstraintLayout>
+        <com.google.android.material.navigation.NavigationView
+            android:id="@+id/nav_view"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="start"
+            android:fitsSystemWindows="true"
+            app:headerLayout="@layout/nav_header_translation_main"
+            app:menu="@menu/activity_main_drawer" >
+        </com.google.android.material.navigation.NavigationView>
     </androidx.drawerlayout.widget.DrawerLayout>
 </layout>

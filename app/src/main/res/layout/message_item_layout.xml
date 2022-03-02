@@ -32,7 +32,7 @@
             app:layout_constraintTop_toTopOf="parent"
             android:fontFamily="@font/nunito"
             android:textFontWeight="600"
-            android:textSize="13sp"
+            android:textSize="@dimen/message_item_sender_name_text_size"
 
 />
         <TextView
@@ -44,7 +44,7 @@
             android:text="@{message.currentMessageText}"
             android:fontFamily="@font/nunito"
             android:textFontWeight="500"
-            android:textSize="12sp"
+            android:textSize="@dimen/message_item_textofmessage_text_size"
             android:layout_margin="5dp"
             android:textColor="@color/white"/>
         <Switch
@@ -93,11 +93,10 @@
         android:id="@+id/my_msg_triangle"
         android:layout_width="15dp"
         android:layout_height="13dp"
-        android:translationY="-3dp"
+        android:translationX="1dp"
         app:layout_constraintStart_toEndOf="@id/my_msg_logo"
         app:layout_constraintTop_toTopOf="parent"
-        android:src="@drawable/triangleright2"
-
+        android:background="@drawable/svg_sent_msg_triangle"
         android:visibility="visible"/>
 
     <ImageView
@@ -112,11 +111,10 @@
         android:id="@+id/buddy_msg_triangle"
         android:layout_width="15dp"
         android:layout_height="13dp"
-        android:translationY="-3dp"
+        android:translationX="-1dp"
         app:layout_constraintEnd_toStartOf="@id/buddy_msg_logo"
         app:layout_constraintTop_toTopOf="parent"
-        android:src="@drawable/triangleright3"
-
+        style="@style/ReceivedMessageTriangleStyle"
         android:visibility="visible"/>
 
 

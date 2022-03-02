@@ -1,21 +1,18 @@
 package hasan.mohamed.shehata.myapplication;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Menu;
-import android.view.ViewTreeObserver;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.TextView;
@@ -29,44 +26,35 @@ import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.ActivityResultRegistry;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.appcompat.app.AppCompatDelegate;
+import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
-import androidx.core.app.ActivityOptionsCompat;
 import androidx.core.content.ContextCompat;
-import androidx.fragment.app.Fragment;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 import androidx.navigation.NavBackStackEntry;
 import androidx.navigation.NavController;
-import androidx.navigation.NavOptions;
 import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
-import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.appcompat.app.AppCompatActivity;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
 import hasan.mohamed.shehata.InternetAvailabilityChecker;
 import hasan.mohamed.shehata.myapplication.async.AsyncPinger;
 import hasan.mohamed.shehata.myapplication.databinding.ActivityTranslationMainBinding;
-import hasan.mohamed.shehata.myapplication.databinding.FragmentLoginBinding;
+import hasan.mohamed.shehata.myapplication.databinding.NavHeaderTranslationMainBinding;
 import hasan.mohamed.shehata.myapplication.internet.APIClient;
-import hasan.mohamed.shehata.myapplication.models.Language;
 import hasan.mohamed.shehata.myapplication.models.User;
-import hasan.mohamed.shehata.myapplication.templates.GeneralPopupWindow;
 import hasan.mohamed.shehata.myapplication.types.AsyncPingerProvider;
 import hasan.mohamed.shehata.myapplication.types.CallDialogCallbacks;
 import hasan.mohamed.shehata.myapplication.types.CallDialogProvider;
 import hasan.mohamed.shehata.myapplication.types.Callable;
 import hasan.mohamed.shehata.myapplication.types.FabActionType;
 import hasan.mohamed.shehata.myapplication.types.FabSource;
-import hasan.mohamed.shehata.myapplication.types.JSONKey;
 import hasan.mohamed.shehata.myapplication.types.MessageFragmentProvider;
 import hasan.mohamed.shehata.myapplication.types.NavHeader;
 import hasan.mohamed.shehata.myapplication.types.NavigationProvider;
@@ -78,8 +66,6 @@ import hasan.mohamed.shehata.myapplication.types.UserListConsumer;
 import hasan.mohamed.shehata.myapplication.ui.calling.CallingFragment;
 import hasan.mohamed.shehata.myapplication.ui.login.LoginFragment;
 import hasan.mohamed.shehata.myapplication.ui.messages.MessageFragment;
-import hasan.mohamed.shehata.myapplication.ui.users.UsersFragment;
-import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -94,11 +80,13 @@ public class TranslationMainActivity extends AppCompatActivity implements FabSou
     private AsyncPinger pinger;
     private NavController navController;
     NavHostFragment navHostFragment;
-//    private User me;
+    //    private User me;
     private InternetAvailabilityChecker internetAvailabilityChecker;
     private Callable callable;
     private User currentUser;
     private int viewFlags;
+    private int originalViewFlags;
+    private NavHeaderTranslationMainBinding headerTranslationMainBinding = null;
 
 
 
@@ -117,7 +105,7 @@ public class TranslationMainActivity extends AppCompatActivity implements FabSou
 //        binding = ActivityTranslationMainBinding.inflate(getLayoutInflater());
         binding = ActivityTranslationMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-//        setSupportActionBar(binding.appBarTranslationMain.toolbar);
+        setSupportActionBar(binding.appBarTranslationMain.toolbar);
 //        binding.appBarTranslationMain.fab.setOnClickListener(new View.OnClickListener() {
 //            @Override
 //            public void onClick(View view) {
@@ -125,26 +113,40 @@ public class TranslationMainActivity extends AppCompatActivity implements FabSou
 //                        .setAction("Action", null).show();
 //            }
 //        });
-//        DrawerLayout drawer = binding.drawerLayout;
-//        NavigationView navigationView = binding.navView;
+        DrawerLayout drawer = binding.drawerLayout;
+        NavigationView navigationView = binding.navView;
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
-//        mAppBarConfiguration = new AppBarConfiguration.Builder(
-//                R.id.nav_home, R.id.nav_users, R.id.translationFragment2)
-//                .setOpenableLayout(drawer)
-//                .build();
+        mAppBarConfiguration = new AppBarConfiguration.Builder(
+                R.id.nav_users)
+                .setOpenableLayout(drawer)
+                .build();
         navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_translation_main);
-//        NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
-//        NavigationUI.setupWithNavController(navigationView, navController);
+        NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
+        NavigationUI.setupWithNavController(navigationView, navController);
         navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment_content_translation_main);
         MLApplication.getInstance().setAccessToken(Utils.getHMSApiKey());
 
+        binding.navView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                binding.drawerLayout.closeDrawers();
+                switch(item.getItemId()){
+                    case R.id.nav_menu_item_logout:
+                        changeUser();
+                        break;
+                }
+                return true;
+            }
+        });
 //        navtitleTV = (TextView)binding.navView.getHeaderView(0).findViewById(R.id.nav_header_title_tv);
 //        navsubtitleTV = (TextView)binding.navView.getHeaderView(0).findViewById(R.id.nav_header_sub_title_tv);
-        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+//        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
 
         AppDatabase.callInActivityOnCreate(this);
         disableFab();
+
+        originalViewFlags = getWindow().getDecorView().getSystemUiVisibility();
 
 //        binding.navView.setVisibility(View.GONE);
         binding.drawerLayout.postDelayed(new Runnable() {
@@ -155,14 +157,14 @@ public class TranslationMainActivity extends AppCompatActivity implements FabSou
 
                 viewFlags =
                         View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
-                            | View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
-                        |View.SYSTEM_UI_FLAG_LOW_PROFILE
-                        | View.SYSTEM_UI_FLAG_FULLSCREEN
-                        | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                        | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                        ;
+                                | View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+                                |View.SYSTEM_UI_FLAG_LOW_PROFILE
+                                | View.SYSTEM_UI_FLAG_FULLSCREEN
+                                | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                ;
 //                getWindow().getDecorView().setSystemUiVisibility(viewFlags);
                 Window w = getWindow();
 //                w.setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
@@ -171,17 +173,18 @@ public class TranslationMainActivity extends AppCompatActivity implements FabSou
         }, 4000);
         if(getActionBar() !=null)
             getActionBar().hide();
+        binding.appBarTranslationMain.toolbar.setVisibility(View.GONE);
         viewFlags =
 
 //                View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
-                         View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
-                 |View.SYSTEM_UI_FLAG_LOW_PROFILE
+                View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+                        |View.SYSTEM_UI_FLAG_LOW_PROFILE
 //                 |View.SYSTEM_UI_FLAG_FULLSCREEN
-                 |View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        |View.SYSTEM_UI_FLAG_LAYOUT_STABLE
 //
-                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                |View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
+                        | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        |View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
         getWindow().getDecorView().setSystemUiVisibility(viewFlags);
         Window w = getWindow();
         w.setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
@@ -208,6 +211,9 @@ public class TranslationMainActivity extends AppCompatActivity implements FabSou
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         Utils.registerPoster(binding.getRoot());
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+
+        binding.appBarTranslationMain.toolbar.setBackgroundResource(R.drawable.my_user_header_background);
+        binding.appBarTranslationMain.toolbar.setTitle(R.string.brand_name);
 
         APIClient.getAPIInterface(this).getAllUsers().enqueue(new Callback<List<User>>() {
             @Override
@@ -237,7 +243,9 @@ public class TranslationMainActivity extends AppCompatActivity implements FabSou
 //                                               }
 //                                           });
 //         Internet availablity checker
-            Utils.executeKeysFetchRequest(this);
+        getWindow().setStatusBarColor(getResources().getColor(R.color.myAccent1));
+        headerTranslationMainBinding = NavHeaderTranslationMainBinding.bind (binding.navView.getHeaderView (0));
+        Utils.executeKeysFetchRequest(this);
 
     }
 
@@ -266,13 +274,13 @@ public class TranslationMainActivity extends AppCompatActivity implements FabSou
 
     private void continueAfterSplash(){
         requestMyPermissions();
-        showUserDialog();
+        showUserDialog(false);
     }
 
 
     @Override
     public void setFabAction(Runnable runnable) {
-        
+
     }
 
     @Override
@@ -290,10 +298,18 @@ public class TranslationMainActivity extends AppCompatActivity implements FabSou
 
     }
 
+    private Menu actionBarMenuHost = null;
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
+        actionBarMenuHost = menu;
         getMenuInflater().inflate(R.menu.translation_main, menu);
+        for(int i = 0 ; i < menu.size() ; i++){
+            if(menu.getItem(i).getItemId() == R.id.action_high_contrast)
+                menu.getItem(i).setChecked(Utils.getIsHighContrastTheme(this));
+            else if(menu.getItem(i).getItemId() == R.id.action_continious_recognition)
+                menu.getItem(i).setChecked(Utils.getIsContinuousRecognition(this));
+        }
         return true;
     }
 
@@ -448,32 +464,71 @@ public class TranslationMainActivity extends AppCompatActivity implements FabSou
 
 
 
-    public void showUserDialog(){
+    private void showUserDialog(boolean isNavigateToLoginDirectlyAndClearBackStack){
         if(!Utils.isUserCreated(this)) {
 //            GeneralPopupWindow.makeUserCreationWindow(this, "", false);
-            navigateFromSplashToLogin();
+
+
+            if(!isNavigateToLoginDirectlyAndClearBackStack)
+                navigateFromSplashToLogin();
+            else if(navController.getCurrentDestination().getId() == R.id.nav_users)
+                navigateFromUsersToLogin();
+            else if(navController.getCurrentDestination().getId() == R.id.nav_messages)
+                navigateFromMessagesToLogin();
         }
         else{
             long id = Utils.getUserID(this);
             AppDatabase.getUserDao().loadUser(id).observe(thiz, new Observer<User>() {
                 @Override
                 public void onChanged(User user) {
+                    if(user == null)
+                        return;
                     currentUser = user;
                     createPingerIfNotCreated();
-                    setNavHeaderData(user.getUsername()+"("+user.getUserlanguage().getLanguageName()+")", user.getUseremail());
-                    navigateFromSplashToUsers();
+//                    setNavHeaderData(user.getUsername()+"("+user.getUserlanguage().getLanguageName()+")", user.getUseremail());
+                    User userCopy = new User();
+                    userCopy.setUserid(currentUser.getUserid());
+                    userCopy.setUsername(currentUser.getUsername());
+                    userCopy.setUserlanguage(currentUser.getUserlanguage());
+                    userCopy.setUseremail(currentUser.getUseremail());
+                    headerTranslationMainBinding.setUser(userCopy);
+                    userCopy.drawLogo(headerTranslationMainBinding.headerMyUserImageViewNavView);
+                    if(navController.getCurrentDestination().getId() != R.id.nav_users)
+                        navigateFromSplashToUsers();
                 }
             });
         }
     }
 
 
+    public void bindMeToNavHeader(){
+        if(currentUser != null) {
+            User userCopy = new User();
+            userCopy.setUserid(currentUser.getUserid());
+            userCopy.setUsername(currentUser.getUsername());
+            userCopy.setUserlanguage(currentUser.getUserlanguage());
+            userCopy.setUseremail(currentUser.getUseremail());
+            headerTranslationMainBinding.setUser(userCopy);
+            userCopy.drawLogo(headerTranslationMainBinding.headerMyUserImageViewNavView);
+        }
+    }
+
+    private void unbindMeToNavHeader(){
+        if(currentUser != null) {
+            User userCopy = new User();
+            headerTranslationMainBinding.setUser(userCopy);
+            userCopy.drawLogo(headerTranslationMainBinding.headerMyUserImageViewNavView);
+        }
+    }
 
 
 
 
+    private List<Runnable> pingerSeekers = new ArrayList<>();
     @Override
     public AsyncPinger getCurrentPinger() {
+        if(pinger == null)
+            createPingerIfNotCreated();;
         return pinger;
     }
 
@@ -557,7 +612,9 @@ public class TranslationMainActivity extends AppCompatActivity implements FabSou
         AppDatabase.getUserDao().loadUser(id).observe(thiz, new Observer<User>() {
             @Override
             public void onChanged(User user) {
-                setNavHeaderData(user.getUsername()+"("+user.getUserlanguage().getLanguageName()+")", user.getUseremail());
+                if(user == null)
+                    return;
+//                setNavHeaderData(user.getUsername()+"("+user.getUserlanguage().getLanguageName()+")", user.getUseremail());
                 currentUser = user;
 
                 if(navController.getCurrentDestination().getId() == R.id.loginFragment) {
@@ -567,6 +624,20 @@ public class TranslationMainActivity extends AppCompatActivity implements FabSou
             }
         });
 
+    }
+
+    @Override
+    public void navigateFromUsersToLogin() {
+        if(navController.getCurrentDestination().getId() == R.id.nav_users) {
+            navController.navigate(R.id.action_users_toLogin);
+        }
+    }
+
+    @Override
+    public void navigateFromMessagesToLogin() {
+        if(navController.getCurrentDestination().getId() == R.id.nav_messages) {
+            navController.navigate(R.id.action_messages_toLogin);
+        }
     }
 
 
@@ -653,16 +724,38 @@ public class TranslationMainActivity extends AppCompatActivity implements FabSou
         switch (item.getItemId()) {
 
             /** CAMERA **/
-            case R.id.action_settings:
+            case R.id.action_high_contrast: {
                 //openCamera();
-                Toast.makeText(getApplicationContext(), "Settings", Toast.LENGTH_SHORT).show();
-                return true;
+                if (item.isChecked()) {
+                    item.setChecked(false);
+                }
+                else{
+                    item.setChecked(true);
+                }
 
-            /** SEARCH **/
-            case R.id.action_change_user:
-                //openSearch();
-                changeUser();
+                Utils.setIsHighContrastTheme(this, item.isChecked());
                 return true;
+            }
+
+//            /** SEARCH **/
+//            case R.id.action_change_user:
+//                //openSearch();
+//                changeUser();
+//                return true;
+
+
+            case R.id.action_continious_recognition: {
+//                changeUser();
+                if (item.isChecked()) {
+                    item.setChecked(false);
+                }
+                else{
+                    item.setChecked(true);
+                }
+                Utils.setIsContinuousRecognition(this, item.isChecked());
+                return true;
+            }
+
 
 
             default:
@@ -677,23 +770,41 @@ public class TranslationMainActivity extends AppCompatActivity implements FabSou
     }
 
     private void resetUIState() {
-        viewFlags =
+        if (navController.getCurrentDestination().getId() == R.id.callingFragment
+                || navController.getCurrentDestination().getId() == R.id.splashFragment
+                || navController.getCurrentDestination().getId() == R.id.loginFragment) {
+            viewFlags =
 
 //                View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
-                        View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
-                        |View.SYSTEM_UI_FLAG_LOW_PROFILE
+                    View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+                            | View.SYSTEM_UI_FLAG_LOW_PROFILE
 //                 |View.SYSTEM_UI_FLAG_FULLSCREEN
-                        |View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                            | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
 //
-                        | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                        |View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
-        getWindow().getDecorView().setSystemUiVisibility(viewFlags);
-        Window w = getWindow();
-        w.setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
+                            | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
+            getWindow().getDecorView().setSystemUiVisibility(viewFlags);
+            Window w = getWindow();
+            w.setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
+            if(getActionBar() != null){
+                getActionBar().hide();
+            }
+
+            binding.appBarTranslationMain.toolbar.setVisibility(View.GONE);
+        }
+        else{
+
+            binding.appBarTranslationMain.toolbar.setVisibility(View.GONE);
+            if(navController.getCurrentDestination().getId() == R.id.nav_users || navController.getCurrentDestination().getId() == R.id.nav_messages){
+                displayUserListActionBar();
+            }
+            exitFullScreenMode();
+        }
     }
 
     public void resetUIStateDelayed(){
+        resetUIState();
         Utils.runOnUIThreadPostDelayed(new Runnable() {
             @Override
             public void run() {
@@ -702,9 +813,16 @@ public class TranslationMainActivity extends AppCompatActivity implements FabSou
         });
     }
 
+
     private void changeUser() {
-        Utils.unsetUserCreated(this,currentUser);
-        showUserDialog();
+        unbindMeToNavHeader();
+        Utils.unsetUserCreated(this, currentUser, new Runnable() {
+            @Override
+            public void run() {
+                showUserDialog(true);
+            }
+        });
+
     }
 
     @Override
@@ -935,5 +1053,46 @@ public class TranslationMainActivity extends AppCompatActivity implements FabSou
                     mThumbnailLiveData.setValue(thumbnail);
                 }
             });
+
+
+    public void exitFullScreenMode(){
+        viewFlags =
+
+//                View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
+//                View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+//                        |View.SYSTEM_UI_FLAG_LOW_PROFILE
+//                 |View.SYSTEM_UI_FLAG_FULLSCREEN
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
+//
+//                        | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
+//                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+//                        |View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
+        getWindow().getDecorView().setSystemUiVisibility(viewFlags);
+//        Window w = getWindow();
+//        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
+        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
+        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+//        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
+//        getWindow().addFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
+        binding.getRoot().requestLayout();
+    }
+
+    public void displayUserListActionBar(){
+
+        binding.appBarTranslationMain.toolbar.setVisibility(View.VISIBLE);
+        if(getSupportActionBar() !=null) {
+            getSupportActionBar().show();
+//            binding.appBarTranslationMain.toolbar.getMenu();
+//            getMenuInflater().inflate(R.menu.user_list_menu, actionBarMenuHost);
+        }
+        if(getActionBar() !=null)
+            getActionBar().show();
+
+//        binding.appBarTranslationMain.toolbar.getMenu().clear();
+//        getMenuInflater().inflate(R.menu.user_list_menu, binding.appBarTranslationMain.toolbar.getMenu());
+
+
+
+    }
 
 }

@@ -24,12 +24,13 @@ import hasan.mohamed.shehata.myapplication.Utils;
 import hasan.mohamed.shehata.myapplication.models.Language;
 import hasan.mohamed.shehata.myapplication.types.ActionResultCallback;
 import hasan.mohamed.shehata.myapplication.types.AsrResultCallbacks;
+import hasan.mohamed.shehata.myapplication.types.ContinuousRecognitionObserver;
 import hasan.mohamed.shehata.myapplication.types.ModelSource;
 import hasan.mohamed.shehata.myapplication.types.PermissionRequestCallbacks;
 import hasan.mohamed.shehata.myapplication.types.PermissionRequestProvider;
 import hasan.mohamed.shehata.myapplication.types.TextReceiver;
 
-public class ASR_Enhanced {
+public class ASR_Enhanced implements ContinuousRecognitionObserver {
 
 
 //    private HashMap<Language, String> languageAsrCodes = new HashMap<Language,String>(){{
@@ -170,6 +171,7 @@ public class ASR_Enhanced {
         this.noRecordResId = noRecordResId;
         this.recognizedTextConsumer = recognizedTextConsumer;
         this.asrResultCallbacks = asrResultCallbacks;
+        isContinuousRecognition = Utils.getIsContinuousRecognition(owner);
         if(recordButton != null)
             changeRecordButton(recordButton);
         if(IS_USE_GOOGLE_CLOUD_ASR){
@@ -188,8 +190,8 @@ public class ASR_Enhanced {
                         }
 //                    speechRecognizer.stopListening();
                         if (recordButton != null) {
-                            recordButton.setImageResource(recordResId);
-                            recordButton.setBackgroundResource(R.drawable.round_button_light);
+                            recordButton.setImageResource(Utils.selectAccordingToLightOrDark(owner,R.drawable.ic_baseline_mic_50,R.drawable.ic_baseline_mic_50,R.drawable.ic_baseline_mic_50,R.drawable.ic_baseline_mic_50_black));
+                            recordButton.setBackgroundResource(Utils.selectAccordingToLightOrDark(owner,R.drawable.round_button_light,R.drawable.round_button_light,R.drawable.round_button_light_high_contrast,R.drawable.round_button_light_high_contrast));
                             Utils.playStopRecordSound(owner);
                         }
                     }
@@ -205,6 +207,7 @@ public class ASR_Enhanced {
         else {
             initASR();
         }
+        Utils.registerContinuousRecognitionObserver(this);
     }
 
     private void initGoogleCloudAsr(){
@@ -272,7 +275,8 @@ public class ASR_Enhanced {
                     isResultDelivered = false;
 //                    speechRecognizer.stopListening();
                     if(recordButton != null) {
-                        recordButton.setImageResource(recordResId);
+                        recordButton.setImageResource(Utils.selectAccordingToLightOrDark(owner,R.drawable.ic_baseline_mic_50,R.drawable.ic_baseline_mic_50,R.drawable.ic_baseline_mic_50,R.drawable.ic_baseline_mic_50_black));
+                        recordButton.setBackgroundResource(Utils.selectAccordingToLightOrDark(owner,R.drawable.round_button_light,R.drawable.round_button_light,R.drawable.round_button_light_high_contrast,R.drawable.round_button_light_high_contrast));
                         Utils.playStopRecordSound(owner);
                     }
                 }
@@ -304,7 +308,8 @@ public class ASR_Enhanced {
                 if(asrResultCallbacks != null)
                     asrResultCallbacks.voiceRecognized(data.get(0));
                 if(recordButton != null) {
-                    recordButton.setImageResource(recordResId);
+                    recordButton.setImageResource(Utils.selectAccordingToLightOrDark(owner,R.drawable.ic_baseline_mic_50,R.drawable.ic_baseline_mic_50,R.drawable.ic_baseline_mic_50,R.drawable.ic_baseline_mic_50_black));
+                    recordButton.setBackgroundResource(Utils.selectAccordingToLightOrDark(owner,R.drawable.round_button_light,R.drawable.round_button_light,R.drawable.round_button_light_high_contrast,R.drawable.round_button_light_high_contrast));
                     Utils.playStopRecordSound(owner);
                 }
 //                speechRecognizer.stopListening();
@@ -371,7 +376,8 @@ public class ASR_Enhanced {
                         isError = false;
                         isEnd = false;
                         if (recordButton != null) {
-                            recordButton.setImageResource(noRecordResId);
+                            recordButton.setImageResource(Utils.selectAccordingToLightOrDark(owner,R.drawable.ic_baseline_mic_off_50,R.drawable.ic_baseline_mic_off_50,R.drawable.ic_baseline_mic_off_50,R.drawable.ic_baseline_mic_off_50_black));
+                            recordButton.setBackgroundResource(Utils.selectAccordingToLightOrDark(owner,R.drawable.round_red_button_light,R.drawable.round_red_button_light,R.drawable.round_button_light_high_contrast,R.drawable.round_button_light_high_contrast));
                             Utils.playStartRecordSound(owner);
                         }
                         speechRecognizer.startListening(speechRecognizerIntent);
@@ -380,8 +386,9 @@ public class ASR_Enhanced {
                         if (!isListening) {
                             isListening = true;
                             if (recordButton != null) {
-                                recordButton.setImageResource(noRecordResId);
-                                recordButton.setBackgroundResource(R.drawable.round_red_button_light);
+
+                                recordButton.setImageResource(Utils.selectAccordingToLightOrDark(owner,R.drawable.ic_baseline_mic_off_50,R.drawable.ic_baseline_mic_off_50,R.drawable.ic_baseline_mic_off_50,R.drawable.ic_baseline_mic_off_50_black));
+                                recordButton.setBackgroundResource(Utils.selectAccordingToLightOrDark(owner,R.drawable.round_red_button_light,R.drawable.round_red_button_light,R.drawable.round_button_light_high_contrast,R.drawable.round_button_light_high_contrast));
                                 Utils.playStartRecordSound(owner);
                             }
                             if (googleCloudASR != null) {
@@ -392,8 +399,8 @@ public class ASR_Enhanced {
                             isListening = false;
 //                    speechRecognizer.stopListening();
                             if(recordButton != null) {
-                                recordButton.setImageResource(recordResId);
-                                recordButton.setBackgroundResource(R.drawable.round_button_light);
+                                recordButton.setImageResource(Utils.selectAccordingToLightOrDark(owner,R.drawable.ic_baseline_mic_50,R.drawable.ic_baseline_mic_50,R.drawable.ic_baseline_mic_50,R.drawable.ic_baseline_mic_50_black));
+                                recordButton.setBackgroundResource(Utils.selectAccordingToLightOrDark(owner,R.drawable.round_button_light,R.drawable.round_button_light,R.drawable.round_button_light_high_contrast,R.drawable.round_button_light_high_contrast));
                                 Utils.playStopRecordSound(owner);
                             }
                             if (googleCloudASR != null) {
@@ -421,5 +428,10 @@ public class ASR_Enhanced {
 
     public void changeRecognizedTextConsumer(TextView textView){
         recognizedTextConsumer = textView;
+    }
+
+    @Override
+    public void refresh(boolean isContinuousRecognitionEnabled) {
+        setContinuousRecognition(isContinuousRecognitionEnabled);
     }
 }

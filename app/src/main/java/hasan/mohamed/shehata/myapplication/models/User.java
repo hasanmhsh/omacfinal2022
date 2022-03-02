@@ -46,6 +46,15 @@ public class User extends BaseObservable implements ListItemBindableItemContentP
         "phone": "01102910007"
     }
      */
+
+    public User(User user) {
+        this.userid = user.userid;
+        this.username = user.username;
+        this.userlanguage = user.userlanguage;
+        this.isOnline = user.isOnline;
+        this.isExist = user.isExist;
+    }
+
     @SerializedName("id")
     @PrimaryKey(autoGenerate = true)
     private long userid;
@@ -79,6 +88,10 @@ public class User extends BaseObservable implements ListItemBindableItemContentP
 
     @SerializedName("exist")
     private boolean isExist;
+
+    public User() {
+
+    }
 
     public boolean isExist() {
         return isExist;
@@ -370,6 +383,8 @@ public class User extends BaseObservable implements ListItemBindableItemContentP
     private ImageView lastInstanceOfImageView;
     @Override
     public void drawLogo(ImageView view) {
+        if(view == null)
+            return;
         isLogoCircular = false;
 
 //        RequestOptions requestOptions = new RequestOptions();
@@ -389,6 +404,8 @@ public class User extends BaseObservable implements ListItemBindableItemContentP
     @Ignore
     private boolean isLogoCircular = false;
     public void drawCircularLogo(ImageView view){
+        if(view == null)
+            return;
         isLogoCircular = true;
         lastInstanceOfImageView = view;
         AsyncPinger asyncPinger = ((AsyncPingerProvider)view.getContext()).getCurrentPinger();
@@ -398,6 +415,8 @@ public class User extends BaseObservable implements ListItemBindableItemContentP
     }
 
     public void drawCircularLogoWithActivity(ImageView view, TranslationMainActivity activity) {
+        if(view == null || activity == null)
+            return;
         isLogoCircular = true;
         lastInstanceOfImageView = view;
         AsyncPinger asyncPinger = ((AsyncPingerProvider)activity).getCurrentPinger();

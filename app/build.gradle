@@ -161,6 +161,7 @@ def room_version = "2.4.1"
 
     implementation 'com.huawei.hms:ml-computer-translate:2.2.0.300'
     implementation 'com.huawei.hms:ml-computer-translate-model:2.2.0.300'
+    
 }
 //repositories {
 //    mavenCentral()

@@ -36,12 +36,12 @@
     <color name="buddy_message_label_text_color">#737373</color>
     <color name="huddle_background_color">#481885</color>
     <color name="lightTextColor2">#969696</color>
-    <color name="high_contrast_background_color">#FFFFFF</color>
-    <color name="high_contrast_text_color">#000000</color>
+    <color name="high_contrast_background_color">#000000</color>
+    <color name="high_contrast_text_color">#FFFFFF</color>
     <color name="high_contrast_pressed_contour_color">#FF0000</color>
-    <color name="high_contrast_released_contour_color">#0041FF</color>
-    <color name="high_contrast_unpressable_contour1_color">#000000</color>
-    <color name="high_contrast_unpressable_contour2_color">#000000</color>
+    <color name="high_contrast_released_contour_color">#FFFFFF</color>
+    <color name="high_contrast_unpressable_contour1_color">#FFFFFF</color>
+    <color name="high_contrast_unpressable_contour2_color">#FFEB3B</color>
     <color name="message_fragment_msget_text_color">#000000</color>
 
 </resources>

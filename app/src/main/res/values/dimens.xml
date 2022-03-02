@@ -21,7 +21,13 @@
     <dimen name="fragment_vertical_margin">16dp</dimen>
     <dimen name="padding_large">13dp</dimen>
     <dimen name="padding_very_large">30dp</dimen>
+    <dimen name="header_user_photo_horizontal_margin">22dp</dimen>
     <dimen name="item_corner_radius_circular">20dp</dimen>
     <dimen name="msg_triangle_width">7dp</dimen>
     <dimen name="msg_triangle_height">5dp</dimen>
+    <dimen name="stroke_width_high_contrast_released">4dp</dimen>
+    <dimen name="stroke_width_high_contrast_pressed">10dp</dimen>
+    <dimen name="message_item_sender_name_text_size">13sp</dimen>
+    <dimen name="message_item_textofmessage_text_size">12sp</dimen>
+    <dimen name="message_fragment_message_et_box_text_size">14sp</dimen>
 </resources>

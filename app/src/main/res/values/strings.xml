@@ -65,4 +65,7 @@
     <string name="dummy_button">Dummy Button</string>
     <string name="dummy_content">DUMMY\nCONTENT</string>
     <string name="title_activity_test_test_test">TestTestTestActivity</string>
+    <string name="users_list">Buddies</string>
+    <string name="logout">Logout</string>
+    <string name="brand_name">Huddle</string>
 </resources>

@@ -3,6 +3,7 @@ package hasan.mohamed.shehata.myapplication.ui.messages;
 import android.app.Activity;
 import android.graphics.Rect;
 import android.os.Bundle;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,6 +33,8 @@ import hasan.mohamed.shehata.myapplication.R;
 import hasan.mohamed.shehata.myapplication.TranslationMainActivity;
 import hasan.mohamed.shehata.myapplication.Utils;
 import hasan.mohamed.shehata.myapplication.async.AsyncPinger;
+import hasan.mohamed.shehata.myapplication.dao.MessageDao;
+import hasan.mohamed.shehata.myapplication.dao.UserDao;
 import hasan.mohamed.shehata.myapplication.databinding.FragmentMessagesBinding;
 import hasan.mohamed.shehata.myapplication.internet.APIClient;
 import hasan.mohamed.shehata.myapplication.languages.ASR_Enhanced;
@@ -48,6 +51,7 @@ import hasan.mohamed.shehata.myapplication.types.AsyncPingerProvider;
 import hasan.mohamed.shehata.myapplication.types.DownloadCallbacks;
 import hasan.mohamed.shehata.myapplication.types.FabActionType;
 import hasan.mohamed.shehata.myapplication.types.FabSource;
+import hasan.mohamed.shehata.myapplication.types.HighContrastObserver;
 import hasan.mohamed.shehata.myapplication.types.MessageFragmentReverseCallbacks;
 import hasan.mohamed.shehata.myapplication.types.NewMessagesConsumer;
 import hasan.mohamed.shehata.myapplication.types.PermissionRequestProvider;
@@ -57,7 +61,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class MessageFragment extends Fragment implements SpeakerProvider, MessageFragmentReverseCallbacks {
+public class MessageFragment extends Fragment implements SpeakerProvider, MessageFragmentReverseCallbacks, HighContrastObserver {
 
 
     public static final String BUNDLE_KEY_FOR_ME_USER = "hasan.mohamed.shehata.myapplication.MeUser";
@@ -193,6 +197,7 @@ public class MessageFragment extends Fragment implements SpeakerProvider, Messag
 //        this.buddy = buddy;
 //    }
 
+    private float textSizeOfMessageET;
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
 
@@ -316,6 +321,7 @@ public class MessageFragment extends Fragment implements SpeakerProvider, Messag
 //        pinger = ((AsyncPingerProvider)getActivity()).getCurrentPinger();
 
 
+
         return root;
     }
 
@@ -336,7 +342,11 @@ public class MessageFragment extends Fragment implements SpeakerProvider, Messag
                         @Override
                         public void run() {
                             if(!checkIfControlMessage(msg))
-                                AppDatabase.getMessageDao().insertAll(msg);
+                                if(AppDatabase.getMessageDao() == null){
+                                    AppDatabase.callInActivityOnCreate(getContext());
+                                }
+                                if(AppDatabase.getMessageDao() != null)
+                                    AppDatabase.getMessageDao().insertAll(msg);
                         }
                     }).start();
                 }
@@ -423,7 +433,13 @@ public class MessageFragment extends Fragment implements SpeakerProvider, Messag
 
     private void getDatasetFromDB() {
 //        if(getContext() != null) {
-            AppDatabase.getMessageDao().getMyMessages(Utils.getUserID(getContext()), buddy.getUserid()).observe(getActivity(), new Observer<List<Message>>() {
+        MessageDao messageDao = AppDatabase.getMessageDao();
+        if(messageDao == null){
+            AppDatabase.callInActivityOnCreate(getContext());
+        }
+        if(messageDao != null){
+
+            messageDao.getMyMessages(Utils.getUserID(getContext()), buddy.getUserid()).observe(getActivity(), new Observer<List<Message>>() {
                 @Override
                 public void onChanged(List<Message> messages) {
                     List<ListItemBindableItemContentProvider> list = new ArrayList<>();
@@ -440,20 +456,22 @@ public class MessageFragment extends Fragment implements SpeakerProvider, Messag
 
                 }
             });
-//        }
+        }
     }
 
     private void makeASR() {
-        asr = new ASR_Enhanced(
-                getActivity(),
-                (PermissionRequestProvider) getActivity(),
-                me.getUserlanguage(),
-                binding.recognizeVoiceBut,
-                R.drawable.ic_baseline_mic_50,
-                R.drawable.ic_baseline_mic_off_50,
-                binding.sendingTextEt,
-                asrResultCallbacks
-                );
+        if(me != null) {
+            asr = new ASR_Enhanced(
+                    getActivity(),
+                    (PermissionRequestProvider) getActivity(),
+                    me.getUserlanguage(),
+                    binding.recognizeVoiceBut,
+                    R.drawable.ic_baseline_mic_50,
+                    R.drawable.ic_baseline_mic_off_50,
+                    binding.sendingTextEt,
+                    asrResultCallbacks
+            );
+        }
     }
 
     private void initList(List<ListItemBindableItemContentProvider> listItemBindableItemContentProviders) {
@@ -477,30 +495,36 @@ public class MessageFragment extends Fragment implements SpeakerProvider, Messag
             @Override
             public void onChanged(User user) {
                 buddy = user;
-                AppDatabase.getUserDao().loadUser(Utils.getUserID(getContext())).observe(getViewLifecycleOwner(), new Observer<User>() {
-                    @Override
-                    public void onChanged(User user) {
-                        me = user;
-                        binding.setUser(buddy);
-                        binding.getUser().drawLogo(binding.headerMyMsgImageView);
-                        messagesViewModel.getMeLiveData().setValue(me);
-                        makeASR();
-                        makeTTS();
-                        // Prepare Translation Model
-                        if(user.getUserlanguage() != null && buddy.getUserlanguage() != null) {
-                            if (user.getUserlanguage() != buddy.getUserlanguage()) {
-                                translator = new HMSTransloator(getContext(), me.getUserlanguage(), buddy.getUserlanguage(), null, null, null, null, new DownloadCallbacks() {
-                                    @Override
-                                    public void downloadCompleted() {
+                UserDao userDao = AppDatabase.getUserDao();
+                if(userDao == null){
+                    AppDatabase.callInActivityOnCreate(getContext());
+                }
+                if (userDao != null) {
+                    userDao.loadUser(Utils.getUserID(getContext())).observe(getViewLifecycleOwner(), new Observer<User>() {
+                        @Override
+                        public void onChanged(User user) {
+                            me = user;
+                            binding.setUser(buddy);
+                            binding.getUser().drawLogo(binding.headerMyMsgImageView);
+                            messagesViewModel.getMeLiveData().setValue(me);
+                            makeASR();
+                            makeTTS();
+                            // Prepare Translation Model
+                            if (user.getUserlanguage() != null && buddy.getUserlanguage() != null) {
+                                if (user.getUserlanguage() != buddy.getUserlanguage()) {
+                                    translator = new HMSTransloator(getContext(), me.getUserlanguage(), buddy.getUserlanguage(), null, null, null, null, new DownloadCallbacks() {
+                                        @Override
+                                        public void downloadCompleted() {
 //                                        getDatasetFromDB();
-                                    }
-                                }, false);
-                            } else {
+                                        }
+                                    }, false);
+                                } else {
 //                                getDatasetFromDB();
+                                }
                             }
                         }
-                    }
-                });
+                    });
+                }
             }
         });
 
@@ -583,6 +607,10 @@ public class MessageFragment extends Fragment implements SpeakerProvider, Messag
         if(isForCall){
             binding.continousRecognitionContainer.setVisibility(View.VISIBLE);
         }
+        isHighContrastEnabled = Utils.getIsHighContrastTheme(getContext());
+        textSizeOfMessageET = getResources().getDimension(R.dimen.message_fragment_message_et_box_text_size);binding.sendingTextEt.getTextSize();
+        refresh(isHighContrastEnabled);
+        Utils.registerHighContrastObserver(this);
     }
 
     private void clearUnreadFlags() {
@@ -590,8 +618,13 @@ public class MessageFragment extends Fragment implements SpeakerProvider, Messag
         new Thread(new Runnable() {
             @Override
             public void run() {
-                AppDatabase.getUnreadReceivedMessageNotificationDao().deleteSenderUnreadNotifications(id);
-                List<UnreadReceivedMessage> list = AppDatabase.getUnreadReceivedMessageNotificationDao().getAll();
+                if(AppDatabase.getUnreadReceivedMessageNotificationDao() == null) {
+                    AppDatabase.callInActivityOnCreate(getContext());
+                }
+                if(AppDatabase.getUnreadReceivedMessageNotificationDao() != null)
+                    AppDatabase.getUnreadReceivedMessageNotificationDao().deleteSenderUnreadNotifications(id);
+                if(AppDatabase.getUnreadReceivedMessageNotificationDao() != null)
+                    AppDatabase.getUnreadReceivedMessageNotificationDao().getAll();
                 if(pinger!=null)
                     pinger.notifyUnreadItemsDatabaseUpdated();
                 if(Utils.getGlobalPinger() != null)
@@ -684,5 +717,33 @@ public class MessageFragment extends Fragment implements SpeakerProvider, Messag
     @Override
     public void pleaseMessageFragmentDontSendTerminateMessageAtOnDestroyCallbackBecauseIWillDoInAsyncPinger() {
         inhibiteSendingTerminateMessageOnDestroyCallback.set(true);
+    }
+
+    private boolean isHighContrastEnabled;
+    @Override
+    public void refresh(boolean isHighContrast) {
+        isHighContrastEnabled = isHighContrast;
+        if(binding == null || binding.messageFragmentRootContainer == null || binding.sendingTextEt == null
+        || binding.sendBut == null || binding.recognizeVoiceBut == null)
+            return;
+        if (isHighContrast) {
+            binding.messageFragmentRootContainer.setBackgroundColor(getResources().getColor(R.color.high_contrast_background_color));
+            binding.sendingTextEt.setBackgroundResource(R.drawable.buddy_message_unpressable_background1_high_contrast);
+            binding.sendingTextEt.setTextSize(TypedValue.COMPLEX_UNIT_PX,Utils.getHighContrastTextFactor(getContext()) * textSizeOfMessageET);
+            binding.sendingTextEt.setTextColor(getResources().getColor(R.color.high_contrast_text_color));
+            binding.sendBut.setBackgroundResource(R.drawable.round_button_light_high_contrast);
+            binding.sendBut.setImageResource(Utils.selectAccordingToLightOrDark(getContext(),R.drawable.ic_baseline_send_50,R.drawable.ic_baseline_send_50,R.drawable.ic_baseline_send_50,R.drawable.ic_baseline_send_50_black));
+            binding.recognizeVoiceBut.setImageResource(Utils.selectAccordingToLightOrDark(getContext(),R.drawable.ic_baseline_mic_50,R.drawable.ic_baseline_mic_50,R.drawable.ic_baseline_mic_50,R.drawable.ic_baseline_mic_50_black));
+            binding.recognizeVoiceBut.setBackgroundResource(R.drawable.round_button_light_high_contrast);
+        }
+        else{
+            binding.messageFragmentRootContainer.setBackgroundResource(R.drawable.chat_background_tiles);
+            binding.sendingTextEt.setBackgroundResource(R.drawable.textboxbackground);
+            binding.sendingTextEt.setTextSize(TypedValue.COMPLEX_UNIT_PX,textSizeOfMessageET);
+            binding.sendingTextEt.setTextColor(getResources().getColor(R.color.high_contrast_text_color));
+            binding.sendBut.setBackgroundResource(R.drawable.round_button_light);
+            binding.recognizeVoiceBut.setBackgroundResource(R.drawable.round_button_light);
+        }
+
     }
 }

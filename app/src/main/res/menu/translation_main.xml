@@ -2,14 +2,16 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/action_settings"
+        android:id="@+id/action_high_contrast"
         android:orderInCategory="100"
-        android:title="@string/action_settings"
+        android:title="High Contrast"
+        android:checkable="true"
         app:showAsAction="never" />
 
     <item
-        android:id="@+id/action_change_user"
+        android:id="@+id/action_continious_recognition"
         android:orderInCategory="100"
-        android:title="@string/action_change_user"
+        android:checkable="true"
+        android:title="Continuous Recognition"
         app:showAsAction="never" />
 </menu>

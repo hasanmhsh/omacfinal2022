@@ -48,7 +48,8 @@ public abstract class AppDatabase extends RoomDatabase {
     }
 
     public static void callInActivityOnCreate(Context context){
-        getDatabase(context);
+        if(context != null)
+            getDatabase(context);
     }
 
     public static void callInActivityOnDistroy(){
@@ -56,17 +57,25 @@ public abstract class AppDatabase extends RoomDatabase {
     }
 
     public static UserDao getUserDao(){
+        if(INSTANCE == null)
+            return null;
         return INSTANCE.userDao();
     }
 
     public static MessageDao getMessageDao(){
+        if(INSTANCE == null)
+            return null;
         return INSTANCE.messageDao();
     }
     public static UnreadMessagesDao getUnreadReceivedMessageNotificationDao(){
+        if(INSTANCE == null)
+            return null;
         return INSTANCE.unreadMessagesDao();
     }
 
     public static MissedCallsDao getMissedCallDao(){
+        if(INSTANCE == null)
+            return null;
         return INSTANCE.missedCallsDao();
     }
 }

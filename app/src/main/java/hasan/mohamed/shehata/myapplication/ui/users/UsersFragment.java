@@ -30,11 +30,12 @@ import hasan.mohamed.shehata.myapplication.types.FabSource;
 import hasan.mohamed.shehata.myapplication.types.UserListConsumer;
 import hasan.mohamed.shehata.myapplication.views.UserItemView;
 
-public class UsersFragment extends Fragment implements TranslationMainActivity.MeListener {
+public class UsersFragment extends Fragment implements TranslationMainActivity.MeListener, UserListConsumer {
 
     private UsersViewModel usersViewModel;
     private FragmentUsersBinding binding;
     private User me;
+    private boolean isMeReadyCalled  = false;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -46,10 +47,26 @@ public class UsersFragment extends Fragment implements TranslationMainActivity.M
         binding = FragmentUsersBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
-        getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
+//        getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
+
+
+
         binding.setUser(new User());
 
         final TextView textView = binding.usersTitle;
+        usersViewModel.getMeUser().observe(getViewLifecycleOwner(), new Observer<User>() {
+            @Override
+            public void onChanged(User user) {
+                if(me == null) {
+                    me = new User(user);
+                    if (me != null && !isMeReadyCalled) {
+                        meReady(me);
+                        isMeReadyCalled = true;
+//                        initList(null);
+                    }
+                }
+            }
+        });
         usersViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {
             @Override
             public void onChanged(@Nullable String s) {
@@ -63,42 +80,22 @@ public class UsersFragment extends Fragment implements TranslationMainActivity.M
             }
         });
 
-        ((AsyncPingerProvider)getActivity()).registerUserConsumerAfterCreatingPinger(new UserListConsumer() {
-            @Override
-            public void getUsersList(List<User> users, Fragment fragment) {
-                try{Utils.executeKeysFetchRequest(getContext());}catch (Exception e){e.printStackTrace();}
-                if(binding != null) {
-                    if (users != null && users.size() > 0) {
-                        if (binding.loadingContainer != null && binding.loadingContainer.getVisibility() != View.GONE)
-                            binding.loadingContainer.setVisibility(View.GONE);
-                        if (binding.mainContainer != null && binding.mainContainer.getVisibility() != View.VISIBLE)
-                            binding.mainContainer.setVisibility(View.VISIBLE);
-                    } else {
-                        if (binding.loadingProgress != null && binding.loadingProgress.getVisibility() != View.GONE)
-                            binding.loadingProgress.setVisibility(View.GONE);
-                        if (binding.requireInternetConnection != null && binding.requireInternetConnection.getVisibility() != View.GONE)
-                            binding.requireInternetConnection.setVisibility(View.GONE);
-                        if (binding.loadingTv != null && binding.loadingContainer.getVisibility() != View.VISIBLE)
-                            binding.loadingTv.setVisibility(View.VISIBLE);
-                        if (binding.loadingTv != null)
-                            binding.loadingTv.setText("No users");
-                        if (binding.loadingContainer != null && binding.loadingContainer.getVisibility() != View.VISIBLE)
-                            binding.loadingContainer.setVisibility(View.VISIBLE);
-                        if (binding.mainContainer != null && binding.mainContainer.getVisibility() != View.GONE)
-                            binding.mainContainer.setVisibility(View.GONE);
-                    }
-                }
-            }
-        });
+        ((AsyncPingerProvider)getActivity()).registerUserConsumerAfterCreatingPinger(this);
         me = ((TranslationMainActivity)getActivity()).registerMeListener(this);
-        meReady(me);
+        if(me != null && !isMeReadyCalled){
+            meReady(me);
+            isMeReadyCalled = true;
+        }
         return root;
     }
 
+    private boolean isListInitialized = false;
     private void initList(List<ListItemBindableItemContentProvider> users) {
         ArrayList<ListItemBindableItemContentProvider> items = null;
-        if(users != null)
-            new ArrayList<ListItemBindableItemContentProvider>(users);
+        if(users != null) {
+            isListInitialized = true;
+            items = new ArrayList<ListItemBindableItemContentProvider>(users);
+        }
         GeneralRecyclerViewAdapter<UserItemView> adapter = new GeneralRecyclerViewAdapter<UserItemView>(getContext(), items, null, UserItemView.class, FabActionType.None,null, null,null,binding.fragmentRecyclerView,null);
         binding.fragmentRecyclerView.setAdapter(adapter);
     }
@@ -123,7 +120,13 @@ public class UsersFragment extends Fragment implements TranslationMainActivity.M
                 usersViewModel.getUserListLiveData().setValue(adapter.getDataset());
             }
         }
+
+
         catch (Exception e){e.printStackTrace();}
+        GeneralRecyclerViewAdapter adapter = ((GeneralRecyclerViewAdapter) binding.fragmentRecyclerView.getAdapter());
+
+        if (adapter != null)
+            adapter.release();
         binding = null;
 
     }
@@ -135,15 +138,20 @@ public class UsersFragment extends Fragment implements TranslationMainActivity.M
         super.onResume();
         ((FabSource)getActivity()).disableFab();
 //        ((FabSource)getActivity()).refreshFab();
-        if(binding != null) {
+        if(binding != null && !isListInitialized) {
             if (binding.loadingContainer != null && binding.loadingContainer.getVisibility() != View.VISIBLE)
                 binding.loadingContainer.setVisibility(View.VISIBLE);
             if (binding.mainContainer != null && binding.mainContainer.getVisibility() != View.GONE)
                 binding.mainContainer.setVisibility(View.GONE);
         }
 
+        //Exit full screen mode
+//        ((TranslationMainActivity)getActivity()).exitFullScreenMode();
+
+
         // This is to hide nav bar
         ((TranslationMainActivity)getActivity()).resetUIStateDelayed();
+        ((TranslationMainActivity)getActivity()).displayUserListActionBar();
     }
 
     @Override
@@ -165,13 +173,45 @@ public class UsersFragment extends Fragment implements TranslationMainActivity.M
     @Override
     public void meReady(User me) {
         if(me!=null)
-            if(binding!=null)
+            if(binding!=null) {
+                ((TranslationMainActivity)getActivity()).bindMeToNavHeader();
                 binding.setUser(me);
-                me.drawLogo(binding.headerMyUserImageView);
-                if(binding.usersTitle != null) {
-                    this.me=me;
+                if(binding.headerMyUserImageView != null)
+                    me.drawLogo(binding.headerMyUserImageView);
+                if (binding.usersTitle != null) {
+                    this.me = me;
                     binding.usersTitle.setText(me.getUsername());
                     usersViewModel.getText().setValue(me.getUsername());
+                    usersViewModel.getMeUser().setValue(me);
                 }
+//                initList(null);
+            }
+
+    }
+
+    @Override
+    public void getUsersList(List<User> users, Fragment fragment) {
+        try{Utils.executeKeysFetchRequest(getContext());}catch (Exception e){e.printStackTrace();}
+        if(binding != null) {
+            if (users != null && users.size() > 0) {
+                if (binding.loadingContainer != null && binding.loadingContainer.getVisibility() != View.GONE)
+                    binding.loadingContainer.setVisibility(View.GONE);
+                if (binding.mainContainer != null && binding.mainContainer.getVisibility() != View.VISIBLE)
+                    binding.mainContainer.setVisibility(View.VISIBLE);
+            } else {
+                if (binding.loadingProgress != null && binding.loadingProgress.getVisibility() != View.GONE)
+                    binding.loadingProgress.setVisibility(View.GONE);
+                if (binding.requireInternetConnection != null && binding.requireInternetConnection.getVisibility() != View.GONE)
+                    binding.requireInternetConnection.setVisibility(View.GONE);
+                if (binding.loadingTv != null && binding.loadingContainer.getVisibility() != View.VISIBLE)
+                    binding.loadingTv.setVisibility(View.VISIBLE);
+                if (binding.loadingTv != null)
+                    binding.loadingTv.setText("No users");
+                if (binding.loadingContainer != null && binding.loadingContainer.getVisibility() != View.VISIBLE)
+                    binding.loadingContainer.setVisibility(View.VISIBLE);
+                if (binding.mainContainer != null && binding.mainContainer.getVisibility() != View.GONE)
+                    binding.mainContainer.setVisibility(View.GONE);
+            }
+        }
     }
 }

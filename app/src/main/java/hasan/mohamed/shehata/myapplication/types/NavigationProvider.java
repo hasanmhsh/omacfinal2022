@@ -6,6 +6,8 @@ import hasan.mohamed.shehata.myapplication.models.User;
 public interface NavigationProvider {
 //    public void setTitleOfCurrentDestination(String title);
     public void navigateFromLoginToUsers();
+    public void navigateFromUsersToLogin();
+    public void navigateFromMessagesToLogin();
     public void navigateFromSplashToLogin();
     public void navigateFromSplashToUsers();
 //    public void navigateFromUsersToMessages(User buddy,boolean iseCall);

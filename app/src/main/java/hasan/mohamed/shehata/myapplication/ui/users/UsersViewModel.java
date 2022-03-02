@@ -12,6 +12,7 @@ import hasan.mohamed.shehata.myapplication.models.User;
 public class UsersViewModel extends ViewModel {
 
     private MutableLiveData<String> mText;
+    private MutableLiveData<User> meUser;
     private MutableLiveData<List<ListItemBindableItemContentProvider>> userList;
 
 
@@ -21,6 +22,8 @@ public class UsersViewModel extends ViewModel {
         mText.setValue(null);
         userList = new MutableLiveData<List<ListItemBindableItemContentProvider>>();
         userList.setValue(null);
+        meUser = new MutableLiveData<>();
+        meUser.setValue(null);
 
     }
 
@@ -32,5 +35,7 @@ public class UsersViewModel extends ViewModel {
         return userList;
     }
 
-
+    public MutableLiveData<User> getMeUser() {
+        return meUser;
+    }
 }

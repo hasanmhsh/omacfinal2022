@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector>
+    <item>
+        <shape
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:shape="oval">
+
+            <stroke
+                android:width="@dimen/stroke_width_high_contrast_pressed"
+                android:color="@color/high_contrast_pressed_contour_color"
+                />
+
+            <corners android:radius="@dimen/item_corner_radius"></corners>
+        </shape>
+    </item>
+</selector>

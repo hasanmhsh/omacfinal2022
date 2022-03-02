@@ -1,6 +1,7 @@
 package hasan.mohamed.shehata.myapplication.views;
 
 import android.content.Context;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,20 +21,24 @@ import hasan.mohamed.shehata.myapplication.models.DownloadWindowContent;
 import hasan.mohamed.shehata.myapplication.models.ListItemBindableItemContentProvider;
 import hasan.mohamed.shehata.myapplication.models.Message;
 import hasan.mohamed.shehata.myapplication.models.User;
+import hasan.mohamed.shehata.myapplication.types.HighContrastObserver;
 import hasan.mohamed.shehata.myapplication.types.MessageDeletionResult;
 import hasan.mohamed.shehata.myapplication.types.ResultReceiver;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class MessageView  extends FrameLayout implements BindableItem {
+public class MessageView  extends FrameLayout implements BindableItem, HighContrastObserver {
     private MessageItemLayoutBinding binding;
     private ResultReceiver selectionReceiver;
     private boolean isAsrEnabled = false;
     private User buddy;
     private long myID;
+    private float originalMessageLableTextSize;
+    private float originalMessageTextSize;
     public MessageView(Context context, ResultReceiver selectionReceiver) {
         super(context);
+        isHighContrastEnabled = Utils.getIsHighContrastTheme(getContext());
         myID  = Utils.getUserID(context);
         this.selectionReceiver = selectionReceiver;
         this.buddy = this.selectionReceiver.getBuddy();
@@ -107,6 +112,13 @@ public class MessageView  extends FrameLayout implements BindableItem {
             }
         });
 
+        originalMessageLableTextSize = getResources().getDimension(R.dimen.message_item_sender_name_text_size);//binding.senderNameTv.getTextSize();
+        originalMessageTextSize = getResources().getDimension(R.dimen.message_item_textofmessage_text_size);//binding.textOfMessageTv.getTextSize();
+
+        Utils.registerHighContrastObserver(this);
+
+
+
     }
 
 
@@ -135,6 +147,9 @@ public class MessageView  extends FrameLayout implements BindableItem {
     }
     @Override
     public void bind(Message msg) {
+        if(msg == null || binding == null || binding.textOfMessageTv == null || binding.senderNameTv == null
+        || binding.buddyMsgLogo == null || binding.myMsgLogo==null)
+            return;
         binding.setMessage(msg);
 //        if(checkIfControlMessage(msg)){
 //            binding.messageViewContainer.setVisibility(View.GONE);
@@ -158,17 +173,33 @@ public class MessageView  extends FrameLayout implements BindableItem {
 //                LayoutParams.WRAP_CONTENT
 //        );
 //        params.setMargins(left, top, right, bottom);
+        if(Utils.getIsHighContrastTheme(getContext())){
+
+        }
+
 
         if(msg.getSenderid() == myID){
             // Iam sender
+            if(Utils.getIsHighContrastTheme(getContext())){
+
+                binding.buddyMsgTriangle.setVisibility(GONE);
+                binding.myMsgTriangle.setVisibility(GONE);
+                binding.messageViewContainer.setBackgroundResource(R.drawable.my_message_pressable_background_high_contrast);
+                binding.senderNameTv.setTextColor(getResources().getColor(R.color.high_contrast_text_color));
+                binding.textOfMessageTv.setTextColor(getResources().getColor(R.color.high_contrast_text_color));
+                binding.senderNameTv.setTextColor(getResources().getColor(R.color.high_contrast_text_color));
+            }
+            else{
+
+                binding.buddyMsgTriangle.setVisibility(GONE);
+                binding.myMsgTriangle.setVisibility(VISIBLE);
+                binding.messageViewContainer.setBackgroundResource(R.drawable.my_message_pressable_background);
+                binding.senderNameTv.setTextColor(getResources().getColor(R.color.my_message_text_color));
+                binding.textOfMessageTv.setTextColor(getResources().getColor(R.color.my_message_text_color));
+                binding.senderNameTv.setTextColor(getResources().getColor(R.color.my_message_label_text_color));
+            }
             binding.buddyMsgLogo.setVisibility(GONE);
-            binding.buddyMsgTriangle.setVisibility(GONE);
             binding.myMsgLogo.setVisibility(VISIBLE);
-            binding.myMsgTriangle.setVisibility(VISIBLE);
-            binding.messageViewContainer.setBackgroundResource(R.drawable.my_message_pressable_background);
-            binding.senderNameTv.setTextColor(getResources().getColor(R.color.my_message_text_color));
-            binding.textOfMessageTv.setTextColor(getResources().getColor(R.color.my_message_text_color));
-            binding.senderNameTv.setTextColor(getResources().getColor(R.color.my_message_label_text_color));
             final User me = new User();
             me.setUserid(myID);
             me.drawCircularLogo(binding.myMsgLogo);
@@ -184,6 +215,9 @@ public class MessageView  extends FrameLayout implements BindableItem {
 //            binding.messageViewContainer.setBackgroundResource(R.drawable.sent_message_background);
         }
         else {
+//            SVG svg = SVGParser.getSVGFromResource(getResources(), R.raw.android);
+//            // Get a drawable from the parsed SVG and set it as the drawable for the ImageView
+//            imageView.setImageDrawable(svg.createPictureDrawable());
             binding.getMessage().setIsToShowTranslatedText(true);
             binding.isToShowTranslatedText.setChecked(true);
             // Iam receiver
@@ -191,18 +225,34 @@ public class MessageView  extends FrameLayout implements BindableItem {
 //            binding.messageViewContainer.setBackgroundResource(R.drawable.received_message_background);
 //            setmarg(binding.messageViewContainer,0,0,(int)densitytopixels(getContext(),70.0f),0);
 
+
+            if (isHighContrastEnabled) {
+
+                binding.buddyMsgTriangle.setVisibility(GONE);
+                binding.myMsgTriangle.setVisibility(GONE);
+                binding.messageViewContainer.setBackgroundResource(R.drawable.my_message_pressable_background_high_contrast);
+                binding.senderNameTv.setTextColor(getResources().getColor(R.color.high_contrast_text_color));
+                binding.textOfMessageTv.setTextColor(getResources().getColor(R.color.high_contrast_text_color));
+                binding.senderNameTv.setTextColor(getResources().getColor(R.color.high_contrast_text_color));
+            } else {
+
+                binding.buddyMsgTriangle.setVisibility(VISIBLE);
+                binding.myMsgTriangle.setVisibility(GONE);
+                binding.senderNameTv.setTextColor(getResources().getColor(R.color.buddy_message_text_color));
+                binding.textOfMessageTv.setTextColor(getResources().getColor(R.color.buddy_message_text_color));
+                binding.messageViewContainer.setBackgroundResource(R.drawable.buddy_message_pressable_background);
+                binding.senderNameTv.setTextColor(getResources().getColor(R.color.buddy_message_label_text_color));
+            }
+
+
             binding.buddyMsgLogo.setVisibility(VISIBLE);
-            binding.buddyMsgTriangle.setVisibility(VISIBLE);
             binding.myMsgLogo.setVisibility(GONE);
-            binding.myMsgTriangle.setVisibility(GONE);
-            binding.senderNameTv.setTextColor(getResources().getColor(R.color.buddy_message_text_color));
-            binding.textOfMessageTv.setTextColor(getResources().getColor(R.color.buddy_message_text_color));
-            binding.messageViewContainer.setBackgroundResource(R.drawable.buddy_message_pressable_background);
-            binding.senderNameTv.setTextColor(getResources().getColor(R.color.buddy_message_label_text_color));
             final User me = new User();
             me.setUserid(binding.getMessage().getSenderid());
             me.drawCircularLogo(binding.buddyMsgLogo);
         }
+        setTextSize();
+
 
 //        binding.messageViewContainer.setLayoutParams(params);
 
@@ -224,6 +274,26 @@ public class MessageView  extends FrameLayout implements BindableItem {
     @Override
     public void close() {
         throw new UnsupportedOperationException();
+    }
+
+    boolean isHighContrastEnabled = false;
+    @Override
+    public void refresh(boolean isHighContrast) {
+        isHighContrastEnabled = isHighContrast;
+        bind(binding.getMessage());
+        setTextSize();
+    }
+
+    private void setTextSize() {
+        if(isHighContrastEnabled){
+            //Enlarge text size
+            binding.senderNameTv.setTextSize(TypedValue.COMPLEX_UNIT_PX,Utils.getHighContrastTextFactor(getContext()) * originalMessageLableTextSize);
+            binding.textOfMessageTv.setTextSize(TypedValue.COMPLEX_UNIT_PX,Utils.getHighContrastTextFactor(getContext()) * originalMessageTextSize);
+        }
+        else{
+            binding.senderNameTv.setTextSize(TypedValue.COMPLEX_UNIT_PX,originalMessageLableTextSize);
+            binding.textOfMessageTv.setTextSize(TypedValue.COMPLEX_UNIT_PX,originalMessageTextSize);
+        }
     }
 
 //    @BindingAdapter("translationItem")

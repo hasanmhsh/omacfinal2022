@@ -1,6 +1,7 @@
 package hasan.mohamed.shehata.myapplication;
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.media.MediaPlayer;
@@ -22,6 +23,8 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -35,6 +38,8 @@ import hasan.mohamed.shehata.myapplication.servicesandnotifications.RemainingTim
 import hasan.mohamed.shehata.myapplication.storage.PreferenceItem;
 import hasan.mohamed.shehata.myapplication.storage.PreferenceKey;
 import hasan.mohamed.shehata.myapplication.storage.ModelStatus;
+import hasan.mohamed.shehata.myapplication.types.ContinuousRecognitionObserver;
+import hasan.mohamed.shehata.myapplication.types.HighContrastObserver;
 import hasan.mohamed.shehata.myapplication.types.JSONKey;
 import hasan.mohamed.shehata.myapplication.types.MessageSendingCallbacks;
 import okhttp3.ResponseBody;
@@ -103,7 +108,7 @@ public class Utils {
         preferenceItem.set("yes");
     }
 
-    public static void unsetUserCreated(Context context, User loggedOutUser){
+    public static void unsetUserCreated(Context context, User loggedOutUser,Runnable runnable){
         String key = "hasan.mohamed.shehata.myapplication.IS_USER_CREATED";
         PreferenceKey preferenceKey = new PreferenceKey(key, context.getResources().getString(R.string.unset_shared_preference));
         PreferenceItem<String> preferenceItem = new PreferenceItem<String>(context, preferenceKey);
@@ -112,7 +117,15 @@ public class Utils {
             @Override
             public void run() {
 
-                AppDatabase.getUserDao().delete(loggedOutUser);
+                try {
+                    AppDatabase.getUserDao().delete(loggedOutUser);
+                }
+                catch(Exception e){
+                    e.printStackTrace();
+                }
+
+
+                Utils.runOnUIThread(runnable);
             }
         }).start();
     }
@@ -428,6 +441,112 @@ public class Utils {
 
     }
 
+    public static boolean getIsContinuousRecognition(Context context){
+        String key = "hasan.mohamed.shehata.myapplication.getIsContinuousRecognition";
+        PreferenceKey preferenceKey = new PreferenceKey(key, "false");
+        PreferenceItem<String> preferenceItem = new PreferenceItem<String>(context, preferenceKey);
+        if(preferenceItem.get().equals("true")){
+            return true;
+        }
+        else{
+            return false;
+        }
+    }
+
+
+
+
+    private static List<ContinuousRecognitionObserver> continuousRecognitionObservers = new ArrayList<>();
+    public static void registerContinuousRecognitionObserver(ContinuousRecognitionObserver observer){
+        if(continuousRecognitionObservers == null){
+            continuousRecognitionObservers = new ArrayList<>();
+        }
+        if(observer != null)
+            continuousRecognitionObservers.add(observer);
+    }
+    public static void setIsContinuousRecognition(Context context, boolean isContinuousRecognitionEnabled){
+        String key = "hasan.mohamed.shehata.myapplication.getIsContinuousRecognition";
+        PreferenceKey preferenceKey = new PreferenceKey(key, "false");
+        PreferenceItem<String> preferenceItem = new PreferenceItem<String>(context, preferenceKey);
+        if(isContinuousRecognitionEnabled){
+            preferenceItem.set("true");
+        }
+        else{
+            preferenceItem.set("false");
+        }
+        if(continuousRecognitionObservers != null){
+            for(ContinuousRecognitionObserver observer : continuousRecognitionObservers){
+                if(observer != null && context != null)
+                    observer.refresh(getIsContinuousRecognition(context));
+            }
+        }
+    }
+
+    public static boolean getIsHighContrastTheme(Context context){
+        String key = "hasan.mohamed.shehata.myapplication.getIsHighContrastTheme";
+        PreferenceKey preferenceKey = new PreferenceKey(key, "false");
+        PreferenceItem<String> preferenceItem = new PreferenceItem<String>(context, preferenceKey);
+        if(preferenceItem.get().equals("true")){
+            return true;
+        }
+        else{
+            return false;
+        }
+    }
+
+
+
+
+    private static List<HighContrastObserver> highContrastObservers = new ArrayList<>();
+    public static void registerHighContrastObserver(HighContrastObserver observer){
+        if(highContrastObservers == null){
+            highContrastObservers = new ArrayList<>();
+        }
+        if(observer != null)
+            highContrastObservers.add(observer);
+    }
+    public static void setIsHighContrastTheme(Context context, boolean isContinuousRecognitionEnabled){
+        String key = "hasan.mohamed.shehata.myapplication.getIsHighContrastTheme";
+        PreferenceKey preferenceKey = new PreferenceKey(key, "false");
+        PreferenceItem<String> preferenceItem = new PreferenceItem<String>(context, preferenceKey);
+        if(isContinuousRecognitionEnabled){
+            preferenceItem.set("true");
+        }
+        else{
+            preferenceItem.set("false");
+        }
+        if(highContrastObservers != null){
+            for(HighContrastObserver observer : highContrastObservers){
+                if(observer != null && context != null)
+                    observer.refresh(getIsHighContrastTheme(context));
+            }
+        }
+    }
+    public static float getHighContrastTextFactor(Context context){
+        return 1.5F;
+    }
+
+
+    public static <T> T selectAccordingToLightOrDark(Context context,T lightObject , T darkObject, T darkHighContrastObject , T lightHighContrastObject){
+        if(context==null)
+            return lightObject;
+        int currentNightMode = context.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+        switch (currentNightMode) {
+            case Configuration.UI_MODE_NIGHT_NO: {
+                if(getIsHighContrastTheme(context))
+                    return lightHighContrastObject;
+                else
+                    return lightObject;
+            }
+            case Configuration.UI_MODE_NIGHT_YES:
+                // Night mode is active on device
+                if(getIsHighContrastTheme(context))
+                    return darkHighContrastObject;
+                else
+                    return darkObject;
+        }
+        return null;
+    }
 
 
 }
