@@ -6,11 +6,9 @@
             android:shape="rectangle">
 
             <solid
-                android:color="@color/dark_gray"/>
+                android:color="@color/myAccent1"/>
+            <corners android:radius="7dp"/>
 
-            <size
-                android:width="@dimen/thin_line_margin"
-                android:height="@dimen/thin_line_margin"/>
         </shape>
     </item>
 </selector>

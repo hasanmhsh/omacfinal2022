@@ -365,11 +365,16 @@ public class User extends BaseObservable implements ListItemBindableItemContentP
                 else {
                     requestOptions = requestOptions.transforms(new CenterCrop(), new RoundedCorners(60));
                 }
-                Glide
-                        .with(lastInstanceOfImageView.getContext())
-                        .load(image)
-                        .apply(requestOptions)
-                        .into(lastInstanceOfImageView);
+                if(lastInstanceOfImageView == null)
+                    return;
+                try {
+                    Glide
+                            .with(lastInstanceOfImageView.getContext())
+                            .load(image)
+                            .apply(requestOptions)
+                            .into(lastInstanceOfImageView);
+                }
+                catch(Exception e){e.printStackTrace();}
             }
         }
     }

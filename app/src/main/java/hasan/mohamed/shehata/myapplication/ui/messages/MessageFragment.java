@@ -605,7 +605,7 @@ public class MessageFragment extends Fragment implements SpeakerProvider, Messag
             }
         });
         if(isForCall){
-            binding.continousRecognitionContainer.setVisibility(View.VISIBLE);
+//            binding.continousRecognitionContainer.setVisibility(View.VISIBLE);
         }
         isHighContrastEnabled = Utils.getIsHighContrastTheme(getContext());
         textSizeOfMessageET = getResources().getDimension(R.dimen.message_fragment_message_et_box_text_size);binding.sendingTextEt.getTextSize();
@@ -686,6 +686,14 @@ public class MessageFragment extends Fragment implements SpeakerProvider, Messag
         // This is to hide nav bar
         ((TranslationMainActivity)getActivity()).resetUIStateDelayed();
 
+        if(binding != null){
+            if(binding.fragmentRecyclerView!= null){
+                if(binding.fragmentRecyclerView.getAdapter() == null){
+                    getDatasetFromDB();
+                }
+            }
+        }
+
     }
 
 
@@ -735,6 +743,14 @@ public class MessageFragment extends Fragment implements SpeakerProvider, Messag
             binding.sendBut.setImageResource(Utils.selectAccordingToLightOrDark(getContext(),R.drawable.ic_baseline_send_50,R.drawable.ic_baseline_send_50,R.drawable.ic_baseline_send_50,R.drawable.ic_baseline_send_50_black));
             binding.recognizeVoiceBut.setImageResource(Utils.selectAccordingToLightOrDark(getContext(),R.drawable.ic_baseline_mic_50,R.drawable.ic_baseline_mic_50,R.drawable.ic_baseline_mic_50,R.drawable.ic_baseline_mic_50_black));
             binding.recognizeVoiceBut.setBackgroundResource(R.drawable.round_button_light_high_contrast);
+
+            binding.messageFragmentBuddyHeaderContainer.setBackgroundResource(R.drawable.buddy_message_unpressable_background2_high_contrast);
+            binding.msgListHeaderNameBox.setTextSize(TypedValue.COMPLEX_UNIT_PX,Utils.getHighContrastTextFactor(getContext())*getResources().getDimension(R.dimen.message_fragment_header_buddy_name_text_size));
+
+            binding.msgListHeaderLngBox.setTextSize(TypedValue.COMPLEX_UNIT_PX,Utils.getHighContrastTextFactor(getContext())*getResources().getDimension(R.dimen.message_fragment_header_buddy_language_text_size));
+
+            binding.msgListHeaderNameBox.setTextColor(getResources().getColor(R.color.high_contrast_text_color));
+            binding.msgListHeaderLngBox.setTextColor(getResources().getColor(R.color.high_contrast_text_color));
         }
         else{
             binding.messageFragmentRootContainer.setBackgroundResource(R.drawable.chat_background_tiles);
@@ -743,6 +759,13 @@ public class MessageFragment extends Fragment implements SpeakerProvider, Messag
             binding.sendingTextEt.setTextColor(getResources().getColor(R.color.high_contrast_text_color));
             binding.sendBut.setBackgroundResource(R.drawable.round_button_light);
             binding.recognizeVoiceBut.setBackgroundResource(R.drawable.round_button_light);
+
+            binding.messageFragmentBuddyHeaderContainer.setBackgroundResource(R.drawable.my_user_header_background);
+            binding.msgListHeaderNameBox.setTextSize(TypedValue.COMPLEX_UNIT_PX,getResources().getDimension(R.dimen.message_fragment_header_buddy_name_text_size));
+
+            binding.msgListHeaderLngBox.setTextSize(TypedValue.COMPLEX_UNIT_PX,getResources().getDimension(R.dimen.message_fragment_header_buddy_language_text_size));
+            binding.msgListHeaderNameBox.setTextColor(getResources().getColor(R.color.white));
+            binding.msgListHeaderLngBox.setTextColor(getResources().getColor(R.color.white));
         }
 
     }

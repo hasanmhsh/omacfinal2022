@@ -56,7 +56,7 @@
             app:layout_constraintTop_toBottomOf="@id/textOfMessageTv"
             app:layout_constraintStart_toStartOf="parent"/>
         <ImageButton
-            android:visibility="gone"
+            android:visibility="visible"
             android:id="@+id/delete_message_but"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -114,7 +114,7 @@
         android:translationX="-1dp"
         app:layout_constraintEnd_toStartOf="@id/buddy_msg_logo"
         app:layout_constraintTop_toTopOf="parent"
-        style="@style/ReceivedMessageTriangleStyle"
+        android:background="@drawable/svg_receive_msg_triangle"
         android:visibility="visible"/>
 
 

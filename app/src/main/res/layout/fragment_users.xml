@@ -8,7 +8,7 @@
 <FrameLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/extraLightPurbleBackground"
+    android:background="@drawable/pressable_background_released"
     xmlns:android="http://schemas.android.com/apk/res/android" >
 
         <LinearLayout
@@ -16,6 +16,7 @@
             android:layout_gravity="center"
             android:orientation="vertical"
             android:layout_width="match_parent"
+            android:background="@drawable/pressable_background_released"
             android:layout_height="wrap_content">
             <ProgressBar
                 android:id="@+id/loading_progress"
@@ -28,6 +29,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:textSize="24dp"
+                android:textColor="@color/usernameTextColor"
                 android:fontFamily="@font/nunito"
                 android:textFontWeight="600"
                 android:text="Loading..."/>
@@ -150,7 +152,7 @@
 
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@color/extraLightPurbleBackground"
+            android:background="@color/usersListBackgroundColor"
             android:id="@+id/fragment_recycler_view">
 
         </androidx.recyclerview.widget.RecyclerView>

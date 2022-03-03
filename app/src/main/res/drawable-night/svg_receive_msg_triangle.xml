@@ -7,6 +7,6 @@
 <!--			l12.16,12.162H19.737c-1.104,0-2,0.896-2,2v9.912c0,1.104,0.896,2,2,2h52.644L60.221,67.59c-0.781,0.781-0.781,2.047,0,2.828-->
 <!--			l6.387,6.389c0.375,0.375,0.885,0.586,1.414,0.586c0.531,0,1.039-0.211,1.414-0.586l26.922-26.92-->
 <!--			c0.375-0.375,0.586-0.885,0.586-1.414C96.943,47.941,96.73,47.433,96.355,47.058z"/>-->
-    <path  android:fillColor="@color/buddy_message_released_background_color_night" android:pathData="M0,0L0.0,100.0L100.0,0.0L0.0,0.0z"/>
+    <path  android:fillColor="@color/buddy_message_released_background_color" android:pathData="M0,0L0.0,100.0L100.0,0.0L0.0,0.0z"/>
 
 </vector>

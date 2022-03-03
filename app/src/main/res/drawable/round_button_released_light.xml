@@ -6,7 +6,7 @@
             android:shape="oval">
 
             <solid
-                android:color="@color/myAccent1"/>
+                android:color="@color/send_msg_but_color"/>
 
             <corners android:radius="@dimen/item_corner_radius"></corners>
         </shape>

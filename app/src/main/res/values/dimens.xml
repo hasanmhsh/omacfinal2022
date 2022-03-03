@@ -30,4 +30,10 @@
     <dimen name="message_item_sender_name_text_size">13sp</dimen>
     <dimen name="message_item_textofmessage_text_size">12sp</dimen>
     <dimen name="message_fragment_message_et_box_text_size">14sp</dimen>
+    <dimen name="user_list_item_name_text_size">15sp</dimen>
+    <dimen name="user_list_item_language_text_size">13sp</dimen>
+    <dimen name="header_my_name_text_size">17sp</dimen>
+    <dimen name="header_my_language_text_size">13sp</dimen>
+    <dimen name="message_fragment_header_buddy_name_text_size">13sp</dimen>
+    <dimen name="message_fragment_header_buddy_language_text_size">10sp</dimen>
 </resources>

@@ -74,8 +74,10 @@ public class Utt2SpkRemoteService implements AutoCloseable {
 
     public void close() {
         stop();
-        mp.release();
-        mp = null;
+        if(mp!=null) {
+            mp.release();
+            mp = null;
+        }
     }
     public void start(String str) {
         if (mUtteranceOptions == null) {

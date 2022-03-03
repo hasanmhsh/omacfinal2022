@@ -6,7 +6,7 @@
             android:visible="true"
             android:dither="true"
             android:useLevel="true">
-        <solid android:color="@color/white"/>
+        <solid android:color="@color/message_edit_box_background_color"/>
             <corners android:radius="@dimen/item_corner_radius"></corners>
         </shape>
 

@@ -1,6 +1,7 @@
 package hasan.mohamed.shehata.myapplication.views;
 
 import android.content.Context;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -18,11 +19,12 @@ import hasan.mohamed.shehata.myapplication.models.Message;
 import hasan.mohamed.shehata.myapplication.models.TranslationItem;
 import hasan.mohamed.shehata.myapplication.models.User;
 import hasan.mohamed.shehata.myapplication.types.AsyncPingerProvider;
+import hasan.mohamed.shehata.myapplication.types.HighContrastObserver;
 import hasan.mohamed.shehata.myapplication.types.MessageFragmentProvider;
 import hasan.mohamed.shehata.myapplication.types.ResultReceiver;
 import hasan.mohamed.shehata.myapplication.ui.messages.MessageFragment;
 
-public class UserItemView  extends FrameLayout implements BindableItem , View.OnClickListener {
+public class UserItemView  extends FrameLayout implements BindableItem , View.OnClickListener, HighContrastObserver {
     private UsersListItemLayoutBinding binding;
     private ResultReceiver selectionReceiver;
     private boolean isAsrEnabled = false;
@@ -56,6 +58,9 @@ public class UserItemView  extends FrameLayout implements BindableItem , View.On
             }
         });
 
+        isHighContrastEnabled = Utils.getIsHighContrastTheme(getContext());
+        Utils.registerHighContrastObserver(this);
+
     }
 
 
@@ -73,6 +78,7 @@ public class UserItemView  extends FrameLayout implements BindableItem , View.On
     @Override
     public void bind(User user) {
         binding.setUser(user);
+        refresh(isHighContrastEnabled);
         if(user.getIsOnline()){
 //            binding.userImageView.setImageResource(R.drawable.ic_baseline_person_72_green);
             binding.callBut.setEnabled(true);
@@ -100,6 +106,31 @@ public class UserItemView  extends FrameLayout implements BindableItem , View.On
     public void onClick(View view) {
         if(userid != binding.getUser().getID())
             ((MessageFragmentProvider)getContext()).provideMessageFragment(binding.getUser(),false);
+    }
+
+    private boolean isHighContrastEnabled = false;
+    @Override
+    public void refresh(boolean isHighContrast) {
+        isHighContrastEnabled = isHighContrast;
+        if(binding == null ||binding.userItemRootOfRootContainer==null|| binding.userListItemRootContainer == null || getContext() == null)
+            return;
+        if(isHighContrastEnabled){
+            binding.userItemRootOfRootContainer.setBackgroundResource(R.color.high_contrast_background_color);
+            binding.userListItemRootContainer.setBackgroundResource(R.drawable.pressable_background_high_contrast);
+            binding.usernameTv.setTextSize(TypedValue.COMPLEX_UNIT_PX,Utils.getHighContrastTextFactor(getContext()) * getResources().getDimension(R.dimen.user_list_item_name_text_size));
+            binding.usernameTv.setTextColor(getResources().getColor(R.color.high_contrast_text_color));
+            binding.userlanguageTv.setTextSize(TypedValue.COMPLEX_UNIT_PX, Utils.getHighContrastTextFactor(getContext()) * getResources().getDimension(R.dimen.user_list_item_language_text_size));
+            binding.userlanguageTv.setTextColor(getResources().getColor(R.color.high_contrast_text_color));
+        }
+        else{
+            binding.userItemRootOfRootContainer.setBackgroundResource(R.color.transparent);
+            binding.userListItemRootContainer.setBackgroundResource(R.drawable.pressable_background);
+            binding.usernameTv.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.user_list_item_name_text_size));
+            binding.usernameTv.setTextColor(getResources().getColor(R.color.usernameTextColor));
+            binding.userlanguageTv.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.user_list_item_language_text_size));
+            binding.userlanguageTv.setTextColor(getResources().getColor(R.color.userLanguageTextColor));
+        }
+
     }
 
 //    @BindingAdapter("translationItem")

@@ -20,7 +20,7 @@
     <color name="light_blue_A400">#FF00B0FF</color>
     <color name="black_overlay">#66000000</color>
     <color name="red">#FF1100</color>
-    <color name="myAccent1">@color/huddle_background_color</color>
+    <color name="myAccent1">#393939</color>
     <color name="myAccent1_pressed">#5A00B1</color>
     <color name="darkTextColor1">@color/huddle_background_color</color>
     <color name="darkTextColor">#404040</color>
@@ -43,5 +43,17 @@
     <color name="high_contrast_unpressable_contour1_color">#FFFFFF</color>
     <color name="high_contrast_unpressable_contour2_color">#FFEB3B</color>
     <color name="message_fragment_msget_text_color">#000000</color>
+    <color name="message_edit_box_background_color">#5A5A5A</color>
+    <color name="send_msg_but_color">#00574F</color>
+    <color name="status_bar_color">@color/myAccent1</color>
+    <color name="usersListBackgroundColor">#202020</color>
+    <color name="usernameTextColor">#F1F1F1</color>
+    <color name="userLanguageTextColor">#E4E4E4</color>
+    <color name="nav_door_background_color">@color/myAccent1</color>
+    <color name="nav_door_item_text_color" >#E4E4E4</color>
+    <color name="nav_header_info_box_background_color">#5A5A5A</color>
+    <color name="nav_header_name_text_color">@color/lightTextColor</color>
+    <color name="nav_header_language_text_color">@color/lightTextColor</color>
+    <color name="nav_door_items_icons_tint_color" >@color/lightTextColor</color>
 
 </resources>

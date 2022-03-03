@@ -93,7 +93,7 @@
     <fragment
         android:id="@+id/nav_messages"
         android:name="hasan.mohamed.shehata.myapplication.ui.messages.MessageFragment"
-        android:label="@string/calls_and_chats"
+        android:label="@string/brand_name"
         tools:layout="@layout/fragment_messages" >
         <action
             android:id="@+id/action_messages_toLogin"

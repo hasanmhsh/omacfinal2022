@@ -10,6 +10,7 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.TypedValue;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Menu;
@@ -55,6 +56,7 @@ import hasan.mohamed.shehata.myapplication.types.CallDialogProvider;
 import hasan.mohamed.shehata.myapplication.types.Callable;
 import hasan.mohamed.shehata.myapplication.types.FabActionType;
 import hasan.mohamed.shehata.myapplication.types.FabSource;
+import hasan.mohamed.shehata.myapplication.types.HighContrastObserver;
 import hasan.mohamed.shehata.myapplication.types.MessageFragmentProvider;
 import hasan.mohamed.shehata.myapplication.types.NavHeader;
 import hasan.mohamed.shehata.myapplication.types.NavigationProvider;
@@ -70,7 +72,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class TranslationMainActivity extends AppCompatActivity implements FabSource, NavHeader , AsyncPingerProvider, PermissionRequestProvider, MessageFragmentProvider, NavigationProvider, CallDialogProvider, StartedACtivityResultsProvider {
+public class TranslationMainActivity extends AppCompatActivity implements FabSource, NavHeader , AsyncPingerProvider, PermissionRequestProvider, MessageFragmentProvider, NavigationProvider, CallDialogProvider, StartedACtivityResultsProvider, HighContrastObserver {
 
     private AppBarConfiguration mAppBarConfiguration;
     private ActivityTranslationMainBinding binding;
@@ -87,6 +89,7 @@ public class TranslationMainActivity extends AppCompatActivity implements FabSou
     private int viewFlags;
     private int originalViewFlags;
     private NavHeaderTranslationMainBinding headerTranslationMainBinding = null;
+
 
 
 
@@ -243,12 +246,25 @@ public class TranslationMainActivity extends AppCompatActivity implements FabSou
 //                                               }
 //                                           });
 //         Internet availablity checker
-        getWindow().setStatusBarColor(getResources().getColor(R.color.myAccent1));
+        setStatusBarColor();
+        isHighContrastEnabled = Utils.getIsHighContrastTheme(this);
+
+        Utils.registerHighContrastObserver(this);
         headerTranslationMainBinding = NavHeaderTranslationMainBinding.bind (binding.navView.getHeaderView (0));
         Utils.executeKeysFetchRequest(this);
 
     }
 
+    private boolean isHighContrastEnabled = false;
+
+    public void setStatusBarColor() {
+        if (isHighContrastEnabled) {
+            getWindow().setStatusBarColor(getResources().getColor(R.color.black));
+        }
+        else {
+            getWindow().setStatusBarColor(getResources().getColor(R.color.status_bar_color));
+        }
+    }
 
 
     private void initInternetConnectionStatusNotifier(){
@@ -1078,7 +1094,7 @@ public class TranslationMainActivity extends AppCompatActivity implements FabSou
     }
 
     public void displayUserListActionBar(){
-
+        setStatusBarColor();
         binding.appBarTranslationMain.toolbar.setVisibility(View.VISIBLE);
         if(getSupportActionBar() !=null) {
             getSupportActionBar().show();
@@ -1094,5 +1110,39 @@ public class TranslationMainActivity extends AppCompatActivity implements FabSou
 
 
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        refresh(isHighContrastEnabled);
+    }
+
+    @Override
+    public void refresh(boolean isHighContrast) {
+        if(binding == null || binding.drawerLayout == null || binding.navView == null || binding.appBarTranslationMain == null)
+            return;
+        isHighContrastEnabled = isHighContrast;
+        setStatusBarColor();
+        if(isHighContrast){
+            binding.appBarTranslationMain.toolbar.setBackgroundColor(getResources().getColor(R.color.black));
+            binding.navView.setBackgroundColor(getResources().getColor(R.color.high_contrast_background_color));
+            (binding.navView.getHeaderView(0).findViewById(R.id.users_list_header_info_box_nav_view)).setBackgroundColor(getResources().getColor(R.color.high_contrast_background_color));
+            ((TextView)binding.navView.getHeaderView(0).findViewById(R.id.users_list_header_name_box_nav_view)).setTextSize(TypedValue.COMPLEX_UNIT_PX, Utils.getHighContrastTextFactor(this) * 0.8f * getResources().getDimension(R.dimen.header_my_name_text_size));
+            ((TextView)binding.navView.getHeaderView(0).findViewById(R.id.users_list_header_language_box_nav_view)).setTextSize(TypedValue.COMPLEX_UNIT_PX, Utils.getHighContrastTextFactor(this) * 0.8f * getResources().getDimension(R.dimen.header_my_language_text_size));
+            ((TextView)binding.navView.getHeaderView(0).findViewById(R.id.users_list_header_name_box_nav_view)).setTextColor(getResources().getColor(R.color.high_contrast_text_color));
+            ((TextView)binding.navView.getHeaderView(0).findViewById(R.id.users_list_header_language_box_nav_view)).setTextColor(getResources().getColor(R.color.high_contrast_text_color));
+        }
+        else{
+            binding.appBarTranslationMain.toolbar.setBackgroundResource(R.drawable.my_user_header_background);
+            binding.navView.setBackgroundResource(R.color.nav_door_background_color);
+            (binding.navView.getHeaderView(0).findViewById(R.id.users_list_header_info_box_nav_view)).setBackgroundColor(getResources().getColor(R.color.nav_header_info_box_background_color));
+            ((TextView)binding.navView.getHeaderView(0).findViewById(R.id.users_list_header_name_box_nav_view)).setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.header_my_name_text_size));
+            ((TextView)binding.navView.getHeaderView(0).findViewById(R.id.users_list_header_language_box_nav_view)).setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.header_my_language_text_size));
+            ((TextView)binding.navView.getHeaderView(0).findViewById(R.id.users_list_header_name_box_nav_view)).setTextColor(getResources().getColor(R.color.nav_header_name_text_color));
+            ((TextView)binding.navView.getHeaderView(0).findViewById(R.id.users_list_header_language_box_nav_view)).setTextColor(getResources().getColor(R.color.nav_header_language_text_color));
+        }
+    }
+
+
 
 }

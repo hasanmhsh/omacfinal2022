@@ -43,5 +43,17 @@
     <color name="high_contrast_unpressable_contour1_color">#000000</color>
     <color name="high_contrast_unpressable_contour2_color">#000000</color>
     <color name="message_fragment_msget_text_color">#000000</color>
+    <color name="message_edit_box_background_color">#FFFFFF</color>
+    <color name="send_msg_but_color">#481885</color>
+    <color name="status_bar_color">@color/myAccent1</color>
+    <color name="usersListBackgroundColor">@color/extraLightPurbleBackground</color>
+    <color name="usernameTextColor">@color/darkTextColor</color>
+    <color name="userLanguageTextColor">@color/lightTextColor</color>
+    <color name="nav_door_background_color">@color/extraLightPurbleBackground</color>
+    <color name="nav_door_item_text_color" >@color/darkTextColor</color>
+    <color name="nav_header_info_box_background_color">@color/upsdk_white</color>
+    <color name="nav_header_name_text_color">@color/darkTextColor</color>
+    <color name="nav_header_language_text_color">@color/darkTextColor</color>
+    <color name="nav_door_items_icons_tint_color" >@color/darkTextColor</color>
 
 </resources>

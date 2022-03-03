@@ -80,8 +80,8 @@ android:padding="0dp">
     android:id="@+id/users_list_header_info_box_nav_view"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/upsdk_white"
     android:padding="4dp"
+    android:background="@color/nav_header_info_box_background_color"
     app:layout_constraintTop_toBottomOf="@id/users_list_header_color_box_nav_view">
     <TextView
         android:id="@+id/users_list_header_name_box_nav_view"
@@ -96,9 +96,10 @@ android:padding="0dp">
 
         android:fontFamily="@font/nunito"
         android:textFontWeight="500"
-        android:textSize="17sp"
-        android:textColor="@color/darkTextColor"/>
+        android:textSize="@dimen/header_my_name_text_size"
+        android:textColor="@color/nav_header_name_text_color"/>
     <TextView
+        android:id="@+id/users_list_header_language_box_nav_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="3dp"
@@ -109,8 +110,8 @@ android:padding="0dp">
 
         android:fontFamily="@font/nunito"
         android:textFontWeight="400"
-        android:textSize="13sp"
-        android:textColor="@color/darkTextColor"/>
+        android:textSize="@dimen/header_my_language_text_size"
+        android:textColor="@color/nav_header_language_text_color"/>
 </androidx.constraintlayout.widget.ConstraintLayout>
 <TextView
     android:layout_gravity="center"

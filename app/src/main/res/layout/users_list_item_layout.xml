@@ -6,21 +6,23 @@
             type="hasan.mohamed.shehata.myapplication.models.User" />
     </data>
     <FrameLayout
+        android:id="@+id/user_item_root_of_root_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:padding="@dimen/margin_xs"
         android:background="@color/transparent"
         >
 <androidx.constraintlayout.widget.ConstraintLayout
+    android:id="@+id/user_list_item_root_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    style="@style/PressableStyle"
+    android:background="@drawable/pressable_background"
     android:padding="10dp"
     android:translationZ="1dp"
-    android:layout_marginBottom="10dp"
+    android:layout_marginBottom="5dp"
     android:layout_marginStart="10dp"
-    android:layout_marginEnd="5dp"
+    android:layout_marginEnd="10dp"
     >
     <ImageView
         android:translationZ="3dp"
@@ -44,8 +46,8 @@
         android:layout_marginStart="@dimen/margin_l"
         android:fontFamily="@font/nunito"
         android:textFontWeight="600"
-        android:textSize="15sp"
-        android:textColor="@color/darkTextColor"
+        android:textSize="@dimen/user_list_item_name_text_size"
+        android:textColor="@color/usernameTextColor"
         android:text="@{user.username}"
         />
 <!--    @{user.username}-->
@@ -60,8 +62,8 @@
         android:layout_marginStart="@dimen/margin_l"
         android:fontFamily="@font/nunito"
         android:textFontWeight="400"
-        android:textColor="@color/lightTextColor"
-        android:textSize="13sp"
+        android:textColor="@color/userLanguageTextColor"
+        android:textSize="@dimen/user_list_item_language_text_size"
         android:text="@{user.userlanguage.name()}"/>
 <!--    @{user.userlanguage.name()}-->
 

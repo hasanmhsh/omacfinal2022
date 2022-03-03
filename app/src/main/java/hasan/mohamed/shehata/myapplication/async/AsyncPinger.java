@@ -126,7 +126,14 @@ public class AsyncPinger implements Serializable, CallCenter, AsyncPingerCallbac
                         e.printStackTrace();
                         continue;
                     }
-                    if (lastUpdateOfUnreadReceivedMsgsNotifications == null)
+                    if(AppDatabase.getUnreadReceivedMessageNotificationDao() == null) {
+                        try {
+                            AppDatabase.callInActivityOnCreate(context);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    if (lastUpdateOfUnreadReceivedMsgsNotifications == null && AppDatabase.getUnreadReceivedMessageNotificationDao() != null)
                         lastUpdateOfUnreadReceivedMsgsNotifications = AppDatabase.getUnreadReceivedMessageNotificationDao().getAll();
                     final List<Message> newReceivedMessages = overloadedPingResult.getAllUserReceivedMessages();
                     final AtomicBoolean isNonControlMsgReceived = new AtomicBoolean(false);
@@ -136,7 +143,7 @@ public class AsyncPinger implements Serializable, CallCenter, AsyncPingerCallbac
                         final List<UnreadReceivedMessage> unreadReceivedMessages = new ArrayList<>();
                         for (int i = 0; i < newReceivedMessages.size(); i++) {
                             Message newMessage = newReceivedMessages.get(i);
-                            if(newMessage.getMessagemoshakkaltext() == null) {
+                            if (newMessage.getMessagemoshakkaltext() == null) {
                                 isNonControlMsgReceived.set(true);
                                 UnreadReceivedMessage umsg = new UnreadReceivedMessage();
                                 umsg.setMessageid(newMessage.getMessageid());
@@ -164,13 +171,20 @@ public class AsyncPinger implements Serializable, CallCenter, AsyncPingerCallbac
                                         }
                                     }
                                 }
-                            }
-                            else{
+                            } else {
                                 handleVoiceCall(newReceivedMessages.get(i));
                             }
 
                         }
-                        AppDatabase.getUnreadReceivedMessageNotificationDao().insertAll(unreadReceivedMessages.toArray(new UnreadReceivedMessage[unreadReceivedMessages.size()]));
+                        if(AppDatabase.getMessageDao() == null) {
+                            try {
+                                AppDatabase.callInActivityOnCreate(context);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        if(AppDatabase.getUnreadReceivedMessageNotificationDao() != null)
+                            AppDatabase.getUnreadReceivedMessageNotificationDao().insertAll(unreadReceivedMessages.toArray(new UnreadReceivedMessage[unreadReceivedMessages.size()]));
                         if (status == PingerStatus.Free && isNonControlMsgReceived.get()) {
                             Utils.runOnUIThread(new Runnable() {
                                 @Override
@@ -180,6 +194,13 @@ public class AsyncPinger implements Serializable, CallCenter, AsyncPingerCallbac
                             });
                         }
                         try {
+                            if(AppDatabase.getMessageDao() == null) {
+                                try {
+                                    AppDatabase.callInActivityOnCreate(context);
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            }
                             AppDatabase.getMessageDao().insertAll(newReceivedMessages.toArray(new Message[nonCallControlMsgsToSaveInDatabase.size()]));
                         } catch (Exception e) {
                             e.printStackTrace();
@@ -191,22 +212,30 @@ public class AsyncPinger implements Serializable, CallCenter, AsyncPingerCallbac
 
 
 
+                    if (isUnredItemsUpdated.get()) {
+                        if(AppDatabase.getUnreadReceivedMessageNotificationDao() == null) {
+                            try {
+                                AppDatabase.callInActivityOnCreate(context);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        if(AppDatabase.getUnreadReceivedMessageNotificationDao() != null)
+                            lastUpdateOfUnreadReceivedMsgsNotifications = AppDatabase.getUnreadReceivedMessageNotificationDao().getAll();
+                    }
 
 
-
-
-                    if (isUnredItemsUpdated.get())
-                        lastUpdateOfUnreadReceivedMsgsNotifications = AppDatabase.getUnreadReceivedMessageNotificationDao().getAll();
-                    if (lastUpdateOfUnreadReceivedMsgsNotifications != null && lastUpdateOfUnreadReceivedMsgsNotifications.size() > 0) {
-                        List<User> users = overloadedPingResult.getAllUsers();
-                        for (UnreadReceivedMessage umsg : lastUpdateOfUnreadReceivedMsgsNotifications) {
-                            for (User user : users) {
-                                if (user.getUserid() == umsg.getSenderid()) {
-                                    user.setNumberOfUnreadMessages(user.getNumberOfUnreadMessages() + 1);
+                        if (lastUpdateOfUnreadReceivedMsgsNotifications != null && lastUpdateOfUnreadReceivedMsgsNotifications.size() > 0) {
+                            List<User> users = overloadedPingResult.getAllUsers();
+                            for (UnreadReceivedMessage umsg : lastUpdateOfUnreadReceivedMsgsNotifications) {
+                                for (User user : users) {
+                                    if (user.getUserid() == umsg.getSenderid()) {
+                                        user.setNumberOfUnreadMessages(user.getNumberOfUnreadMessages() + 1);
+                                    }
                                 }
                             }
                         }
-                    }
+
 
 
 //                                            List<Message> debug = AppDatabase.getMessageDao().getAll();
@@ -780,7 +809,16 @@ public class AsyncPinger implements Serializable, CallCenter, AsyncPingerCallbac
             public void run() {
                 MissedCall newMissedcall = new MissedCall();
                 newMissedcall.setCallerid(callerid);
-                AppDatabase.getMissedCallDao().insertAll(newMissedcall);
+                if(AppDatabase.getMissedCallDao() == null){
+                    try{
+                        AppDatabase.callInActivityOnCreate(context);
+                    }
+                    catch (Exception e){
+                        e.printStackTrace();
+                    }
+                }
+                if(AppDatabase.getMissedCallDao() != null)
+                    AppDatabase.getMissedCallDao().insertAll(newMissedcall);
             }
         }).start();
     }
