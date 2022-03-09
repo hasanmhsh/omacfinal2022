@@ -1,7 +1,11 @@
 package hasan.mohamed.shehata.myapplication;
 
+import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.res.Configuration;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.media.MediaPlayer;
@@ -11,18 +15,24 @@ import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
+import android.provider.ContactsContract;
 import android.view.View;
 
 import androidx.annotation.RequiresApi;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 
+import com.google.gson.Gson;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
 
+import java.io.EOFException;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -30,6 +40,7 @@ import java.util.regex.Pattern;
 
 import hasan.mohamed.shehata.myapplication.async.AsyncPinger;
 import hasan.mohamed.shehata.myapplication.internet.APIClient;
+import hasan.mohamed.shehata.myapplication.models.CountryPhoneCode;
 import hasan.mohamed.shehata.myapplication.models.Language;
 import hasan.mohamed.shehata.myapplication.models.Message;
 import hasan.mohamed.shehata.myapplication.models.User;
@@ -546,6 +557,78 @@ public class Utils {
                     return darkObject;
         }
         return null;
+    }
+
+
+    private static boolean isToUseCloudTranslation = true;
+    public static boolean getIsToUseCloudTranslation(){
+        return isToUseCloudTranslation;
+    }
+
+    private static CountryPhoneCode[] countryPhoneCodes = null;
+    public static CountryPhoneCode [] getCountryPhoneCodes(Context context){
+        if(countryPhoneCodes == null) {
+            InputStream incomingData = context.getResources().openRawResource(R.raw.phonecodes);
+//        InputStreamReader inputStreamReader = new InputStreamReader(incomingData);
+            StringBuilder json = new StringBuilder();
+            try {
+                int charCode = incomingData.read();
+                while (charCode != -1) {
+                    json.append((char) charCode);
+                    charCode = incomingData.read();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                if(incomingData != null){
+                    try{incomingData.close();}catch (Exception e){}
+                }
+            }
+
+            countryPhoneCodes = new Gson().fromJson(json.toString(), CountryPhoneCode[].class);
+        }
+        return countryPhoneCodes;
+    }
+
+    private static ArrayList<String> contactsnameList = null;
+    private static ArrayList<String> contactsphoneNumberList = null;
+
+    public static List<String> getPhoneNumberList(Context context){
+        if(contactsphoneNumberList == null)
+            getAllContacts(context);
+        return contactsphoneNumberList;
+    }
+
+
+    @SuppressLint("Range")
+    private static void getAllContacts(Context context) {
+        contactsnameList = new ArrayList<>();
+        contactsphoneNumberList = new ArrayList<>();
+        ContentResolver cr = context.getContentResolver();
+        Cursor cur = cr.query(ContactsContract.Contacts.CONTENT_URI,
+                null, null, null, null);
+        if ((cur != null ? cur.getCount() : 0) > 0) {
+            while (cur != null && cur.moveToNext()) {
+                @SuppressLint("Range") String id = cur.getString(cur.getColumnIndex(ContactsContract.Contacts._ID));
+                @SuppressLint("Range") String name = cur.getString(cur.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
+                contactsnameList.add(name);
+                if (cur.getInt(cur.getColumnIndex( ContactsContract.Contacts.HAS_PHONE_NUMBER)) > 0) {
+                    Cursor pCur = cr.query(
+                            ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+                            null,
+                            ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ?",
+                            new String[]{id}, null);
+                    while (pCur.moveToNext()) {
+                        String phoneNo = pCur.getString(pCur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+                        contactsphoneNumberList.add(phoneNo);
+                    }
+                    pCur.close();
+                }
+            }
+        }
+        if (cur != null) {
+            cur.close();
+        }
     }
 
 

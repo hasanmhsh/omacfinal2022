@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 import hasan.mohamed.shehata.myapplication.AppDatabase;
 import hasan.mohamed.shehata.myapplication.R;
@@ -91,10 +92,13 @@ public class AsyncPinger implements Serializable, CallCenter, AsyncPingerCallbac
 
 
 
+
     @Override
     public void registerMessageFragmentReverseCallbacks(MessageFragmentReverseCallbacks messageFragmentReverseCallbacks) {
         this.messageFragmentReverseCallbacks = messageFragmentReverseCallbacks;
     }
+
+
 
     enum PingerStatus{
         Free,
@@ -1091,6 +1095,21 @@ public class AsyncPinger implements Serializable, CallCenter, AsyncPingerCallbac
     }
 
 
+    public void release(){
+        try{pingerDaemonThread.interrupt();}catch (Exception e){ }
+        try{pingerDaemonThread.interrupt();}catch (Exception e){ }
+        try{pingerDaemonThread.interrupt();}catch (Exception e){ }
+        try{pingerDaemonThread.interrupt();}catch (Exception e){ }
+        try{pingerDaemonThread.interrupt();}catch (Exception e){ }
+        try{pingerDaemonThread.interrupt();}catch (Exception e){ }
+        try{pingerDaemonThread.interrupt();}catch (Exception e){ }
+        try{pingerDaemonThread.interrupt();}catch (Exception e){ }
+        try{pingerDaemonThread.interrupt();}catch (Exception e){ }
+        try{pingerDaemonThread.interrupt();}catch (Exception e){ }
+        try{pingerDaemonThread.interrupt();}catch (Exception e){ }
+        try{pingerDaemonThread.interrupt();}catch (Exception e){ }
+        try{pingerDaemonThread.interrupt();}catch (Exception e){ }
+    }
 
 
 }

@@ -58,19 +58,27 @@ public class HMSTransloator {
         this.translationItem = item;
         this.initialText = initialText;
         this.downloadCallbacks = downloadCallbacks;
-        progressWindow = GeneralPopupWindow.makeProgressWindow(context,"",isRefreshFab);
         autoDownloadTranslationModel();
         this.isRefreshFab = isRefreshFab;
-        notificationProgress = DownloadStickyNotification.make(context, new Canceler() {
-            @Override
-            public void onDownloadCanceled() {
 
-            }
-        },sourceLanguage.getLanguageName() + " to " + targetLanguage.getLanguageName());
     }
 
     private void autoDownloadTranslationModel(){
         // Create an offline translator.
+        if(Utils.getIsToUseCloudTranslation())
+            return;
+
+        if(progressWindow == null)
+            progressWindow = GeneralPopupWindow.makeProgressWindow(context,"",isRefreshFab);
+
+        if(notificationProgress == null)
+            notificationProgress = DownloadStickyNotification.make(context, new Canceler() {
+                @Override
+                public void onDownloadCanceled() {
+
+                }
+            },sourceLanguage.getLanguageName() + " to " + targetLanguage.getLanguageName());
+
         MLLocalTranslateSetting setting = new MLLocalTranslateSetting.Factory()
                 // Set the source language code, which complies with the ISO 639-1 standard. This parameter is mandatory. If this parameter is not set, an error may occur.
                 .setSourceLangCode(sourceLanguage.symbol)
@@ -257,6 +265,8 @@ public class HMSTransloator {
     }
 
     public void translateAsync(final TranslationItem item , final String sourceText){
+        if(Utils.getIsToUseCloudTranslation())
+            return;
         if(mlLocalTranslator == null)
             autoDownloadTranslationModel();
         mlLocalTranslator.asyncTranslate(sourceText).addOnSuccessListener(new OnSuccessListener<String>() {
@@ -273,6 +283,8 @@ public class HMSTransloator {
     }
 
     public void translateMessageAsync(final Message msg, NewMessagesConsumer consumer){
+        if(Utils.getIsToUseCloudTranslation())
+            return;
         if(mlLocalTranslator == null)
             autoDownloadTranslationModel();
         mlLocalTranslator.asyncTranslate(msg.getMessagetext()).addOnSuccessListener(new OnSuccessListener<String>() {
@@ -289,7 +301,7 @@ public class HMSTransloator {
         });
     }
 
-    public void translateAsyncThenDisplayTheResult(final TextView source, final TextView target){
+    private void translateAsyncThenDisplayTheResult(final TextView source, final TextView target){
         source.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {

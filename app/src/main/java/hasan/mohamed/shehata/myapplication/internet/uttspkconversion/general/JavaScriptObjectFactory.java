@@ -1,6 +1,7 @@
 package hasan.mohamed.shehata.myapplication.internet.uttspkconversion.general;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import java.util.List;
 import java.util.Map;
@@ -27,5 +28,11 @@ public class JavaScriptObjectFactory {
 
     public static <T> T toObject(String json, Class<T> tClass) {
         return getData().fromJson(json, tClass);
+    }
+
+    public static <T> T toObjectHTMLEscapingIsDisabled(String json, Class<T> tClass) {
+        GsonBuilder builder = new GsonBuilder().disableHtmlEscaping();
+        Gson gson = builder.create();
+        return gson.fromJson(json, tClass);
     }
 }

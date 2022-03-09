@@ -39,6 +39,7 @@ import hasan.mohamed.shehata.myapplication.databinding.FragmentMessagesBinding;
 import hasan.mohamed.shehata.myapplication.internet.APIClient;
 import hasan.mohamed.shehata.myapplication.languages.ASR_Enhanced;
 import hasan.mohamed.shehata.myapplication.languages.HMSTransloator;
+import hasan.mohamed.shehata.myapplication.languages.TRNSLG;
 import hasan.mohamed.shehata.myapplication.languages.TTS;
 import hasan.mohamed.shehata.myapplication.models.ListItemBindableItemContentProvider;
 import hasan.mohamed.shehata.myapplication.models.Message;
@@ -56,6 +57,7 @@ import hasan.mohamed.shehata.myapplication.types.MessageFragmentReverseCallbacks
 import hasan.mohamed.shehata.myapplication.types.NewMessagesConsumer;
 import hasan.mohamed.shehata.myapplication.types.PermissionRequestProvider;
 import hasan.mohamed.shehata.myapplication.types.SpeakerProvider;
+import hasan.mohamed.shehata.myapplication.types.TranslationReadyHandler;
 import hasan.mohamed.shehata.myapplication.views.MessageView;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -367,18 +369,32 @@ public class MessageFragment extends Fragment implements SpeakerProvider, Messag
         newMessage.setMessagetext(string);
         newMessage.setIsToShowTranslatedText(false);
         if(buddy.getUserlanguage() != me.getUserlanguage()){
-            translator.translateMessageAsync(newMessage, new NewMessagesConsumer() {
-                @Override
-                public void newMessage(long senderUserId, Message message) {
-                    // Not implemented
-                }
+            if(Utils.getIsToUseCloudTranslation()) {
 
-                @Override
-                public void sendAndSaveThisMessage(final Message message) {
-                    message.setIsToShowTranslatedText(false);
-                    shakkelha(message);
-                }
-            });
+                // Using G
+                TRNSLG.translate(newMessage, me.getUserlanguage(), buddy.getUserlanguage(), new TranslationReadyHandler() {
+                    @Override
+                    public void translationDone(Message messageToBeSent) {
+                        messageToBeSent.setIsToShowTranslatedText(false);
+                        shakkelha(messageToBeSent);
+                    }
+                });
+            }
+            else{
+                //// Using hms Translation
+                translator.translateMessageAsync(newMessage, new NewMessagesConsumer() {
+                    @Override
+                    public void newMessage(long senderUserId, Message message) {
+                        // Not implemented
+                    }
+
+                    @Override
+                    public void sendAndSaveThisMessage(final Message message) {
+                        message.setIsToShowTranslatedText(false);
+                        shakkelha(message);
+                    }
+                });
+            }
         }
         else{
             newMessage.setMessagetranslatedtext(newMessage.getMessagetext());

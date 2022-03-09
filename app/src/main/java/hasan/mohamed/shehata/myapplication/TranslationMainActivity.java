@@ -253,6 +253,10 @@ public class TranslationMainActivity extends AppCompatActivity implements FabSou
         headerTranslationMainBinding = NavHeaderTranslationMainBinding.bind (binding.navView.getHeaderView (0));
         Utils.executeKeysFetchRequest(this);
 
+//        Utils.getCountryPhoneCodes(this);
+//
+//        List<String> phones = Utils.getPhoneNumberList(this);
+
     }
 
     private boolean isHighContrastEnabled = false;
@@ -337,7 +341,7 @@ public class TranslationMainActivity extends AppCompatActivity implements FabSou
     }
 
     private static final int PERMISSIONS_RESULT_TAG = 1668;
-    private static final int REQUIRED_PERMISSIONS_COUNT = 12;
+    private static final int REQUIRED_PERMISSIONS_COUNT = 13;
     private void requestMyPermissions() {
         List<String> requiredPermissions = new ArrayList<>();
         if(isPermissionsGranted){
@@ -389,6 +393,10 @@ public class TranslationMainActivity extends AppCompatActivity implements FabSou
 
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
                 requiredPermissions.add(Manifest.permission.CAMERA);
+            }
+
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                requiredPermissions.add(Manifest.permission.READ_CONTACTS);
             }
 
 
@@ -548,9 +556,10 @@ public class TranslationMainActivity extends AppCompatActivity implements FabSou
         return pinger;
     }
 
+
     @Override
     public void createPingerIfNotCreated() {
-        if(Utils.isUserCreated(this)) {
+        if(Utils.isUserCreated(this) && !isLoggedOut) {
             if (pinger == null) {
                 Utils.setBackgroundThreadFlag(thiz, true);
                 Utils.setGlobalPinger(pinger);
@@ -635,6 +644,7 @@ public class TranslationMainActivity extends AppCompatActivity implements FabSou
 
                 if(navController.getCurrentDestination().getId() == R.id.loginFragment) {
 //                    navController.popBackStack();
+                    isLoggedOut =  false;
                     navController.navigate(R.id.action_from_login_to_users);
                 }
             }
@@ -665,8 +675,10 @@ public class TranslationMainActivity extends AppCompatActivity implements FabSou
 
     @Override
     public void navigateFromSplashToUsers() {
-        if(navController.getCurrentDestination().getId() == R.id.splashFragment)
+        if(navController.getCurrentDestination().getId() == R.id.splashFragment) {
+            isLoggedOut = false;
             navController.navigate(R.id.action_splash_toUsers);
+        }
     }
 
 //    @Override
@@ -830,7 +842,13 @@ public class TranslationMainActivity extends AppCompatActivity implements FabSou
     }
 
 
+    boolean isLoggedOut = false;
     private void changeUser() {
+        isLoggedOut = true;
+        if(pinger != null) {
+            pinger.release();
+            pinger = null;
+        }
         unbindMeToNavHeader();
         Utils.unsetUserCreated(this, currentUser, new Runnable() {
             @Override
@@ -851,11 +869,18 @@ public class TranslationMainActivity extends AppCompatActivity implements FabSou
 
     @Override
     public void requireInternetPermission(PermissionRequestCallbacks permissionRequestCallbacks) {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.INTERNET) != PackageManager.PERMISSION_GRANTED) {
+        ArrayList<String> permissionsRequired = new ArrayList<>();
+        if(ContextCompat.checkSelfPermission(this, Manifest.permission.INTERNET) != PackageManager.PERMISSION_GRANTED)
+            permissionsRequired.add(Manifest.permission.INTERNET);
+        if(ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED)
+            permissionsRequired.add(Manifest.permission.READ_CONTACTS);
+
+        if (permissionsRequired.size() > 0) {
+
             isRequiringSinglePermission = true;
             this.permissionRequestCallbacks = permissionRequestCallbacks;
             this.requiredSinglePermission = Manifest.permission.INTERNET;
-            ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.INTERNET}, PERMISSIONS_RESULT_TAG);
+            ActivityCompat.requestPermissions(this,permissionsRequired.toArray(new String [permissionsRequired.size()]), PERMISSIONS_RESULT_TAG);
 
         }
         else{
