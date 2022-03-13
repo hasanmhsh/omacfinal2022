@@ -14,9 +14,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="?attr/fullscreenBackgroundColor"
+    android:fitsSystemWindows="true"
     android:theme="@style/ThemeOverlay.MyApplication.FullscreenContainer"
 
-    android:paddingBottom="@dimen/padding_very_large"
+
     tools:context=".ui.login.LoginFragment">
 
     <!-- The primary full-screen view. This can be replaced with whatever view
@@ -30,15 +31,205 @@
         android:keepScreenOn="true"
         android:text="@string/dummy_content"
         android:textColor="?attr/fullscreenTextColor"
-        android:textSize="50sp"
+        android:textSize="60sp"
         android:visibility="gone"
         android:textStyle="bold" />
 
     <!-- This FrameLayout insets its children based on system windows using
          android:fitsSystemWindows. -->
     <FrameLayout
+        android:id="@+id/login_fragment_phone_number_verification_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="@color/phone_verification_background_color"
+        android:fitsSystemWindows="true">
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:fitsSystemWindows="true"
+            android:layout_height="match_parent">
+            <TextView
+                android:fitsSystemWindows="true"
+                android:id="@+id/welcome_tv_phone_verification_fragment"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Welcome"
+                android:fontFamily="@font/nunitoblack"
+                android:textFontWeight="700"
+                android:textSize="40sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                android:layout_marginTop="50dp"
+                android:textColor="@color/wecome_text_color_phone_number_view_login_fragment"/>
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="100dp"
+                android:layout_marginStart="@dimen/margin_m"
+                android:layout_marginEnd="@dimen/margin_m"
+                android:translationZ="3dp"
+                android:padding="10dp"
+                android:fitsSystemWindows="true"
+                app:layout_constraintTop_toBottomOf="@id/welcome_tv_phone_verification_fragment"
+                >
+
+                <TextView
+                    android:id="@+id/confirm_message_phone_verification_fragment"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:fitsSystemWindows="true"
+                    android:text="Please confirm your country code and enter your phune number."
+                    android:textColor="@color/generalHintTextColor"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:layout_editor_absoluteX="5dp" />
+                <TextView
+                    android:id="@+id/country_selection_tv_phone_number_verification_fragment"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fitsSystemWindows="true"
+                    android:textColor="@color/generalTextColor"
+                    android:textColorHint="@color/generalHintTextColor"
+                    android:hint="Select country"
+                    android:text="Select country...▼"
+                    app:layout_constraintTop_toBottomOf="@id/confirm_message_phone_verification_fragment"
+                    android:layout_marginTop="20dp"
+                    />
+                <LinearLayout
+
+                    android:id="@+id/linear_layout_phonenumbergroup_verification_fragment"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/margin_l"
+                    android:fitsSystemWindows="true"
+                    app:layout_constraintTop_toBottomOf="@id/country_selection_tv_phone_number_verification_fragment"
+                    android:orientation="horizontal">
+
+
+                    <TextView
+                        android:id="@+id/plus_sign_"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="+"
+                        android:fitsSystemWindows="true"
+                        android:textSize="20sp"
+                        android:textColor="@color/generalTextColor"
+                        />
+                    <EditText
+                        android:id="@+id/country_code_et_phone_verification_login_fragment"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:ems="3"
+                        android:inputType="number"
+                        android:backgroundTint="@color/generalTextColor"
+                        android:textColor="@color/generalTextColor"
+                        android:textColorHint="@color/generalHintTextColor"
+                        android:textSize="14sp"
+                        app:layout_constraintStart_toEndOf="@id/plus_sign_"
+                        android:fitsSystemWindows="true"
+                        />
+                    <EditText
+                        android:id="@+id/phonenumber_et_phone_number_verification_fragmnet"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="11"
+                        android:inputType="phone"
+                        android:textSize="14sp"
+                        android:hint="Your number"
+                        android:textColor="@color/generalTextColor"
+                        android:backgroundTint="@color/generalTextColor"
+                        android:textColorHint="@color/generalHintTextColor"
+
+                        android:fitsSystemWindows="true"/>
+                    <Button
+                        android:id="@+id/ok_but_phone_verification_fragment"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="OK"
+                        android:textSize="17sp"
+                        android:minHeight="0dp"
+                        android:minWidth="55sp"
+                        android:fitsSystemWindows="true"/>
+
+
+
+
+
+
+
+                </LinearLayout>
+
+                <TextView
+                    android:visibility="gone"
+                    android:id="@+id/verification_number_label_tv_verification_fragment"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Verification number"
+                    app:layout_constraintTop_toBottomOf="@id/linear_layout_phonenumbergroup_verification_fragment"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    android:textSize="24sp"
+                    android:textColor="@color/generalTextColor"
+                    android:layout_marginTop="50dp"
+                    android:fitsSystemWindows="true"
+                    />
+
+                <EditText
+                    android:visibility="gone"
+                    android:id="@+id/verificationnumber_et_phone_number_verification_fragmnet"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="11"
+                    android:inputType="phone"
+                    android:ems="6"
+                    android:maxEms="6"
+                    android:textSize="24sp"
+                    android:textColor="@color/generalTextColor"
+                    app:layout_constraintTop_toBottomOf="@id/verification_number_label_tv_verification_fragment"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    android:backgroundTint="@color/generalTextColor"
+                    android:textColorHint="@color/generalHintTextColor"
+                    android:fitsSystemWindows="true"/>
+
+                <Button
+                    android:visibility="gone"
+                    android:id="@+id/resend_sms_but_phone_verification_fragment"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Resend"
+                    android:textSize="17sp"
+                    android:minHeight="0dp"
+                    android:minWidth="55sp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    android:fitsSystemWindows="true"
+                    app:layout_constraintTop_toBottomOf="@id/verificationnumber_et_phone_number_verification_fragmnet"/>
+
+
+
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </FrameLayout>
+
+
+
+
+
+
+
+
+
+    <FrameLayout
+        android:visibility="gone"
+        android:id="@+id/login_fragment_personal_information_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/phone_verification_background_color"
+        android:paddingBottom="@dimen/padding_very_large"
         android:fitsSystemWindows="true">
 
         <ImageView
@@ -48,13 +239,15 @@
             android:background="@drawable/technology1"
             android:scaleType="centerCrop"
             android:src="@drawable/huddle_banner"
+            android:fitsSystemWindows="true"
             android:tintMode="multiply"
+            android:visibility="gone"
             app:tint="#DDDDDDDD" />
 
         <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginTop="180dp"
+            android:fitsSystemWindows="true"
             android:background="@drawable/white_upper_rounded_background"
             android:padding="@dimen/margin_l">
 
@@ -65,10 +258,13 @@
                 android:layout_margin="@dimen/margin_m"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                android:textColor="@color/myAccent1"
                 android:textStyle="bold"
                 android:textSize="21sp"
+                android:fitsSystemWindows="true"
                 android:text="Lets get started"
+                android:backgroundTint="@color/generalTextColor"
+                android:textColor="@color/generalTextColor"
+                android:textColorHint="@color/generalHintTextColor"
                 android:layout_height="wrap_content"/>
             <LinearLayout
                 android:layout_width="match_parent"
@@ -76,6 +272,8 @@
                 app:layout_constraintTop_toBottomOf="@id/sign_in_up_welcome_tv"
                 android:padding="@dimen/margin_m"
                 android:orientation="horizontal"
+                android:fitsSystemWindows="true"
+                android:visibility="gone"
                 android:layout_marginBottom="@dimen/padding_large"
                 android:id="@+id/sininsignup_buts_container">
 
@@ -88,6 +286,7 @@
                     android:layout_height="wrap_content"
                     android:textColor="@color/white"
                     android:textAllCaps="false"
+                    android:fitsSystemWindows="true"
                     android:background="@drawable/signin_button_background"
 
                     android:text="Login"/>
@@ -101,15 +300,17 @@
                     android:layout_weight="1"
                     android:textColor="@color/white"
                     android:textAllCaps="false"
+                    android:fitsSystemWindows="true"
                     android:background="@drawable/signup_button_background"
                     android:text="Signup"/>
             </LinearLayout>
 
             <ImageButton
-                android:visibility="gone"
+                android:visibility="visible"
                 android:id="@+id/select_photo_but"
                 android:layout_width="140dp"
                 android:layout_height="140dp"
+                android:fitsSystemWindows="true"
                 android:background="@drawable/select_photo_button_background"
                 android:src="@drawable/ic_baseline_photo_camera_100"
                 android:layout_margin="@dimen/margin_l"
@@ -127,6 +328,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 android:layout_margin="@dimen/margin_m"
                 android:maxLines="1"
+                android:fitsSystemWindows="true"
                 app:layout_constraintEnd_toEndOf="parent"/>
             <EditText
                 android:id="@+id/user_name"
@@ -137,13 +339,17 @@
                 android:text="@{user.username}"
                 android:maxLines="1"
                 android:lines="1"
+                android:fitsSystemWindows="true"
                 android:textSize="@dimen/login_fields_text_size"
-                android:backgroundTint="@color/myAccent1"
+                android:backgroundTint="@color/generalTextColor"
+                android:textColor="@color/generalTextColor"
+                android:textColorHint="@color/generalHintTextColor"
                 app:layout_constraintTop_toBottomOf="@id/select_photo_but"
                 android:padding="@dimen/padding_large"
-                android:visibility="gone"
+                android:visibility="visible"
                 />
             <EditText
+                android:visibility="gone"
                 android:id="@+id/user_email"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -151,6 +357,7 @@
                 android:hint="@string/emailatexample"
                 android:maxLines="1"
                 android:lines="1"
+                android:fitsSystemWindows="true"
                 android:textSize="@dimen/login_fields_text_size"
                 android:text="@{user.useremail}"
                 android:backgroundTint="@color/myAccent1"
@@ -159,12 +366,14 @@
                 android:inputType="textEmailAddress"
                 />
             <EditText
+                android:visibility="gone"
                 android:id="@+id/password_et"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/margin_m"
                 android:hint="@string/password"
                 android:lines="1"
+                android:fitsSystemWindows="true"
                 android:maxLines="1"
                 android:textSize="@dimen/login_fields_text_size"
                 android:text="@{user.password}"
@@ -183,6 +392,7 @@
                 android:layout_marginEnd="@dimen/margin_m"
                 android:layout_marginBottom="@dimen/margin_l"
                 android:maxLines="1"
+                android:fitsSystemWindows="true"
                 android:textSize="@dimen/login_fields_text_size"
                 android:lines="1"
                 android:hint="@string/retypr_password"
@@ -196,7 +406,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/margin_m"
-                android:text="@{user.userphone}"
+                android:text=""
+                android:fitsSystemWindows="true"
                 android:hint="@string/enter_your_phone_number"
                 android:visibility="gone"
                 android:maxLines="1"
@@ -207,21 +418,24 @@
                 app:layout_constraintTop_toBottomOf="@id/retypepasswordet"
                 />
             <TextView
-                android:visibility="gone"
+                android:visibility="visible"
                 android:id="@+id/user_language"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:hint="@string/your_language"
                 android:layout_margin="@dimen/margin_m"
+                android:fitsSystemWindows="true"
                 android:textSize="@dimen/login_fields_text_size"
                 android:text="@{user.userlanguage.name()}"
                 app:layout_constraintTop_toBottomOf="@id/user_phone"
                 app:layout_constraintStart_toStartOf="parent"
-                android:background="@drawable/textboxbackground"
+                android:backgroundTint="@color/generalTextColor"
+                android:textColor="@color/generalTextColor"
+                android:textColorHint="@color/generalHintTextColor"
                 android:padding="@dimen/padding_large"
                 />
             <Button
-                android:visibility="gone"
+                android:visibility="visible"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/select_language_but"
@@ -234,17 +448,19 @@
                 android:paddingEnd="@dimen/margin_m"
                 android:paddingStart="@dimen/margin_m"
                 android:textAllCaps="false"
+                android:fitsSystemWindows="true"
                 android:textColor="@color/white"
                 app:layout_constraintEnd_toEndOf="parent"/>
 
             <Button
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/submit_but"
-                android:text="@string/submit"
+                android:text="@string/next"
                 android:textAllCaps="false"
                 android:background="@drawable/signin_signup_button_background"
                 android:textColor="@color/white"
+                android:fitsSystemWindows="true"
                 android:layout_margin="@dimen/padding_large"
                 app:layout_constraintTop_toBottomOf="@id/user_language"
                 app:layout_constraintStart_toStartOf="parent"
@@ -259,11 +475,13 @@
                 android:textColor="@color/red"
                 android:textSize="@dimen/login_fields_text_size"
                 android:gravity="center"
+                android:fitsSystemWindows="true"
                 app:layout_constraintTop_toBottomOf="@id/submit_but"
                 />
             <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="500dp"
+                android:fitsSystemWindows="true"
                 app:layout_constraintTop_toBottomOf="@id/userAlreadyExistsTV"/>
 
 
@@ -276,6 +494,7 @@
             android:layout_gravity="bottom|center_horizontal"
             android:orientation="horizontal"
             android:visibility="gone"
+            android:fitsSystemWindows="true"
             tools:ignore="UselessParent">
 
             <Button
@@ -285,10 +504,297 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:visibility="gone"
+                android:fitsSystemWindows="true"
                 android:text="@string/dummy_button" />
 
         </LinearLayout>
     </FrameLayout>
+
+
+
+
+
+
+
+
+
+
+    <!--    <FrameLayout-->
+<!--        android:visibility="gone"-->
+<!--        android:id="@+id/login_fragment_personal_information_container"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="match_parent"-->
+<!--        android:paddingBottom="@dimen/padding_very_large"-->
+<!--        android:fitsSystemWindows="true">-->
+
+<!--        <ImageView-->
+<!--            android:id="@+id/huddlebanner"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="198dp"-->
+<!--            android:background="@drawable/technology1"-->
+<!--            android:scaleType="centerCrop"-->
+<!--            android:src="@drawable/huddle_banner"-->
+<!--            android:fitsSystemWindows="true"-->
+<!--            android:tintMode="multiply"-->
+<!--            app:tint="#DDDDDDDD" />-->
+
+<!--        <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="match_parent"-->
+<!--            android:layout_marginTop="180dp"-->
+<!--            android:fitsSystemWindows="true"-->
+<!--            android:background="@drawable/white_upper_rounded_background"-->
+<!--            android:padding="@dimen/margin_l">-->
+
+<!--            <TextView-->
+<!--                android:id="@+id/sign_in_up_welcome_tv"-->
+<!--                android:gravity="top"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_margin="@dimen/margin_m"-->
+<!--                app:layout_constraintTop_toTopOf="parent"-->
+<!--                app:layout_constraintStart_toStartOf="parent"-->
+<!--                android:textColor="@color/myAccent1"-->
+<!--                android:textStyle="bold"-->
+<!--                android:textSize="21sp"-->
+<!--                android:fitsSystemWindows="true"-->
+<!--                android:text="Lets get started"-->
+<!--                android:layout_height="wrap_content"/>-->
+<!--            <LinearLayout-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                app:layout_constraintTop_toBottomOf="@id/sign_in_up_welcome_tv"-->
+<!--                android:padding="@dimen/margin_m"-->
+<!--                android:orientation="horizontal"-->
+<!--                android:fitsSystemWindows="true"-->
+<!--                android:layout_marginBottom="@dimen/padding_large"-->
+<!--                android:id="@+id/sininsignup_buts_container">-->
+
+
+<!--                <Button-->
+<!--                    android:id="@+id/signin_but"-->
+<!--                    android:layout_marginEnd="@dimen/margin_l"-->
+<!--                    android:layout_weight="1"-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:textColor="@color/white"-->
+<!--                    android:textAllCaps="false"-->
+<!--                    android:fitsSystemWindows="true"-->
+<!--                    android:background="@drawable/signin_button_background"-->
+
+<!--                    android:text="Login"/>-->
+
+<!--                <Button-->
+<!--                    android:id="@+id/signup_but"-->
+<!--                    android:layout_marginStart="@dimen/margin_l"-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_marginEnd="@dimen/margin_m"-->
+<!--                    android:layout_weight="1"-->
+<!--                    android:textColor="@color/white"-->
+<!--                    android:textAllCaps="false"-->
+<!--                    android:fitsSystemWindows="true"-->
+<!--                    android:background="@drawable/signup_button_background"-->
+<!--                    android:text="Signup"/>-->
+<!--            </LinearLayout>-->
+
+<!--            <ImageButton-->
+<!--                android:visibility="gone"-->
+<!--                android:id="@+id/select_photo_but"-->
+<!--                android:layout_width="140dp"-->
+<!--                android:layout_height="140dp"-->
+<!--                android:fitsSystemWindows="true"-->
+<!--                android:background="@drawable/select_photo_button_background"-->
+<!--                android:src="@drawable/ic_baseline_photo_camera_100"-->
+<!--                android:layout_margin="@dimen/margin_l"-->
+<!--                app:layout_constraintTop_toBottomOf="@id/sininsignup_buts_container"-->
+<!--                app:layout_constraintStart_toStartOf="parent"-->
+<!--                app:layout_constraintEnd_toEndOf="parent"/>-->
+
+<!--            <EditText-->
+<!--                android:id="@+id/call_window_label"-->
+<!--                android:visibility="gone"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:text="@string/enter_your_data"-->
+<!--                app:layout_constraintTop_toTopOf="parent"-->
+<!--                app:layout_constraintStart_toStartOf="parent"-->
+<!--                android:layout_margin="@dimen/margin_m"-->
+<!--                android:maxLines="1"-->
+<!--                android:fitsSystemWindows="true"-->
+<!--                app:layout_constraintEnd_toEndOf="parent"/>-->
+<!--            <EditText-->
+<!--                android:id="@+id/user_name"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_margin="@dimen/margin_m"-->
+<!--                android:hint="@string/enter_your_name"-->
+<!--                android:text="@{user.username}"-->
+<!--                android:maxLines="1"-->
+<!--                android:lines="1"-->
+<!--                android:fitsSystemWindows="true"-->
+<!--                android:textSize="@dimen/login_fields_text_size"-->
+<!--                android:backgroundTint="@color/myAccent1"-->
+<!--                app:layout_constraintTop_toBottomOf="@id/select_photo_but"-->
+<!--                android:padding="@dimen/padding_large"-->
+<!--                android:visibility="gone"-->
+<!--                />-->
+<!--            <EditText-->
+<!--                android:id="@+id/user_email"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_margin="@dimen/margin_m"-->
+<!--                android:hint="@string/emailatexample"-->
+<!--                android:maxLines="1"-->
+<!--                android:lines="1"-->
+<!--                android:fitsSystemWindows="true"-->
+<!--                android:textSize="@dimen/login_fields_text_size"-->
+<!--                android:text="@{user.useremail}"-->
+<!--                android:backgroundTint="@color/myAccent1"-->
+<!--                android:padding="@dimen/padding_large"-->
+<!--                app:layout_constraintTop_toBottomOf="@id/user_name"-->
+<!--                android:inputType="textEmailAddress"-->
+<!--                />-->
+<!--            <EditText-->
+<!--                android:id="@+id/password_et"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_margin="@dimen/margin_m"-->
+<!--                android:hint="@string/password"-->
+<!--                android:lines="1"-->
+<!--                android:fitsSystemWindows="true"-->
+<!--                android:maxLines="1"-->
+<!--                android:textSize="@dimen/login_fields_text_size"-->
+<!--                android:text="@{user.password}"-->
+<!--                android:backgroundTint="@color/myAccent1"-->
+<!--                android:padding="@dimen/padding_large"-->
+<!--                app:layout_constraintTop_toBottomOf="@id/user_email"-->
+<!--                android:inputType="textPassword"-->
+<!--                />-->
+<!--            <EditText-->
+<!--                android:visibility="gone"-->
+<!--                android:id="@+id/retypepasswordet"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_marginTop="@dimen/margin_m"-->
+<!--                android:layout_marginStart="@dimen/margin_m"-->
+<!--                android:layout_marginEnd="@dimen/margin_m"-->
+<!--                android:layout_marginBottom="@dimen/margin_l"-->
+<!--                android:maxLines="1"-->
+<!--                android:fitsSystemWindows="true"-->
+<!--                android:textSize="@dimen/login_fields_text_size"-->
+<!--                android:lines="1"-->
+<!--                android:hint="@string/retypr_password"-->
+<!--                android:backgroundTint="@color/myAccent1"-->
+<!--                android:padding="@dimen/padding_large"-->
+<!--                app:layout_constraintTop_toBottomOf="@id/password_et"-->
+<!--                android:inputType="textPassword"-->
+<!--                />-->
+<!--            <EditText-->
+<!--                android:id="@+id/user_phone"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_margin="@dimen/margin_m"-->
+<!--                android:text=""-->
+<!--                android:fitsSystemWindows="true"-->
+<!--                android:hint="@string/enter_your_phone_number"-->
+<!--                android:visibility="gone"-->
+<!--                android:maxLines="1"-->
+<!--                android:textSize="@dimen/login_fields_text_size"-->
+<!--                android:lines="1"-->
+<!--                android:background="@drawable/textboxbackground"-->
+<!--                android:padding="@dimen/padding_large"-->
+<!--                app:layout_constraintTop_toBottomOf="@id/retypepasswordet"-->
+<!--                />-->
+<!--            <TextView-->
+<!--                android:visibility="gone"-->
+<!--                android:id="@+id/user_language"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:hint="@string/your_language"-->
+<!--                android:layout_margin="@dimen/margin_m"-->
+<!--                android:fitsSystemWindows="true"-->
+<!--                android:textSize="@dimen/login_fields_text_size"-->
+<!--                android:text="@{user.userlanguage.name()}"-->
+<!--                app:layout_constraintTop_toBottomOf="@id/user_phone"-->
+<!--                app:layout_constraintStart_toStartOf="parent"-->
+<!--                android:background="@drawable/textboxbackground"-->
+<!--                android:padding="@dimen/padding_large"-->
+<!--                />-->
+<!--            <Button-->
+<!--                android:visibility="gone"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:id="@+id/select_language_but"-->
+<!--                android:text="Select"-->
+<!--                android:layout_margin="@dimen/margin_m"-->
+<!--                app:layout_constraintTop_toTopOf="@id/user_language"-->
+<!--                app:layout_constraintBottom_toBottomOf="@id/user_language"-->
+<!--                android:layout_marginStart="@dimen/margin_m"-->
+<!--                android:background="@drawable/signin_signup_button_background"-->
+<!--                android:paddingEnd="@dimen/margin_m"-->
+<!--                android:paddingStart="@dimen/margin_m"-->
+<!--                android:textAllCaps="false"-->
+<!--                android:fitsSystemWindows="true"-->
+<!--                android:textColor="@color/white"-->
+<!--                app:layout_constraintEnd_toEndOf="parent"/>-->
+
+<!--            <Button-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:id="@+id/submit_but"-->
+<!--                android:text="@string/submit"-->
+<!--                android:textAllCaps="false"-->
+<!--                android:background="@drawable/signin_signup_button_background"-->
+<!--                android:textColor="@color/white"-->
+<!--                android:fitsSystemWindows="true"-->
+<!--                android:layout_margin="@dimen/padding_large"-->
+<!--                app:layout_constraintTop_toBottomOf="@id/user_language"-->
+<!--                app:layout_constraintStart_toStartOf="parent"-->
+<!--                app:layout_constraintEnd_toEndOf="parent"/>-->
+<!--            <TextView-->
+<!--                android:id="@+id/userAlreadyExistsTV"-->
+<!--                android:visibility="gone"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_margin="@dimen/margin_l"-->
+<!--                android:text="User already exist try login!"-->
+<!--                android:textColor="@color/red"-->
+<!--                android:textSize="@dimen/login_fields_text_size"-->
+<!--                android:gravity="center"-->
+<!--                android:fitsSystemWindows="true"-->
+<!--                app:layout_constraintTop_toBottomOf="@id/submit_but"-->
+<!--                />-->
+<!--            <FrameLayout-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="500dp"-->
+<!--                android:fitsSystemWindows="true"-->
+<!--                app:layout_constraintTop_toBottomOf="@id/userAlreadyExistsTV"/>-->
+
+
+<!--        </androidx.constraintlayout.widget.ConstraintLayout>-->
+<!--        <LinearLayout-->
+<!--            android:id="@+id/fullscreen_content_controls"-->
+<!--            style="@style/Widget.Theme.MyApplication.ButtonBar.Fullscreen"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_gravity="bottom|center_horizontal"-->
+<!--            android:orientation="horizontal"-->
+<!--            android:visibility="gone"-->
+<!--            android:fitsSystemWindows="true"-->
+<!--            tools:ignore="UselessParent">-->
+
+<!--            <Button-->
+<!--                android:id="@+id/dummy_button"-->
+<!--                style="?android:attr/buttonBarButtonStyle"-->
+<!--                android:layout_width="0dp"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_weight="1"-->
+<!--                android:visibility="gone"-->
+<!--                android:fitsSystemWindows="true"-->
+<!--                android:text="@string/dummy_button" />-->
+
+<!--        </LinearLayout>-->
+<!--    </FrameLayout>-->
 
 </FrameLayout>
     </ScrollView>

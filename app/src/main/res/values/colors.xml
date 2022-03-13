@@ -55,5 +55,10 @@
     <color name="nav_header_name_text_color">@color/darkTextColor</color>
     <color name="nav_header_language_text_color">@color/darkTextColor</color>
     <color name="nav_door_items_icons_tint_color" >@color/darkTextColor</color>
+    <color name="phone_verification_background_color">#FFFFFF</color>
+    <color name="wecome_text_color_phone_number_view_login_fragment">#2196F3</color>
+    <color name="generalTextColor">#000000</color>
+    <color name="generalHintTextColor">#686868</color>
+    <color name="pupup_window_background_color">#FFFFFF</color>
 
 </resources>

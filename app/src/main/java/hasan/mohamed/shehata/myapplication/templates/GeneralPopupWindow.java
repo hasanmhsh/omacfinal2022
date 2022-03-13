@@ -13,6 +13,10 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModel;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -61,6 +65,7 @@ public abstract class GeneralPopupWindow extends DialogFragment {
         FragmentManager supportFragmentManager = Utils.getSupportFragmentManager(context);
         Bundle bundle = new Bundle();
         SerializedParcel serializedParcel = new SerializedParcel(title, listData, selectionResultReceiver);
+        serializedParcel.setItemWithImage(false);
         bundle.putSerializable(PARCEL_EXTRA_PARAM, serializedParcel);
         GSPWindow window = new GSPWindow(bundle);
         window.show(supportFragmentManager, title);
@@ -72,6 +77,7 @@ public abstract class GeneralPopupWindow extends DialogFragment {
         FragmentManager supportFragmentManager = Utils.getSupportFragmentManager(context);
         Bundle bundle = new Bundle();
         SerializedParcel serializedParcel = new SerializedParcel(title, Arrays.asList(Language.values()), selectionResultReceiver);
+        serializedParcel.setItemWithImage(true);
         bundle.putSerializable(PARCEL_EXTRA_PARAM, serializedParcel);
         GSPWindow window = new GSPWindow(bundle);
         window.show(supportFragmentManager, title);
@@ -133,6 +139,7 @@ public abstract class GeneralPopupWindow extends DialogFragment {
         private String title;
         private List<ListItemBindableItemContentProvider> listData;
         private ResultReceiver selectionResultReceiver;
+        private boolean isItemWithImage = true;
 
         public SerializedParcel(String title, List<ListItemBindableItemContentProvider> listData, ResultReceiver selectionResultReceiver) {
             this.title = title;
@@ -150,6 +157,14 @@ public abstract class GeneralPopupWindow extends DialogFragment {
 
         public ResultReceiver getSelectionResultReceiver() {
             return selectionResultReceiver;
+        }
+
+        public boolean isItemWithImage() {
+            return isItemWithImage;
+        }
+
+        public void setItemWithImage(boolean itemWithImage) {
+            isItemWithImage = itemWithImage;
         }
     }
 
@@ -193,21 +208,53 @@ public abstract class GeneralPopupWindow extends DialogFragment {
     }
 
     public static class GSPWindow extends GeneralPopupWindow {
+        private PopupViewModel viewModel;
         public GSPWindow(Bundle bundle) {
             super();
             setArguments(bundle);
         }
 
+        public GSPWindow(){
+            super();
+        }
+
+
         private String getWindowTitle() {
-            return ((SerializedParcel) getArguments().getSerializable(PARCEL_EXTRA_PARAM)).getTitle();
+            SerializedParcel serializedParcel = getSerializableParcel();
+            if(serializedParcel !=null)
+                return serializedParcel.getTitle();
+            else
+                return null;
+        }
+
+        private boolean getIsViewItemImage() {
+            SerializedParcel serializedParcel = getSerializableParcel();
+            if(serializedParcel !=null)
+                return serializedParcel.isItemWithImage();
+            else
+                return false;
         }
 
         private List<ListItemBindableItemContentProvider> getListData() {
-            return ((SerializedParcel) getArguments().getSerializable(PARCEL_EXTRA_PARAM)).getListData();
+            SerializedParcel serializedParcel = getSerializableParcel();
+            if(serializedParcel !=null)
+                return serializedParcel.getListData();
+            else
+                return null;
         }
 
         private ResultReceiver getResultReceiver() {
-            return ((SerializedParcel) getArguments().getSerializable(PARCEL_EXTRA_PARAM)).getSelectionResultReceiver();
+            SerializedParcel serializedParcel = getSerializableParcel();
+            if(serializedParcel !=null)
+                return serializedParcel.getSelectionResultReceiver();
+            else
+                return null;
+        }
+
+        private SerializedParcel getSerializableParcel() {
+            if(getArguments() != null)
+                return ((SerializedParcel) getArguments().getSerializable(PARCEL_EXTRA_PARAM));
+            return null;
         }
 
         private GeneralListViewLayoutBinding binding;
@@ -215,7 +262,9 @@ public abstract class GeneralPopupWindow extends DialogFragment {
             @Override
             public void receiveResult(ListItemBindableItemContentProvider bindableItemContentProvider) {
                 //Return result to activity then closeDialog()
-                getResultReceiver().receiveResult(bindableItemContentProvider);
+                ResultReceiver receiver = getResultReceiver();
+                if(receiver != null)
+                    receiver.receiveResult(bindableItemContentProvider);
                 closeDialog();
             }
 
@@ -245,6 +294,22 @@ public abstract class GeneralPopupWindow extends DialogFragment {
         @Override
         public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
             super.onViewCreated(view, savedInstanceState);
+//            viewModel = new ViewModelProvider(this).get(PopupViewModel.class);
+//            viewModel.getSerializedParcelMutableLiveData().observe(getViewLifecycleOwner(), new Observer<SerializedParcel>() {
+//                @Override
+//                public void onChanged(SerializedParcel serializedParcel) {
+//                    if(serializedParcel != null)
+//                        initRV();
+//                }
+//            });
+            if(getArguments() != null && getSerializableParcel() != null)
+                initRV();
+            else
+                closeDialog();
+
+        }
+
+        private void initRV(){
             String title = getWindowTitle();
             getDialog().setTitle(title);
             getDialog().getWindow().setSoftInputMode(
@@ -269,6 +334,12 @@ public abstract class GeneralPopupWindow extends DialogFragment {
             params.height = ViewGroup.LayoutParams.WRAP_CONTENT;
             getDialog().getWindow().setAttributes((android.view.WindowManager.LayoutParams) params);
         }
+
+//        @Override
+//        public void onPause() {
+//            super.onPause();
+//            viewModel.getSerializedParcelMutableLiveData().setValue(getSerializableParcel());
+//        }
     }
 
 
@@ -303,6 +374,7 @@ public abstract class GeneralPopupWindow extends DialogFragment {
             params.height = ViewGroup.LayoutParams.WRAP_CONTENT;
             getDialog().getWindow().setAttributes((android.view.WindowManager.LayoutParams) params);
         }
+
 
         @Override
         public void bind(ListItemBindableItemContentProvider bindableItemContentProvider) {
@@ -913,6 +985,20 @@ public abstract class GeneralPopupWindow extends DialogFragment {
         @Override
         public void close() {
             closeDialog();
+        }
+    }
+
+
+    public class PopupViewModel extends ViewModel {
+        private MutableLiveData<SerializedParcel> serializedParcelMutableLiveData;
+
+        public PopupViewModel() {
+            serializedParcelMutableLiveData = new MutableLiveData<>();
+            serializedParcelMutableLiveData.setValue(null);
+        }
+
+        public MutableLiveData<SerializedParcel> getSerializedParcelMutableLiveData() {
+            return serializedParcelMutableLiveData;
         }
     }
 

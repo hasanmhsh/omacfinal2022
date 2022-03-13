@@ -583,6 +583,7 @@ public class MessageFragment extends Fragment implements SpeakerProvider, Messag
         binding.sendBut.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Utils.hideKeybaord(view);
                 sendMessageFromString(binding.sendingTextEt.getText().toString());
                 binding.sendingTextEt.getText().clear();
 //                final Message newMessage = new Message();

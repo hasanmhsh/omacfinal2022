@@ -257,6 +257,15 @@ public class TranslationMainActivity extends AppCompatActivity implements FabSou
 //
 //        List<String> phones = Utils.getPhoneNumberList(this);
 
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Utils.getCountryPhoneCodes(getApplicationContext());
+                Utils.getPhoneNumberList(getApplicationContext());
+            }
+        });
+
+
     }
 
     private boolean isHighContrastEnabled = false;
@@ -799,8 +808,8 @@ public class TranslationMainActivity extends AppCompatActivity implements FabSou
 
     private void resetUIState() {
         if (navController.getCurrentDestination().getId() == R.id.callingFragment
-                || navController.getCurrentDestination().getId() == R.id.splashFragment
-                || navController.getCurrentDestination().getId() == R.id.loginFragment) {
+                || navController.getCurrentDestination().getId() == R.id.splashFragment){
+//                || navController.getCurrentDestination().getId() == R.id.loginFragment) {
             viewFlags =
 
 //                View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR

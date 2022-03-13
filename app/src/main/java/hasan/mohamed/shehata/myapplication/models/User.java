@@ -55,7 +55,7 @@ public class User extends BaseObservable implements ListItemBindableItemContentP
         this.isExist = user.isExist;
     }
 
-    @SerializedName("id")
+    @SerializedName("userid")
     @PrimaryKey(autoGenerate = true)
     private long userid;
 
@@ -71,7 +71,7 @@ public class User extends BaseObservable implements ListItemBindableItemContentP
     @ColumnInfo(name = "phone")
     private String userphone;
 
-    @SerializedName("language")
+    @SerializedName("language") //Example English
     @ColumnInfo(name = "language")
     private Language userlanguage;
 
@@ -83,7 +83,7 @@ public class User extends BaseObservable implements ListItemBindableItemContentP
     @ColumnInfo(name = "status")
     private StatusOfServerObject userstatus;
 
-    @SerializedName("isactive")
+    @SerializedName("isOnline")
     private boolean isOnline;
 
     @SerializedName("exist")

@@ -1,6 +1,11 @@
 package hasan.mohamed.shehata.myapplication.models;
 
-public class CountryPhoneCode {
+import android.view.View;
+import android.widget.ImageView;
+
+import hasan.mohamed.shehata.myapplication.types.ListItemCallbacks;
+
+public class CountryPhoneCode implements ListItemBindableItemContentProvider {
     private String name;
     private String phoneCode;
     private String countryCode;
@@ -36,5 +41,40 @@ public class CountryPhoneCode {
 
     public void setCountryCode(String countryCode) {
         this.countryCode = countryCode;
+    }
+
+    @Override
+    public String getPrimaryText() {
+        return name;
+    }
+
+    @Override
+    public String getSecondaryText() {
+        return countryCode;
+    }
+
+    @Override
+    public long getID() {
+        return 0;
+    }
+
+    @Override
+    public void drawLogo(ImageView view) {
+        view.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void setOnListItemCallbacks(ListItemCallbacks callbacks) {
+
+    }
+
+    @Override
+    public void disposeResources() {
+
+    }
+
+    @Override
+    public boolean isEqualTo(ListItemBindableItemContentProvider item) {
+        return false;
     }
 }

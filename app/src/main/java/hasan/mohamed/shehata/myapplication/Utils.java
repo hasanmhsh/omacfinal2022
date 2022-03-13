@@ -1,5 +1,7 @@
 package hasan.mohamed.shehata.myapplication;
 
+import static android.content.Context.INPUT_METHOD_SERVICE;
+
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.ContentResolver;
@@ -17,6 +19,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.provider.ContactsContract;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 
 import androidx.annotation.RequiresApi;
 import androidx.fragment.app.FragmentActivity;
@@ -566,7 +569,7 @@ public class Utils {
     }
 
     private static CountryPhoneCode[] countryPhoneCodes = null;
-    public static CountryPhoneCode [] getCountryPhoneCodes(Context context){
+    public static synchronized CountryPhoneCode [] getCountryPhoneCodes(Context context){
         if(countryPhoneCodes == null) {
             InputStream incomingData = context.getResources().openRawResource(R.raw.phonecodes);
 //        InputStreamReader inputStreamReader = new InputStreamReader(incomingData);
@@ -593,7 +596,7 @@ public class Utils {
     private static ArrayList<String> contactsnameList = null;
     private static ArrayList<String> contactsphoneNumberList = null;
 
-    public static List<String> getPhoneNumberList(Context context){
+    public static synchronized List<String> getPhoneNumberList(Context context){
         if(contactsphoneNumberList == null)
             getAllContacts(context);
         return contactsphoneNumberList;
@@ -630,6 +633,13 @@ public class Utils {
             cur.close();
         }
     }
+
+
+    public static void hideKeybaord(View v) {
+        InputMethodManager inputMethodManager = (InputMethodManager)v.getContext().getSystemService(INPUT_METHOD_SERVICE);
+        inputMethodManager.hideSoftInputFromWindow(v.getApplicationWindowToken(),0);
+    }
+
 
 
 }

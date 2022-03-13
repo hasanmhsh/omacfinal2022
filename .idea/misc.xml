@@ -166,10 +166,14 @@
         <entry key="..\:/omacfinal2022/app/src/main/res/layout/dual_text_rv_item_view_layout.xml" value="0.1" />
         <entry key="..\:/omacfinal2022/app/src/main/res/layout/fragment_login.xml" value="0.264" />
         <entry key="..\:/omacfinal2022/app/src/main/res/layout/fragment_messages.xml" value="0.16" />
+        <entry key="..\:/omacfinal2022/app/src/main/res/layout/fragment_user_phone_number_verification.xml" value="0.10989583333333333" />
         <entry key="..\:/omacfinal2022/app/src/main/res/layout/fragment_users.xml" value="0.1" />
-        <entry key="..\:/omacfinal2022/app/src/main/res/layout/general_list_view_layout.xml" value="0.20652173913043478" />
+        <entry key="..\:/omacfinal2022/app/src/main/res/layout/general_list_view_layout.xml" value="0.1" />
         <entry key="..\:/omacfinal2022/app/src/main/res/layout/message_item_layout.xml" value="0.25263157894736843" />
         <entry key="..\:/omacfinal2022/app/src/main/res/layout/nav_header_translation_main.xml" value="0.1" />
+        <entry key="..\:/omacfinal2022/app/src/main/res/layout/spinner_drop_down_view.xml" value="0.12158054711246201" />
+        <entry key="..\:/omacfinal2022/app/src/main/res/layout/spinner_item_view_1.xml" value="0.12158054711246201" />
+        <entry key="..\:/omacfinal2022/app/src/main/res/layout/spinner_simple_item.xml" value="0.12158054711246201" />
         <entry key="..\:/omacfinal2022/app/src/main/res/layout/splash_fragment.xml" value="0.20652173913043478" />
         <entry key="..\:/omacfinal2022/app/src/main/res/layout/svg_triangle1.xml" value="0.1897644927536232" />
         <entry key="..\:/omacfinal2022/app/src/main/res/layout/text_translation_fragment.xml" value="0.1" />

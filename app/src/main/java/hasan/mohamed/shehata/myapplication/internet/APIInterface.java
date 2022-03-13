@@ -41,11 +41,17 @@ public interface APIInterface {
     @POST("users/login")
     Call<LoginResult> login(@Body User user);
 
-    @GET("users")
+    @GET("users/users")
     Call<List<User>> getAllUsers();
 
-    @POST("users")
+    @POST("users/user")
     Call<User> createNewUser(@Body User user);
+
+    @GET("users/user/phone")
+    Call<User> getUserByPhoneNumber(@Body User user);
+
+    @POST ("messages/smsajhhjasbcnksnxcvjhasgdjhsbdhfjvgadsy7td7styf78")
+    Call<JSONResult> sendSms(@Body SMS sms);
 
     @POST("messages")
     Call<Message> createNewMessage(@Body Message message);
@@ -74,7 +80,7 @@ public interface APIInterface {
 //    Call<JSONResult> uploadPhoto(@Path("id") long id, @Part("file\"; filename=\"pp.png\" ") RequestBody file);//Request body import
 
     @Multipart
-    @POST("users/photo/upload/{id}")
+    @POST("uploadimagefile/{id}/userimage")
     Call<JSONResult> uploadPhoto(@Path("id") long id, @Part MultipartBody.Part file);//Request body import
 
 
@@ -85,6 +91,6 @@ public interface APIInterface {
     Call<ResponseBody> downloadGoogleClientKey();//Request body import
 
 //    @Streaming
-    @POST("users/photo/download/withid/{id}")
+    @POST("downloadimagefile/{id}/userimage")
     Call<ResponseBody> downloadPhoto(@Path("id") long id);//Request body import
 }

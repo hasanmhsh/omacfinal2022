@@ -32,6 +32,7 @@
             app:layout_constraintBottom_toTopOf="@id/secondary_tv"
             android:gravity="start"
             style="@style/PrimaryTextStyle"
+            android:textColor="@color/generalTextColor"
             android:text="@{dualtext.primaryText}"
             />
         <com.google.android.material.textview.MaterialTextView
@@ -44,6 +45,7 @@
             app:layout_constraintTop_toBottomOf="@+id/primatry_tv"
             app:layout_constraintBottom_toBottomOf="@id/dual_text_logo_iv"
             android:gravity="start"
+            android:textColor="@color/generalHintTextColor"
             style="@style/SecondaryTextStyle"/>
 
 
