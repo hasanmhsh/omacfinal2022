@@ -60,5 +60,7 @@
     <color name="generalTextColor">#000000</color>
     <color name="generalHintTextColor">#686868</color>
     <color name="pupup_window_background_color">#FFFFFF</color>
+    <color name="login_button_color">#2196F3</color>
+    <color name="login_button_color_pressed">#B02196F3</color>
 
 </resources>

@@ -15,6 +15,7 @@ public class LoginViewModel extends ViewModel {
     private MutableLiveData<String> retypePassword;
     private MutableLiveData<Language> language;
     private MutableLiveData<String> verifiedUserPhone;
+    private MutableLiveData<String> selectedCountryCodeName;
 
 
     private MutableLiveData<Boolean> isCountrySelected;
@@ -63,6 +64,11 @@ public class LoginViewModel extends ViewModel {
 
         language = new MutableLiveData<>();
         language.setValue(null);
+
+        selectedCountryCodeName = new MutableLiveData<>();
+        selectedCountryCodeName.setValue(null);
+
+
     }
 
     public MutableLiveData<Boolean> getIsLogin() {
@@ -116,5 +122,9 @@ public class LoginViewModel extends ViewModel {
 
     public MutableLiveData<String> getVerifiedUserPhone() {
         return verifiedUserPhone;
+    }
+
+    public MutableLiveData<String> getSelectedCountryCodeName() {
+        return selectedCountryCodeName;
     }
 }

@@ -71,7 +71,7 @@ public class LoginFragment extends Fragment implements BindableItem, StartedActi
     public static final int REQUEST_CODE_PICK_ALL1 = 456;
     private FragmentLoginBinding binding;
     private LoginViewModel loginViewModel;
-    private boolean isLoginView;
+    private boolean isLoginView = false;
     private Language selectedLanguage;
     private Closeable progressWindow;
     private LifecycleOwner lifeCycleOwner;
@@ -83,6 +83,15 @@ public class LoginFragment extends Fragment implements BindableItem, StartedActi
     private Fragment thiz;
     private long myid;
     private String verifiedUserPhone;
+    private Thread resendCounterThread;
+
+
+    private boolean isCountrySelected = false;
+    private String verificationCode;
+    private boolean isVerificationGroupVisible = false;
+    private boolean isResendCounterOn = false;
+    private boolean isNowPhoneNumberVerificationView = true;
+    private AtomicInteger resendCounter = new AtomicInteger(30);
 
     @Nullable
     @Override
@@ -97,7 +106,7 @@ public class LoginFragment extends Fragment implements BindableItem, StartedActi
             @Override
             public void onChanged(Boolean aBoolean) {
                 if(aBoolean == null){
-                    isLoginView = true;
+                    isLoginView = false;
                 }
                 else {
                     isLoginView = aBoolean;
@@ -147,6 +156,7 @@ public class LoginFragment extends Fragment implements BindableItem, StartedActi
         binding.selectLanguageBut.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Utils.hideKeybaord(view);
                 GeneralPopupWindow.makeLanguageSelectionWindow(getContext(),
                         getContext().getResources().getString(R.string.select_language),
                         new ResultReceiver() {
@@ -186,7 +196,7 @@ public class LoginFragment extends Fragment implements BindableItem, StartedActi
         binding.submitBut.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                Utils.hideKeybaord(view);
                 ((PermissionRequestProvider)getActivity()).requireInternetPermission(new PermissionRequestCallbacks() {
                     @Override
                     public void granted() {
@@ -253,35 +263,65 @@ public class LoginFragment extends Fragment implements BindableItem, StartedActi
         loginViewModel.getIsCountrySelected().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
             @Override
             public void onChanged(Boolean aBoolean) {
-                isCountrySelected = aBoolean;
+                if (aBoolean != null)
+                    isCountrySelected = aBoolean;
             }
         });
 
         loginViewModel.getIsNowPhoneNumberVerificationView().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
             @Override
             public void onChanged(Boolean aBoolean) {
-                isNowPhoneNumberVerificationView = aBoolean;
+                if (aBoolean != null)
+                    isNowPhoneNumberVerificationView = aBoolean;
+                if(isNowPhoneNumberVerificationView) {
+                    phoneVerficationViewInitialization();
+                }
+                else {
+                    binding.loginFragmentPhoneNumberVerificationContainer.setVisibility(View.GONE);
+                    binding.loginFragmentPersonalInformationContainer.setVisibility(View.VISIBLE);
+                }
             }
         });
 
         loginViewModel.getIsResendCounterOn().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
             @Override
             public void onChanged(Boolean aBoolean) {
-                isResendCounterOn = aBoolean;
+                if (aBoolean != null)
+                    isResendCounterOn = aBoolean;
+                if (isResendCounterOn) {
+                    binding.countrySelectionTvPhoneNumberVerificationFragment.setEnabled(false);
+                    binding.countryCodeEtPhoneVerificationLoginFragment.setEnabled(false);
+                    binding.phonenumberEtPhoneNumberVerificationFragmnet.setEnabled(false);
+                    binding.okButPhoneVerificationFragment.setEnabled(false);
+                    binding.resendSmsButPhoneVerificationFragment.setEnabled(false);
+                    binding.verificationnumberEtPhoneNumberVerificationFragmnet.setVisibility(View.VISIBLE);
+                    binding.verificationNumberLabelTvVerificationFragment.setVisibility(View.VISIBLE);
+                    binding.resendSmsButPhoneVerificationFragment.setVisibility(View.VISIBLE);
+                    checkResendCounter(false);
+                }
             }
         });
 
         loginViewModel.getIsVerificationGroupVisible().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
             @Override
             public void onChanged(Boolean aBoolean) {
-                isVerificationGroupVisible = aBoolean;
+                if (aBoolean != null)
+                    isVerificationGroupVisible = aBoolean;
+                if (isVerificationGroupVisible) {
+                    binding.verificationnumberEtPhoneNumberVerificationFragmnet.setVisibility(View.VISIBLE);
+                    binding.verificationNumberLabelTvVerificationFragment.setVisibility(View.VISIBLE);
+                    binding.resendSmsButPhoneVerificationFragment.setVisibility(View.VISIBLE);
+                }
             }
         });
 
         loginViewModel.getResendCounter().observe(getViewLifecycleOwner(), new Observer<AtomicInteger>() {
             @Override
             public void onChanged(AtomicInteger atomicInteger) {
-                resendCounter = atomicInteger;
+                if(atomicInteger != null)
+                    resendCounter = atomicInteger;
+                else
+                    resendCounter = new AtomicInteger(30);
             }
         });
 
@@ -296,6 +336,17 @@ public class LoginFragment extends Fragment implements BindableItem, StartedActi
             @Override
             public void onChanged(String s) {
                 verifiedUserPhone = s;
+            }
+        });
+
+        loginViewModel.getSelectedCountryCodeName().observe(getViewLifecycleOwner(), new Observer<String>() {
+            @Override
+            public void onChanged(String s) {
+                if(s != null){
+                    if(binding != null && binding.countrySelectionTvPhoneNumberVerificationFragment!=null){
+                        binding.countrySelectionTvPhoneNumberVerificationFragment.setText(s);
+                    }
+                }
             }
         });
 
@@ -498,12 +549,7 @@ public class LoginFragment extends Fragment implements BindableItem, StartedActi
         }
     }
 
-    private boolean isCountrySelected = false;
-    private String verificationCode;
-    private boolean isVerificationGroupVisible = false;
-    private boolean isResendCounterOn = false;
-    private boolean isNowPhoneNumberVerificationView = true;
-    private AtomicInteger resendCounter = new AtomicInteger(30);
+
     private void phoneVerficationViewInitialization() {
         final CountryPhoneCode [] countryPhoneCodes = Utils.getCountryPhoneCodes(getContext());
         String [] countryNames = new String[countryPhoneCodes.length];
@@ -525,6 +571,7 @@ public class LoginFragment extends Fragment implements BindableItem, StartedActi
             @Override
             public void afterTextChanged(Editable editable) {
                 if(isVerificationGroupVisible && verificationCode != null && verificationCode.length() == 6 && binding.verificationnumberEtPhoneNumberVerificationFragmnet.getText().toString().equals(verificationCode)){
+                    Utils.hideKeybaord(binding.loginFragmentPhoneNumberVerificationContainer);
                     binding.getUser().setUserphone(verifiedUserPhone);
 //                    Toast.makeText(getContext(), verifiedUserPhone, Toast.LENGTH_SHORT).show();
 
@@ -582,6 +629,7 @@ public class LoginFragment extends Fragment implements BindableItem, StartedActi
         binding.countrySelectionTvPhoneNumberVerificationFragment.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Utils.hideKeybaord(view);
                 GeneralPopupWindow.makeSelectionWindow(getContext()
                         , "Select"
                         , new ArrayList<ListItemBindableItemContentProvider>(Arrays.asList(countryPhoneCodes))
@@ -614,9 +662,10 @@ public class LoginFragment extends Fragment implements BindableItem, StartedActi
             }
         });
 
-        binding.okButPhoneVerificationFragment.setOnClickListener(new View.OnClickListener() {
+        View.OnClickListener sendVerCodeListener = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                binding.verificationnumberEtPhoneNumberVerificationFragmnet.setText("");
                 binding.countrySelectionTvPhoneNumberVerificationFragment.setEnabled(true);
                 binding.countryCodeEtPhoneVerificationLoginFragment.setEnabled(true);
                 binding.phonenumberEtPhoneNumberVerificationFragmnet.setEnabled(true);
@@ -631,10 +680,10 @@ public class LoginFragment extends Fragment implements BindableItem, StartedActi
                     Toast.makeText(getContext(),"Phone number is invalid!",Toast.LENGTH_LONG).show();
                     return;
                 }
-                if(!isCountrySelected) {
-                    Toast.makeText(getContext(), "Select country!", Toast.LENGTH_LONG).show();
-                    return;
-                }
+//                if(!isCountrySelected) {
+//                    Toast.makeText(getContext(), "Select country!", Toast.LENGTH_LONG).show();
+//                    return;
+//                }
                 verifiedUserPhone = "00" + binding.countryCodeEtPhoneVerificationLoginFragment.getText().toString()
                 + binding.phonenumberEtPhoneNumberVerificationFragmnet.getText();
 
@@ -642,6 +691,7 @@ public class LoginFragment extends Fragment implements BindableItem, StartedActi
                 sms.setDestinationnumber(verifiedUserPhone);
                 int randomNumber = 100000 + new Random().nextInt(900000);
                 verificationCode = String.valueOf(randomNumber).substring(0,6);
+                Toast.makeText(getActivity(),verificationCode, Toast.LENGTH_LONG).show();
                 sms.setMessage("Verification code \n " +  verificationCode);
 
 
@@ -671,9 +721,10 @@ public class LoginFragment extends Fragment implements BindableItem, StartedActi
 
 
             }
-        });
+        };
 
-        checkResendCounter(false);
+        binding.okButPhoneVerificationFragment.setOnClickListener(sendVerCodeListener);
+        binding.resendSmsButPhoneVerificationFragment.setOnClickListener(sendVerCodeListener);
    }
 
     private void checkIfVerifiedPhoneNumberHasARegisteredUser() {
@@ -685,7 +736,7 @@ public class LoginFragment extends Fragment implements BindableItem, StartedActi
             public void onResponse(Call<User> call, Response<User> response) {
                 if(response.isSuccessful()){
                     final User fetchedUser = response.body();
-                    if(fetchedUser!=null){
+                    if(fetchedUser!=null && fetchedUser.getUserid()!=0){
                         new Thread(new Runnable() {
                             @Override
                             public void run() {
@@ -756,6 +807,8 @@ public class LoginFragment extends Fragment implements BindableItem, StartedActi
         ) {
             if(isToStartResendCounterOrCheckToMaintainFragmentRestart) {
                 isResendCounterOn = true;
+                if(resendCounter == null)
+                    resendCounter = new AtomicInteger();
                 resendCounter.set(30);
             }
             binding.countrySelectionTvPhoneNumberVerificationFragment.setEnabled(false);
@@ -766,44 +819,71 @@ public class LoginFragment extends Fragment implements BindableItem, StartedActi
             binding.verificationNumberLabelTvVerificationFragment.setVisibility(View.VISIBLE);
             binding.resendSmsButPhoneVerificationFragment.setEnabled(false);
             binding.resendSmsButPhoneVerificationFragment.setVisibility(View.VISIBLE);
-            new Thread(new Runnable() {
-                private AtomicInteger counter = new AtomicInteger(30);
+            isResendCounterOn = true;
+            if(resendCounterThread == null || !resendCounterThread.isAlive()) {
+                resendCounterThread = new Thread(new Runnable() {
 
-                @Override
-                public void run() {
-                    while (counter.get() > 0) {
-                        counter.getAndDecrement();
-                        try {
-                            Thread.sleep(1000);
-                        } catch (Exception e) {
-                        }
-                        try {
+                    @Override
+                    public void run() {
+                        while (resendCounter != null && resendCounter.get() > 0) {
+                            resendCounter.getAndDecrement();
+                            try {
+                                Thread.sleep(1000);
+                            } catch (Exception e) {
+                            }
+                            try {
 
-                            binding.resendSmsButPhoneVerificationFragment.post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    if (binding != null && binding.resendSmsButPhoneVerificationFragment != null) {
-                                        binding.resendSmsButPhoneVerificationFragment.setText("Resend (" +
-                                                String.valueOf(counter.get())
-                                                + ")");
+                                binding.resendSmsButPhoneVerificationFragment.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        if (binding != null && binding.resendSmsButPhoneVerificationFragment != null) {
+                                            binding.resendSmsButPhoneVerificationFragment.setText("Resend (" +
+                                                    String.valueOf(resendCounter.get())
+                                                    + ")");
+                                        }
                                     }
-                                }
-                            });
+                                });
 
-                        } catch (Exception e) {
-                        } finally {
-                            Utils.runOnUIThread(new Runnable() {
-                                @Override
-                                public void run() {
+                            } catch (Exception e) {
+                            } finally {
+                                if(resendCounter != null && resendCounter.get() <= 0)
                                     isResendCounterOn = false;
-                                    resendCounter.set(30);
-                                }
-                            });
+                            }
+
                         }
 
+                        try {
+                            if (binding != null &&
+                                    binding.countryCodeEtPhoneVerificationLoginFragment != null &&
+                                    binding.countrySelectionTvPhoneNumberVerificationFragment != null &&
+                                    binding.phonenumberEtPhoneNumberVerificationFragmnet != null &&
+                                    binding.okButPhoneVerificationFragment != null &&
+                                    binding.resendSmsButPhoneVerificationFragment != null
+                            ) {
+                                binding.countrySelectionTvPhoneNumberVerificationFragment.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        binding.countryCodeEtPhoneVerificationLoginFragment.setEnabled(true);
+                                        binding.countrySelectionTvPhoneNumberVerificationFragment.setEnabled(true);
+                                        binding.phonenumberEtPhoneNumberVerificationFragmnet.setEnabled(true);
+                                        binding.okButPhoneVerificationFragment.setEnabled(true);
+                                        binding.resendSmsButPhoneVerificationFragment.setEnabled(true);
+                                        binding.resendSmsButPhoneVerificationFragment.setText("Resend");
+                                    }
+                                });
+                            }
+                        } catch (Exception e) {
+                        }
                     }
+                });
+                resendCounterThread.start();
+            }
+        }
+        else {
 
-                    try {
+                binding.countrySelectionTvPhoneNumberVerificationFragment.post(new Runnable() {
+                    @Override
+                    public void run() {
                         if (binding != null &&
                                 binding.countryCodeEtPhoneVerificationLoginFragment != null &&
                                 binding.countrySelectionTvPhoneNumberVerificationFragment != null &&
@@ -811,43 +891,16 @@ public class LoginFragment extends Fragment implements BindableItem, StartedActi
                                 binding.okButPhoneVerificationFragment != null &&
                                 binding.resendSmsButPhoneVerificationFragment != null
                         ) {
-                            binding.countrySelectionTvPhoneNumberVerificationFragment.post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    binding.countryCodeEtPhoneVerificationLoginFragment.setEnabled(true);
-                                    binding.countrySelectionTvPhoneNumberVerificationFragment.setEnabled(true);
-                                    binding.phonenumberEtPhoneNumberVerificationFragmnet.setEnabled(true);
-                                    binding.okButPhoneVerificationFragment.setEnabled(true);
-                                    binding.resendSmsButPhoneVerificationFragment.setEnabled(true);
-                                    binding.resendSmsButPhoneVerificationFragment.setText("Resend");
-                                }
-                            });
+                            binding.countryCodeEtPhoneVerificationLoginFragment.setEnabled(true);
+                            binding.countrySelectionTvPhoneNumberVerificationFragment.setEnabled(true);
+                            binding.phonenumberEtPhoneNumberVerificationFragmnet.setEnabled(true);
+                            binding.okButPhoneVerificationFragment.setEnabled(true);
+                            binding.resendSmsButPhoneVerificationFragment.setEnabled(true);
+                            binding.resendSmsButPhoneVerificationFragment.setText("Resend");
                         }
-                    } catch (Exception e) {
-                    }
-                }
-            }).start();
-        }
-        else {
-            if (binding != null &&
-                    binding.countryCodeEtPhoneVerificationLoginFragment != null &&
-                    binding.countrySelectionTvPhoneNumberVerificationFragment != null &&
-                    binding.phonenumberEtPhoneNumberVerificationFragmnet != null &&
-                    binding.okButPhoneVerificationFragment != null &&
-                    binding.resendSmsButPhoneVerificationFragment != null
-            ) {
-                binding.countrySelectionTvPhoneNumberVerificationFragment.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        binding.countryCodeEtPhoneVerificationLoginFragment.setEnabled(true);
-                        binding.countrySelectionTvPhoneNumberVerificationFragment.setEnabled(true);
-                        binding.phonenumberEtPhoneNumberVerificationFragmnet.setEnabled(true);
-                        binding.okButPhoneVerificationFragment.setEnabled(true);
-                        binding.resendSmsButPhoneVerificationFragment.setEnabled(true);
-                        binding.resendSmsButPhoneVerificationFragment.setText("Resend");
                     }
                 });
-            }
+
         }
     }
 
@@ -861,8 +914,8 @@ public class LoginFragment extends Fragment implements BindableItem, StartedActi
         binding.selectPhotoBut.setVisibility(View.VISIBLE);
         binding.userAlreadyExistsTV.setVisibility(View.GONE);
         binding.userName.setVisibility(View.VISIBLE);
-        binding.passwordEt.setVisibility(View.VISIBLE);
-        binding.retypepasswordet.setVisibility(View.VISIBLE);
+//        binding.passwordEt.setVisibility(View.VISIBLE);
+//        binding.retypepasswordet.setVisibility(View.VISIBLE);
         binding.userLanguage.setVisibility(View.VISIBLE);
         binding.selectLanguageBut.setVisibility(View.VISIBLE);
         int nightModeFlags =
@@ -929,7 +982,7 @@ public class LoginFragment extends Fragment implements BindableItem, StartedActi
         binding.selectPhotoBut.setVisibility(View.GONE);
         binding.userAlreadyExistsTV.setVisibility(View.GONE);
         binding.userName.setVisibility(View.GONE);
-        binding.passwordEt.setVisibility(View.VISIBLE);
+//        binding.passwordEt.setVisibility(View.VISIBLE);
         binding.retypepasswordet.setVisibility(View.GONE);
         binding.userLanguage.setVisibility(View.GONE);
         binding.selectLanguageBut.setVisibility(View.GONE);
@@ -1031,11 +1084,29 @@ public class LoginFragment extends Fragment implements BindableItem, StartedActi
         loginViewModel.getIsResendCounterOn().setValue(isResendCounterOn);
         loginViewModel.getIsCountrySelected().setValue(isCountrySelected);
         loginViewModel.getIsNowPhoneNumberVerificationView().setValue(isNowPhoneNumberVerificationView);
+        loginViewModel.getSelectedCountryCodeName().setValue(
+                binding.countrySelectionTvPhoneNumberVerificationFragment.getText().toString()
+        );
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
+        try{
+            if(resendCounterThread != null){
+                try{resendCounterThread.interrupt();}catch (Exception e){}
+                try{resendCounterThread.interrupt();}catch (Exception e){}
+                try{resendCounterThread.interrupt();}catch (Exception e){}
+                try{resendCounterThread.interrupt();}catch (Exception e){}
+                try{resendCounterThread.interrupt();}catch (Exception e){}
+                try{resendCounterThread.interrupt();}catch (Exception e){}
+                try{resendCounterThread.interrupt();}catch (Exception e){}
+                try{resendCounterThread.interrupt();}catch (Exception e){}
+                try{resendCounterThread.interrupt();}catch (Exception e){}
+                try{resendCounterThread.interrupt();}catch (Exception e){}
+            }
+        }
+        catch (Exception e){}
     }
 
 
@@ -1187,13 +1258,21 @@ public class LoginFragment extends Fragment implements BindableItem, StartedActi
 
         lastLoadedPhotoType = LastLoadedPhotoType.ContentURI;
         pickedPhotoContentUri = uri;
-        Glide
-                .with(this)
-                .load(uri)
-                .circleCrop()
-                .placeholder(R.drawable.ic_baseline_photo_camera_100)
-                .into(binding.selectPhotoBut);
-//        compressImage(uri);   //Worked
+        Utils.runOnUIThreadPostDelayed(new Runnable() {
+            @Override
+            public void run() {
+                Glide
+                        .with(getContext())
+                        .load(uri)
+                        .circleCrop()
+                        .placeholder(R.drawable.ic_baseline_photo_camera_100)
+                        .into(binding.selectPhotoBut);
+            }
+        });
+//        if(getActivity() != null && binding != null && binding.selectPhotoBut!= null) {
+//
+////        compressImage(uri);   //Worked
+//        }
     }
 
     @Override
@@ -1365,11 +1444,5 @@ public class LoginFragment extends Fragment implements BindableItem, StartedActi
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        if(isNowPhoneNumberVerificationView)
-            phoneVerficationViewInitialization();
-        else {
-            binding.loginFragmentPhoneNumberVerificationContainer.setVisibility(View.GONE);
-            binding.loginFragmentPersonalInformationContainer.setVisibility(View.VISIBLE);
-        }
     }
 }

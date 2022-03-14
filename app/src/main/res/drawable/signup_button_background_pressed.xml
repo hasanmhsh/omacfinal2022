@@ -6,7 +6,7 @@
             android:shape="rectangle">
 
             <solid android:width="3dp"
-                android:color="#DD000000"
+                android:color="@color/login_button_color_pressed"
                 android:dashGap="0dp"/>
             <corners android:radius="@dimen/item_corner_radius_circular"></corners>
         </shape>

@@ -32,4 +32,12 @@ public class OverloadedPingResult {
     public List<Message> getAllUserReceivedMessages() {
         return allUserReceivedMessages;
     }
+
+    public void setAllUsers(List<User> allUsers) {
+        this.allUsers = allUsers;
+    }
+
+    public void setAllUserReceivedMessages(List<Message> allUserReceivedMessages) {
+        this.allUserReceivedMessages = allUserReceivedMessages;
+    }
 }

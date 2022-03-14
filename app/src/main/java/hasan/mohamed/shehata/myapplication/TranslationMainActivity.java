@@ -28,6 +28,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.ActivityResultRegistry;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -35,6 +36,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 import androidx.navigation.NavBackStackEntry;
 import androidx.navigation.NavController;
+import androidx.navigation.NavDestination;
 import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -121,7 +123,7 @@ public class TranslationMainActivity extends AppCompatActivity implements FabSou
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
         mAppBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.nav_users)
+                R.id.nav_users, R.id.nav_contacts, R.id.nav_groups , R.id.nav_calls)
                 .setOpenableLayout(drawer)
                 .build();
         navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_translation_main);
@@ -129,19 +131,30 @@ public class TranslationMainActivity extends AppCompatActivity implements FabSou
         NavigationUI.setupWithNavController(navigationView, navController);
         navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment_content_translation_main);
         MLApplication.getInstance().setAccessToken(Utils.getHMSApiKey());
-
-        binding.navView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+        MenuItem logoutMI = binding.navView.getMenu().findItem(R.id.nav_menu_item_logout);
+        logoutMI.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+            public boolean onMenuItemClick(MenuItem menuItem) {
                 binding.drawerLayout.closeDrawers();
-                switch(item.getItemId()){
-                    case R.id.nav_menu_item_logout:
-                        changeUser();
-                        break;
-                }
+                binding.navView.setVisibility(View.GONE);
+                changeUser();
                 return true;
             }
         });
+
+        //This VVV disable navigation controller from auto navigation so i used this ^^^
+//        binding.navView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+//            @Override
+//            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+//                binding.drawerLayout.closeDrawers();
+//                switch(item.getItemId()){
+//                    case R.id.nav_menu_item_logout:
+//                        changeUser();
+//                        break;
+//                }
+//                return true;
+//            }
+//        });
 //        navtitleTV = (TextView)binding.navView.getHeaderView(0).findViewById(R.id.nav_header_title_tv);
 //        navsubtitleTV = (TextView)binding.navView.getHeaderView(0).findViewById(R.id.nav_header_sub_title_tv);
 //        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
@@ -216,7 +229,7 @@ public class TranslationMainActivity extends AppCompatActivity implements FabSou
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 
         binding.appBarTranslationMain.toolbar.setBackgroundResource(R.drawable.my_user_header_background);
-        binding.appBarTranslationMain.toolbar.setTitle(R.string.brand_name);
+//        binding.appBarTranslationMain.toolbar.setTitle(R.string.brand_name);
 
         APIClient.getAPIInterface(this).getAllUsers().enqueue(new Callback<List<User>>() {
             @Override
@@ -273,6 +286,9 @@ public class TranslationMainActivity extends AppCompatActivity implements FabSou
     public void setStatusBarColor() {
         if (isHighContrastEnabled) {
             getWindow().setStatusBarColor(getResources().getColor(R.color.black));
+        }
+        else if(navController.getCurrentDestination().getId() == R.id.loginFragment){
+            getWindow().setStatusBarColor(getResources().getColor(R.color.phone_verification_background_color));
         }
         else {
             getWindow().setStatusBarColor(getResources().getColor(R.color.status_bar_color));
@@ -502,6 +518,7 @@ public class TranslationMainActivity extends AppCompatActivity implements FabSou
 //            GeneralPopupWindow.makeUserCreationWindow(this, "", false);
 
 
+            binding.navView.setVisibility(View.GONE);
             if(!isNavigateToLoginDirectlyAndClearBackStack)
                 navigateFromSplashToLogin();
             else if(navController.getCurrentDestination().getId() == R.id.nav_users)
@@ -510,6 +527,8 @@ public class TranslationMainActivity extends AppCompatActivity implements FabSou
                 navigateFromMessagesToLogin();
         }
         else{
+
+            binding.navView.setVisibility(View.VISIBLE);
             long id = Utils.getUserID(this);
             AppDatabase.getUserDao().loadUser(id).observe(thiz, new Observer<User>() {
                 @Override
@@ -833,7 +852,12 @@ public class TranslationMainActivity extends AppCompatActivity implements FabSou
         else{
 
             binding.appBarTranslationMain.toolbar.setVisibility(View.GONE);
-            if(navController.getCurrentDestination().getId() == R.id.nav_users || navController.getCurrentDestination().getId() == R.id.nav_messages){
+            if(navController.getCurrentDestination().getId() == R.id.nav_users
+                    || navController.getCurrentDestination().getId() == R.id.nav_messages
+                    || navController.getCurrentDestination().getId() == R.id.nav_contacts
+                    || navController.getCurrentDestination().getId() == R.id.nav_groups
+                    || navController.getCurrentDestination().getId() == R.id.nav_calls
+            ){
                 displayUserListActionBar();
             }
             exitFullScreenMode();

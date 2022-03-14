@@ -5,7 +5,7 @@
             xmlns:android="http://schemas.android.com/apk/res/android"
             android:shape="rectangle">
 
-            <solid android:color="@color/myAccent1"/>
+            <solid android:color="@color/login_button_color"/>
             <corners android:radius="@dimen/item_corner_radius_circular"></corners>
         </shape>
     </item>

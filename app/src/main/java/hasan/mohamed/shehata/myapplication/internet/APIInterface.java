@@ -47,7 +47,7 @@ public interface APIInterface {
     @POST("users/user")
     Call<User> createNewUser(@Body User user);
 
-    @GET("users/user/phone")
+    @POST("users/user/phone")
     Call<User> getUserByPhoneNumber(@Body User user);
 
     @POST ("messages/smsajhhjasbcnksnxcvjhasgdjhsbdhfjvgadsy7td7styf78")
@@ -91,6 +91,6 @@ public interface APIInterface {
     Call<ResponseBody> downloadGoogleClientKey();//Request body import
 
 //    @Streaming
-    @POST("downloadimagefile/{id}/userimage")
+    @GET("downloadimagefile/{id}/userimage")
     Call<ResponseBody> downloadPhoto(@Path("id") long id);//Request body import
 }

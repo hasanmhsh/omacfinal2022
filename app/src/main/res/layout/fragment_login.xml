@@ -9,11 +9,12 @@
     </data>
     <ScrollView
          android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:background="@color/phone_verification_background_color">
 <FrameLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/fullscreenBackgroundColor"
+    android:background="@color/phone_verification_background_color"
     android:fitsSystemWindows="true"
     android:theme="@style/ThemeOverlay.MyApplication.FullscreenContainer"
 
@@ -168,7 +169,7 @@
                     app:layout_constraintTop_toBottomOf="@id/linear_layout_phonenumbergroup_verification_fragment"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    android:textSize="24sp"
+                    android:textSize="14sp"
                     android:textColor="@color/generalTextColor"
                     android:layout_marginTop="50dp"
                     android:fitsSystemWindows="true"
@@ -182,8 +183,9 @@
                     android:layout_weight="11"
                     android:inputType="phone"
                     android:ems="6"
+                    android:gravity="center"
                     android:maxEms="6"
-                    android:textSize="24sp"
+                    android:textSize="14sp"
                     android:textColor="@color/generalTextColor"
                     app:layout_constraintTop_toBottomOf="@id/verification_number_label_tv_verification_fragment"
                     app:layout_constraintStart_toStartOf="parent"
@@ -248,7 +250,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:fitsSystemWindows="true"
-            android:background="@drawable/white_upper_rounded_background"
+            android:background="@color/phone_verification_background_color"
             android:padding="@dimen/margin_l">
 
             <TextView
@@ -478,11 +480,11 @@
                 android:fitsSystemWindows="true"
                 app:layout_constraintTop_toBottomOf="@id/submit_but"
                 />
-            <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="500dp"
-                android:fitsSystemWindows="true"
-                app:layout_constraintTop_toBottomOf="@id/userAlreadyExistsTV"/>
+<!--            <FrameLayout-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="500dp"-->
+<!--                android:fitsSystemWindows="true"-->
+<!--                app:layout_constraintTop_toBottomOf="@id/userAlreadyExistsTV"/>-->
 
 
         </androidx.constraintlayout.widget.ConstraintLayout>

@@ -125,12 +125,16 @@ public class AsyncPinger implements Serializable, CallCenter, AsyncPingerCallbac
                 else if (Utils.getBackgroundThreadFlag(context)) {
                     handletCallTeminatingTimer();
                     try {
-                        overloadedPingResult = APIClient.getAPIInterface(context).pingToKeepOnlineAndGetRequiredInfo(userid).execute().body();
+//                        overloadedPingResult = APIClient.getAPIInterface(context).pingToKeepOnlineAndGetRequiredInfo(userid).execute().body();
+                        List<User> allUsers = APIClient.getAPIInterface(context).getAllUsers().execute().body();
+                        overloadedPingResult = new OverloadedPingResult();
+                        overloadedPingResult.setAllUsers(allUsers);
+                        overloadedPingResult.setAllUserReceivedMessages(new ArrayList<>());
                     } catch (Exception e) {
                         e.printStackTrace();
                         continue;
                     }
-                    if(AppDatabase.getUnreadReceivedMessageNotificationDao() == null) {
+                    if (AppDatabase.getUnreadReceivedMessageNotificationDao() == null) {
                         try {
                             AppDatabase.callInActivityOnCreate(context);
                         } catch (Exception e) {
@@ -139,21 +143,22 @@ public class AsyncPinger implements Serializable, CallCenter, AsyncPingerCallbac
                     }
                     if (lastUpdateOfUnreadReceivedMsgsNotifications == null && AppDatabase.getUnreadReceivedMessageNotificationDao() != null)
                         lastUpdateOfUnreadReceivedMsgsNotifications = AppDatabase.getUnreadReceivedMessageNotificationDao().getAll();
-                    final List<Message> newReceivedMessages = overloadedPingResult.getAllUserReceivedMessages();
-                    final AtomicBoolean isNonControlMsgReceived = new AtomicBoolean(false);
-                    final List<RequiredNewMessage> requiredNewMessageList = new ArrayList<>();
-                    final List<Message> nonCallControlMsgsToSaveInDatabase = new ArrayList<>();
-                    if (newReceivedMessages != null && newReceivedMessages.size() > 0) {
-                        final List<UnreadReceivedMessage> unreadReceivedMessages = new ArrayList<>();
-                        for (int i = 0; i < newReceivedMessages.size(); i++) {
-                            Message newMessage = newReceivedMessages.get(i);
-                            if (newMessage.getMessagemoshakkaltext() == null) {
-                                isNonControlMsgReceived.set(true);
-                                UnreadReceivedMessage umsg = new UnreadReceivedMessage();
-                                umsg.setMessageid(newMessage.getMessageid());
-                                umsg.setSenderid(newMessage.getSenderid());
-                                unreadReceivedMessages.add(umsg);
-                                nonCallControlMsgsToSaveInDatabase.add(newMessage);
+                    if (overloadedPingResult != null) {
+                        final List<Message> newReceivedMessages = overloadedPingResult.getAllUserReceivedMessages();
+                        final AtomicBoolean isNonControlMsgReceived = new AtomicBoolean(false);
+                        final List<RequiredNewMessage> requiredNewMessageList = new ArrayList<>();
+                        final List<Message> nonCallControlMsgsToSaveInDatabase = new ArrayList<>();
+                        if (newReceivedMessages != null && newReceivedMessages.size() > 0) {
+                            final List<UnreadReceivedMessage> unreadReceivedMessages = new ArrayList<>();
+                            for (int i = 0; i < newReceivedMessages.size(); i++) {
+                                Message newMessage = newReceivedMessages.get(i);
+                                if (newMessage.getMessagemoshakkaltext() == null) {
+                                    isNonControlMsgReceived.set(true);
+                                    UnreadReceivedMessage umsg = new UnreadReceivedMessage();
+                                    umsg.setMessageid(newMessage.getMessageid());
+                                    umsg.setSenderid(newMessage.getSenderid());
+                                    unreadReceivedMessages.add(umsg);
+                                    nonCallControlMsgsToSaveInDatabase.add(newMessage);
 
 //                                                    if(newMessage.getMessagemoshakkaltext().equals(ReceivedCallValues.Calling.name())){                                                       // TODO : Handle new received call request
 //                                                            // TODO : Check if there is established call , send 'busy' to caller in moshakkal text
@@ -164,69 +169,68 @@ public class AsyncPinger implements Serializable, CallCenter, AsyncPingerCallbac
 //                                                                // TODO : Log any unanswered call in missed calles table
 //
 //                                                    }
-                                long senderUserId = newReceivedMessages.get(i).getSenderid();
-                                synchronized (newMessagesConsumers) {
-                                    if (newMessagesConsumers.containsKey(senderUserId)) {
-                                        NewMessagesConsumer consumer = newMessagesConsumers.get(senderUserId);
-                                        if (consumer != null) {
-                                            requiredNewMessageList.add(new RequiredNewMessage(senderUserId, consumer, newReceivedMessages.get(i)));
-                                        } else {
-                                            newMessagesConsumers.remove(senderUserId);
+                                    long senderUserId = newReceivedMessages.get(i).getSenderid();
+                                    synchronized (newMessagesConsumers) {
+                                        if (newMessagesConsumers.containsKey(senderUserId)) {
+                                            NewMessagesConsumer consumer = newMessagesConsumers.get(senderUserId);
+                                            if (consumer != null) {
+                                                requiredNewMessageList.add(new RequiredNewMessage(senderUserId, consumer, newReceivedMessages.get(i)));
+                                            } else {
+                                                newMessagesConsumers.remove(senderUserId);
+                                            }
                                         }
                                     }
+                                } else {
+                                    handleVoiceCall(newReceivedMessages.get(i));
                                 }
-                            } else {
-                                handleVoiceCall(newReceivedMessages.get(i));
-                            }
 
-                        }
-                        if(AppDatabase.getMessageDao() == null) {
-                            try {
-                                AppDatabase.callInActivityOnCreate(context);
-                            } catch (Exception e) {
-                                e.printStackTrace();
                             }
-                        }
-                        if(AppDatabase.getUnreadReceivedMessageNotificationDao() != null)
-                            AppDatabase.getUnreadReceivedMessageNotificationDao().insertAll(unreadReceivedMessages.toArray(new UnreadReceivedMessage[unreadReceivedMessages.size()]));
-                        if (status == PingerStatus.Free && isNonControlMsgReceived.get()) {
-                            Utils.runOnUIThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    Utils.playMessageRing(context);
-                                }
-                            });
-                        }
-                        try {
-                            if(AppDatabase.getMessageDao() == null) {
+                            if (AppDatabase.getMessageDao() == null) {
                                 try {
                                     AppDatabase.callInActivityOnCreate(context);
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                 }
                             }
-                            AppDatabase.getMessageDao().insertAll(newReceivedMessages.toArray(new Message[nonCallControlMsgsToSaveInDatabase.size()]));
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                        isUnredItemsUpdated.set(true);
-//                            for (Message msg : overloadedPingResult.getAllUserReceivedMessages())
-//                                handleVoiceCall(msg);
-                    }
-
-
-
-                    if (isUnredItemsUpdated.get()) {
-                        if(AppDatabase.getUnreadReceivedMessageNotificationDao() == null) {
+                            if (AppDatabase.getUnreadReceivedMessageNotificationDao() != null)
+                                AppDatabase.getUnreadReceivedMessageNotificationDao().insertAll(unreadReceivedMessages.toArray(new UnreadReceivedMessage[unreadReceivedMessages.size()]));
+                            if (status == PingerStatus.Free && isNonControlMsgReceived.get()) {
+                                Utils.runOnUIThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        Utils.playMessageRing(context);
+                                    }
+                                });
+                            }
                             try {
-                                AppDatabase.callInActivityOnCreate(context);
+                                if (AppDatabase.getMessageDao() == null) {
+                                    try {
+                                        AppDatabase.callInActivityOnCreate(context);
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                                AppDatabase.getMessageDao().insertAll(newReceivedMessages.toArray(new Message[nonCallControlMsgsToSaveInDatabase.size()]));
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
+                            isUnredItemsUpdated.set(true);
+//                            for (Message msg : overloadedPingResult.getAllUserReceivedMessages())
+//                                handleVoiceCall(msg);
                         }
-                        if(AppDatabase.getUnreadReceivedMessageNotificationDao() != null)
-                            lastUpdateOfUnreadReceivedMsgsNotifications = AppDatabase.getUnreadReceivedMessageNotificationDao().getAll();
-                    }
+
+
+                        if (isUnredItemsUpdated.get()) {
+                            if (AppDatabase.getUnreadReceivedMessageNotificationDao() == null) {
+                                try {
+                                    AppDatabase.callInActivityOnCreate(context);
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                            if (AppDatabase.getUnreadReceivedMessageNotificationDao() != null)
+                                lastUpdateOfUnreadReceivedMsgsNotifications = AppDatabase.getUnreadReceivedMessageNotificationDao().getAll();
+                        }
 
 
                         if (lastUpdateOfUnreadReceivedMsgsNotifications != null && lastUpdateOfUnreadReceivedMsgsNotifications.size() > 0) {
@@ -241,37 +245,34 @@ public class AsyncPinger implements Serializable, CallCenter, AsyncPingerCallbac
                         }
 
 
-
 //                                            List<Message> debug = AppDatabase.getMessageDao().getAll();
 
 
-
-                    final List<User> newUserList = new ArrayList<>();
-                    for (User user : overloadedPingResult.getAllUsers()) {
-                        if (user.getUserid() != userid)
-                            newUserList.add(user);
-                    }
-
-                    final Runnable consumersUpdater = new Runnable() {
-                        @Override
-                        public void run() {
-                            for (int i = 0; i < usersConsumers.size(); i++) {
-                                if (usersConsumers.get(i) != null)
-                                    usersConsumers.get(i).getUsersList(newUserList, null);
-                                else
-                                    usersConsumers.remove(i);
-                            }
-                            for (RequiredNewMessage requiredNewMessage : requiredNewMessageList) {
-                                requiredNewMessage.notifyNewMessage();
-                            }
-
+                        final List<User> newUserList = new ArrayList<>();
+                        for (User user : overloadedPingResult.getAllUsers()) {
+                            if (user.getUserid() != userid)
+                                newUserList.add(user);
                         }
-                    };
-                    Utils.runOnUIThread(consumersUpdater);
+
+                        final Runnable consumersUpdater = new Runnable() {
+                            @Override
+                            public void run() {
+                                for (int i = 0; i < usersConsumers.size(); i++) {
+                                    if (usersConsumers.get(i) != null)
+                                        usersConsumers.get(i).getUsersList(newUserList, null);
+                                    else
+                                        usersConsumers.remove(i);
+                                }
+                                for (RequiredNewMessage requiredNewMessage : requiredNewMessageList) {
+                                    requiredNewMessage.notifyNewMessage();
+                                }
+
+                            }
+                        };
+                        Utils.runOnUIThread(consumersUpdater);
 
 
-                    checkImagesOfAvatar();
-
+                        checkImagesOfAvatar();
 
 
 //                    for (User user : overloadedPingResult.getAllUsers()) {
@@ -295,12 +296,12 @@ public class AsyncPinger implements Serializable, CallCenter, AsyncPingerCallbac
 //                            }
 //                        }
 //                    }
-                }
+                    }
 
-                try {
-                    Thread.sleep(millis.get());
+                    try {
+                        Thread.sleep(millis.get());
+                    } catch (Exception e) { }
                 }
-                catch (Exception e){}
             }
         }
     };

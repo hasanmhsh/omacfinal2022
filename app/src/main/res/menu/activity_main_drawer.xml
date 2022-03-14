@@ -10,8 +10,13 @@
 <!--            android:title="@string/menu_home" />-->
         <item
             android:id="@+id/nav_users"
-            android:icon="@drawable/ic_baseline_people_alt_24"
+            android:icon="@drawable/ic_baseline_person_24"
             android:title="@string/users_list" />
+
+        <item
+            android:id="@+id/nav_contacts"
+            android:icon="@drawable/ic_baseline_contacts_24"
+            android:title="@string/my_contacts" />
 <!--        <item-->
 <!--            android:id="@+id/nav_messages"-->
 <!--            android:icon="@drawable/ic_menu_messages"-->
@@ -20,6 +25,16 @@
 <!--            android:id="@+id/textTranslationFragment"-->
 <!--            android:icon="@drawable/ic_baseline_translate_24"-->
 <!--            android:title="@string/text_translation" />-->
+
+        <item
+            android:id="@+id/nav_groups"
+            android:icon="@drawable/ic_baseline_people_alt_24"
+            android:title="@string/my_groups" />
+
+        <item
+            android:id="@+id/nav_calls"
+            android:icon="@drawable/ic_baseline_call_24"
+            android:title="@string/calls" />
 
 
     </group>

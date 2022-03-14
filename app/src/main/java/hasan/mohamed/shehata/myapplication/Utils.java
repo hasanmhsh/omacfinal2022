@@ -636,8 +636,10 @@ public class Utils {
 
 
     public static void hideKeybaord(View v) {
-        InputMethodManager inputMethodManager = (InputMethodManager)v.getContext().getSystemService(INPUT_METHOD_SERVICE);
-        inputMethodManager.hideSoftInputFromWindow(v.getApplicationWindowToken(),0);
+        if(v != null) {
+            InputMethodManager inputMethodManager = (InputMethodManager) v.getContext().getSystemService(INPUT_METHOD_SERVICE);
+            inputMethodManager.hideSoftInputFromWindow(v.getApplicationWindowToken(), 0);
+        }
     }
 
 
