@@ -27,6 +27,9 @@ public interface UnreadMessagesDao {
     @Query("DELETE FROM unreadreceivedmessage WHERE senderid = :senderid")
     void deleteSenderUnreadNotifications(long senderid);
 
+    @Query("DELETE FROM unreadreceivedmessage WHERE groupid = :groupid")
+    void deleteGroupUnreadNotifications(long groupid);
+
     @Query("SELECT * FROM unreadreceivedmessage WHERE senderid = :senderid")
     LiveData<List<UnreadReceivedMessage>> getSenderNotifications(long senderid);
 }

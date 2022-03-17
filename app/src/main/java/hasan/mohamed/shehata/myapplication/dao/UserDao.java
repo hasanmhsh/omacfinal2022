@@ -18,6 +18,9 @@ public interface UserDao {
     @Query("SELECT * FROM user WHERE userid=:id")
     LiveData<User> loadUser(long id);
 
+    @Query("SELECT * FROM user WHERE userid=:id")
+    User loadUserBlockable(long id);
+
     @Query("SELECT * FROM user")
     List<User> getAll();
 

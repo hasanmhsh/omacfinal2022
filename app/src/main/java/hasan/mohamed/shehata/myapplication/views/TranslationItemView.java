@@ -11,6 +11,7 @@ import hasan.mohamed.shehata.myapplication.R;
 import hasan.mohamed.shehata.myapplication.databinding.TranslationItemLayoutBinding;
 import hasan.mohamed.shehata.myapplication.models.BindableItem;
 import hasan.mohamed.shehata.myapplication.models.DownloadWindowContent;
+import hasan.mohamed.shehata.myapplication.models.Group;
 import hasan.mohamed.shehata.myapplication.models.ListItemBindableItemContentProvider;
 import hasan.mohamed.shehata.myapplication.models.Message;
 import hasan.mohamed.shehata.myapplication.models.TranslationItem;
@@ -75,6 +76,11 @@ public class TranslationItemView extends FrameLayout implements View.OnClickList
     @Override
     public void bind(User user) {
         throw new UnsupportedOperationException("This operation is not supported for this datatype please use DownloadWindowContent as argument.");
+    }
+
+    @Override
+    public void bind(Group group) {
+
     }
 
     @Override

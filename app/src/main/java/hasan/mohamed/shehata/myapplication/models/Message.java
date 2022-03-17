@@ -1,15 +1,20 @@
 package hasan.mohamed.shehata.myapplication.models;
+import android.content.Context;
+import android.view.View;
 import android.widget.ImageView;
 
 import androidx.databinding.library.baseAdapters.BR;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
+import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
 import androidx.databinding.BaseObservable;
 import androidx.databinding.Bindable;
 
+import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+
 
 import hasan.mohamed.shehata.myapplication.Utils;
 import hasan.mohamed.shehata.myapplication.types.ListItemCallbacks;
@@ -28,45 +33,132 @@ public class Message extends BaseObservable implements ListItemBindableItemConte
     }
      */
 
-  @SerializedName("id")
+  public Message() {
+  }
+
+  public void setContext(Context context) {
+    this.context = context;
+  }
+
+  @Ignore
+  private transient Context context;
+
+
+  public Message(Context context) {
+    this.context = context;
+    setMessagestatusNotBinder(MessageStatus.notsent);
+  }
+
+
+  @SerializedName("messageid")
   @PrimaryKey(autoGenerate = true)
   private long messageid;
 
+  public String getCreateddate() {
+    return createddate;
+  }
+
+  public void setCreateddate(String  createddate) {
+    this.createddate = createddate;
+  }
+
+  @SerializedName("createddate")
+  private String createddate;
+
   @SerializedName("text")
-  @ColumnInfo(name = "messagetext")
+  @ColumnInfo(name = "text")
   private String messagetext;
 
   @SerializedName("translatedtext")
-  @ColumnInfo(name = "messagetranslatedtext")
+  @ColumnInfo(name = "translatedtext")
   private String messagetranslatedtext;
 
-  @SerializedName("moshakkaltext")
-  @ColumnInfo(name = "messagemoshakkaltext")
+  @SerializedName("controltext")
+  @ColumnInfo(name = "controltext")
   private String messagemoshakkaltext;
 
-  @SerializedName("timedt")
-  @ColumnInfo(name = "messagetimedt")
-  private String messagetimedt;
+  private String getControltext(){
+    return messagemoshakkaltext;
+  }
 
+  private void setControltext(String controltext){
+    this.messagemoshakkaltext = controltext;
+  }
+
+  public long getControlnumber() {
+    return controlnumber;
+  }
+
+  public void setControlnumber(long controlnumber) {
+    this.controlnumber = controlnumber;
+  }
+
+  @SerializedName("controlnumber")
+  private long controlnumber;
+
+  @ColumnInfo(name = "messagetimedt")
+  private transient String messagetimedt;
+
+
+  @SerializedName("messagestatus")
   @ColumnInfo(name = "messagestatus")
-  private StatusOfServerObject messagestatus;
+  private MessageStatus messagestatus;
 
 //    @ColumnInfo(name = "buddyid")
 //    private int buddyid;
 
   @ColumnInfo(name = "messagedirection")
-  MessageDirection messageDirection;
+  private transient MessageDirection messageDirection;
 
-  @ColumnInfo(name = "sender_id")
-  @SerializedName("sender_id")
+  @ColumnInfo(name = "senderid")
+  @SerializedName("senderid")
   private long senderid;
 
-  @ColumnInfo(name = "receiver_id")
-  @SerializedName("receiver_id")
+  @ColumnInfo(name = "receiverid")
+  @SerializedName("receiverid")
   private long receiverid;
 
+  public String getSendername() {
+    return sendername;
+  }
+
+  public void setSendername(String sendername) {
+    this.sendername = sendername;
+  }
+
+  @SerializedName("sendername")
+  @ColumnInfo(name = "sendername")
+  private String sendername;
+
+
+  public void setSenderlanguage(Language senderlanguage) {
+    this.senderlanguage = senderlanguage;
+  }
+
+  @SerializedName("senderlanguage")
+  @ColumnInfo(name = "senderlanguage")
+  private Language senderlanguage;
+
+  public Language getSenderlanguage() {
+    return senderlanguage;
+  }
+
+  public long getGroupid() {
+    return groupid;
+  }
+
+  public void setGroupid(long groupid) {
+    this.groupid = groupid;
+  }
+
+  @ColumnInfo(name = "groupid")
+  @SerializedName("groupid")
+  private long groupid;
+
+
+
   @ColumnInfo(name = "is_read")
-  private boolean isRead;
+  private transient boolean isRead;
 
   @Bindable
   public boolean getIsRead() {
@@ -95,6 +187,14 @@ public class Message extends BaseObservable implements ListItemBindableItemConte
   @Bindable
   public String getMessagetext() {
     return messagetext;
+  }
+
+
+  public boolean isGroupMessage(){
+    if(groupid > 0)
+      return true;
+    else
+      return false;
   }
 
   public void setMessagetext(String messagetext) {
@@ -133,6 +233,11 @@ public class Message extends BaseObservable implements ListItemBindableItemConte
     return messagemoshakkaltext;
   }
 
+  @Bindable
+  public String getControlText(){
+    return messagemoshakkaltext;
+  }
+
   public void setMessagemoshakkaltext(String messagemoshakkaltext) {
     if(this.messagemoshakkaltext == null){
       if(messagemoshakkaltext != null){
@@ -166,15 +271,69 @@ public class Message extends BaseObservable implements ListItemBindableItemConte
   }
 
   @Bindable
-  public StatusOfServerObject getMessagestatus() {
+  public MessageStatus getMessagestatus() {
     return messagestatus;
   }
 
-  public void setMessagestatus(StatusOfServerObject status) {
+  @Bindable
+  public String getMessagestatusString() {
+    if(messagestatus == null)
+      return "";
+    else
+      return messagestatus.name();
+  }
+
+  @Bindable
+  public int getMessagestatusvisivility() {
+    if(context != null){
+      if(Utils.getUserID(context) == receiverid){
+        return View.GONE;
+      }
+      else{
+        return View.VISIBLE;
+      }
+    }
+    return View.VISIBLE;
+  }
+
+  public void setMessagestatus(MessageStatus status) {
     if(this.messagestatus != status) {
       this.messagestatus = status;
       notifyPropertyChanged(BR.messagestatus);
+      notifyPropertyChanged(BR.messageBoxVisibilityGoneIfDeleted);
+      notifyPropertyChanged(BR.messagestatusvisivility);
+      notifyPropertyChanged(BR.messagestatusString);
+      notifyPropertyChanged(BR.readEyeVisibility);
     }
+  }
+
+  public void setMessagestatusNotBinder(MessageStatus status){
+    if(status != null) {
+      this.messagestatus = status;
+      notifyPropertyChanged(BR.messagestatus);
+      notifyPropertyChanged(BR.messageBoxVisibilityGoneIfDeleted);
+      notifyPropertyChanged(BR.messagestatusvisivility);
+      notifyPropertyChanged(BR.messagestatusString);
+      notifyPropertyChanged(BR.readEyeVisibility);
+    }
+  }
+
+
+
+  @Bindable
+  public int getMessageBoxVisibilityGoneIfDeleted() {
+    if(messagestatus == MessageStatus.deleted)
+      return View.GONE;
+    else
+      return View.VISIBLE;
+  }
+
+  @Bindable
+  public int getReadEyeVisibility() {
+    if(messagestatus == MessageStatus.read && context!=null && Utils.getUserID(context) == senderid)
+      return View.VISIBLE;
+    else
+      return View.GONE;
   }
 
 //    @Bindable
@@ -249,12 +408,12 @@ public class Message extends BaseObservable implements ListItemBindableItemConte
 
   @Override
   public String getPrimaryText() {
-    return null;
+    return messagetext;
   }
 
   @Override
   public String getSecondaryText() {
-    return null;
+    return messagetranslatedtext;
   }
 
   @Override
@@ -282,5 +441,38 @@ public class Message extends BaseObservable implements ListItemBindableItemConte
     if(messageid == ((Message)item).messageid)
       return true;
     return false;
+  }
+
+  public void seControltext(String messageDeleteCommand) {
+    messagemoshakkaltext = messageDeleteCommand;
+  }
+
+
+  @Ignore
+  private transient boolean isHighLighted;
+  @Override
+  public boolean getIsHighLighted() {
+    return isHighLighted;
+  }
+
+  @Override
+  public void setIsHighLighted(boolean isHighLighted) {
+    if(this.isHighLighted != isHighLighted) {
+      notifyPropertyChanged(BR.highlightedFilterVisibility);
+      this.isHighLighted = isHighLighted;
+    }
+  }
+  @Override
+  public void toggleHighLight() {
+    isHighLighted = !isHighLighted;
+    notifyPropertyChanged(BR.highlightedFilterVisibility);
+  }
+
+  @Bindable
+  public int getHighlightedFilterVisibility(){
+    if(isHighLighted)
+      return View.VISIBLE;
+    else
+      return View.GONE;
   }
 }

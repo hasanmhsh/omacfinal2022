@@ -2,8 +2,12 @@ package hasan.mohamed.shehata.myapplication.templates;
 
 import android.content.Context;
 import android.os.Parcelable;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -16,19 +20,27 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
+import hasan.mohamed.shehata.myapplication.R;
+import hasan.mohamed.shehata.myapplication.TranslationMainActivity;
 import hasan.mohamed.shehata.myapplication.Utils;
 import hasan.mohamed.shehata.myapplication.async.AsyncPinger;
+import hasan.mohamed.shehata.myapplication.internet.APIClient;
 import hasan.mohamed.shehata.myapplication.models.BindableItem;
+import hasan.mohamed.shehata.myapplication.models.Group;
 import hasan.mohamed.shehata.myapplication.models.Language;
 import hasan.mohamed.shehata.myapplication.models.ListItemBindableItemContentProvider;
 import hasan.mohamed.shehata.myapplication.models.Message;
+import hasan.mohamed.shehata.myapplication.models.MessageStatus;
 import hasan.mohamed.shehata.myapplication.models.TranslationItem;
 import hasan.mohamed.shehata.myapplication.models.User;
 import hasan.mohamed.shehata.myapplication.types.AsyncPingerProvider;
+import hasan.mohamed.shehata.myapplication.types.Callable;
 import hasan.mohamed.shehata.myapplication.types.FabActionType;
 import hasan.mohamed.shehata.myapplication.types.FabSource;
 import hasan.mohamed.shehata.myapplication.types.BindableListItemContentProviderDiffUtilsCallback;
+import hasan.mohamed.shehata.myapplication.types.NewGroupsMessagesConsumer;
 import hasan.mohamed.shehata.myapplication.types.NewMessagesConsumer;
+import hasan.mohamed.shehata.myapplication.types.SearchCallbacks;
 import hasan.mohamed.shehata.myapplication.types.SpeakerProvider;
 import hasan.mohamed.shehata.myapplication.types.UserListConsumer;
 import hasan.mohamed.shehata.myapplication.types.ListItemCallbacks;
@@ -36,11 +48,16 @@ import hasan.mohamed.shehata.myapplication.types.ResultReceiver;
 import hasan.mohamed.shehata.myapplication.types.TranslationItemType;
 import hasan.mohamed.shehata.myapplication.types.TranslatorCapabilities;
 import hasan.mohamed.shehata.myapplication.types.UpdatableItem;
+import hasan.mohamed.shehata.myapplication.types.UsersViewType;
+import hasan.mohamed.shehata.myapplication.views.DualTextRecyclerViewItemView;
 import hasan.mohamed.shehata.myapplication.views.MessageView;
 import hasan.mohamed.shehata.myapplication.views.TranslationItemView;
 import hasan.mohamed.shehata.myapplication.views.UserItemView;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
-public class GeneralRecyclerViewAdapter<T extends BindableItem> extends RecyclerView.Adapter<GeneralRecyclerViewItemViewHolder> implements ListItemCallbacks, Serializable, UserListConsumer, NewMessagesConsumer {
+public class GeneralRecyclerViewAdapter<T extends BindableItem> extends RecyclerView.Adapter<GeneralRecyclerViewItemViewHolder> implements ListItemCallbacks, Serializable, UserListConsumer, NewMessagesConsumer, NewGroupsMessagesConsumer {
     private Context context;
     private List<ListItemBindableItemContentProvider> dataset;
     private ResultReceiver selectionReceiver;
@@ -53,37 +70,108 @@ public class GeneralRecyclerViewAdapter<T extends BindableItem> extends Recycler
     private RecyclerView recyclerView;
     private User me;
     private long myUserId;
+    private boolean isGroupChatMessageView = false;
+    private Group chatGroup;
+    private GeneralRecyclerViewAdapter<T> thiz;
+    private UsersViewType usersViewType;
+    private boolean isMultipleChoicesItems;
+    private List<ListItemBindableItemContentProvider> initialDataSet;
+    private SearchCallbacks searchCallbacks;
+    private String searchQuery = "";
+    interface GenericListCallable{
+        public void call(List<ListItemBindableItemContentProvider> list);
+    }
 
     /**************************************
      * @param context
      * @param dataset1
      * @param selectionReceiver is used by item view to call select method to inform fragment that an item has been selected
      * @param itemViewClass it is just ItemView.class  and item view must have 2 arguments , first is context and second is selectionReceiver
+     * @param isViewForGroupChat
+     * @param chatGroup
+     * @param usersViewType
      **************************************/
 
-    public GeneralRecyclerViewAdapter(Context context, List<ListItemBindableItemContentProvider> dataset1, ResultReceiver selectionReceiver, Class<T> itemViewClass, FabActionType fabActionType, TranslatorCapabilities capabilities, User buddy, SpeakerProvider speakerProvider, RecyclerView recyclerView, User me) {
+    public GeneralRecyclerViewAdapter(Context context, List<ListItemBindableItemContentProvider> dataset1, ResultReceiver selectionReceiver, Class<T> itemViewClass, FabActionType fabActionType, TranslatorCapabilities capabilities, User buddy, SpeakerProvider speakerProvider, RecyclerView recyclerView, User me, boolean isViewForGroupChat, Group chatGroup, UsersViewType usersViewType, boolean isMultiChoices, SearchCallbacks searchCallbacks     ) {
         this.fabActionType = fabActionType;
         this.recyclerView = recyclerView;
         this.context = context;
         this.me = me;
+        this.initialDataSet = dataset1;
         this.dataset = dataset1;
+        thiz = this;
         this.selectionReceiver = selectionReceiver;
         this.itemViewClass = itemViewClass;
         this.speakerProvider = speakerProvider;
         this.translatorCapabilities = capabilities;
         myUserId = Utils.getUserID(context);
         long userID = Utils.getUserID(context);
+        this.isGroupChatMessageView = isViewForGroupChat;
+        this.chatGroup = chatGroup;
+        this.usersViewType = usersViewType;
+        this.isMultipleChoicesItems = isMultiChoices;
+        this.searchCallbacks = searchCallbacks;
+        if(searchCallbacks != null){
+            searchCallbacks.setSearchable(new SearchCallbacks.Searchable() {
+                @Override
+                public void find(String query) {
+                    searchQuery = query;
+                    List<ListItemBindableItemContentProvider> newDataSet = new ArrayList<>();
+                    if(initialDataSet != null){
+                        synchronized (initialDataSet) {
+                            for (ListItemBindableItemContentProvider item : initialDataSet) {
+                                if (item.getPrimaryText().toUpperCase().contains(query.toUpperCase())) {
+                                    newDataSet.add(item);
+                                    update(newDataSet);
+                                }
+                            }
+                        }
+                    }
+                    else{
+                        if(dataset != null){
+                            synchronized (dataset) {
+                                for (ListItemBindableItemContentProvider item : dataset) {
+                                    if (item.getPrimaryText().toUpperCase().contains(query.toUpperCase())) {
+                                        newDataSet.add(item);
+                                        update(newDataSet);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
         if ((Class) itemViewClass == UserItemView.class){
-            this.dataset = dataset1;
-            pinger = ((AsyncPingerProvider)context).getCurrentPinger();
-            if(pinger != null)
-                pinger.addUsersConsumer(this);
+//            this.dataset = dataset1;
+
+            GenericListCallable then = new GenericListCallable() {
+                @Override
+                public void call(List<ListItemBindableItemContentProvider> list) {
+                    dataset = list;
+                    pinger = ((AsyncPingerProvider)context).getCurrentPinger();
+                    if(pinger != null){
+                        if(usersViewType == UsersViewType.groups)
+                            pinger.addGroupsConsumer(thiz);
+                        else
+                            pinger.addUsersConsumer(thiz);
+                    }
+
+                }
+            };
+            filterUsersListDataSet(dataset1, then);
+
 
         }
         else if(((Class)itemViewClass) == MessageView.class){
             this.selectionReceiver = new ResultReceiver() {
                 @Override
                 public void receiveResult(ListItemBindableItemContentProvider bindableItemContentProvider) {
+
+                }
+
+                @Override
+                public void receiveMultipleChoices(List<ListItemBindableItemContentProvider> list) {
 
                 }
 
@@ -99,6 +187,11 @@ public class GeneralRecyclerViewAdapter<T extends BindableItem> extends Recycler
                 }
 
                 @Override
+                public Group getGroup() {
+                    return chatGroup;
+                }
+
+                @Override
                 public SpeakerProvider provideSpeaker() {
                     return speakerProvider;
                 }
@@ -106,7 +199,10 @@ public class GeneralRecyclerViewAdapter<T extends BindableItem> extends Recycler
 
             ((AsyncPingerProvider)context).getCurrentPinger().setFastRate();
 
-            ((AsyncPingerProvider)context).getCurrentPinger().addNewMessagesConsumer(buddy.getUserid(), this);
+            if(isViewForGroupChat)
+                ((AsyncPingerProvider)context).getCurrentPinger().addNewGroupMessagesConsumer(chatGroup.getGroupid(),this);
+            else
+                ((AsyncPingerProvider)context).getCurrentPinger().addNewMessagesConsumer(buddy.getUserid(), this);
         }
         else {
             if (dataset1 == null || dataset1.size() == 0 || dataset1.get(0) == null) {
@@ -156,6 +252,66 @@ public class GeneralRecyclerViewAdapter<T extends BindableItem> extends Recycler
             e.printStackTrace();
         }
 
+    }
+
+    private void filterUsersListDataSet(List<ListItemBindableItemContentProvider> dataset1, final GenericListCallable then) {
+
+        if(dataset1!=null) {
+//            List<String> contacts = Utils.getPhoneNumberList(context);
+            List<ListItemBindableItemContentProvider> filteredList = new ArrayList<>();
+
+
+            int idCurrentDestenation = 0;
+            if(context != null)
+                idCurrentDestenation = ((TranslationMainActivity)context).getCurrentDestenationId();
+            switch (idCurrentDestenation) {
+//                case R.id.nav_contacts: {
+//                    APIClient.getAPIInterface(context).getRegisteredContactsUsers(contacts).enqueue(new Callback<List<User>>() {
+//                        @Override
+//                        public void onResponse(Call<List<User>> call, Response<List<User>> response) {
+//                            if(response.isSuccessful()){
+//                                if(then != null)
+//                                    then.call(new ArrayList<ListItemBindableItemContentProvider>(response.body()));
+//                            }
+//                        }
+//
+//                        @Override
+//                        public void onFailure(Call<List<User>> call, Throwable t) {
+//                            call.cancel();
+//                        }
+//                    });
+//                }
+//                break;
+                case R.id.nav_calls:{
+                    List<ListItemBindableItemContentProvider> onlineUsers = new ArrayList<>();
+                    for(ListItemBindableItemContentProvider item : dataset1){
+                        if(item != null){
+                            if(((User)item).getIsOnline())
+                                onlineUsers.add(item);
+                        }
+                    }
+                    if(then != null)
+                        then.call(onlineUsers);
+
+                }
+                break;
+                default:
+                case R.id.nav_users: {
+                    if(then != null)
+                        then.call(dataset1);
+                }
+            }
+
+
+        }
+        else if(dataset1!=null){
+            if(then != null)
+                then.call(dataset1);
+        }
+        else {
+            if(then != null)
+                then.call(null);
+        }
     }
 
     private void addNewItem(Language targetLanguage) {
@@ -212,7 +368,10 @@ public class GeneralRecyclerViewAdapter<T extends BindableItem> extends Recycler
     private T getInstanceOfBindableItem(Class<T> classT) {
         try {
             Constructor<?>[] constructors = classT.getConstructors();
-            return classT.getDeclaredConstructor(Context.class, ResultReceiver.class).newInstance(context, selectionReceiver);
+            if(itemViewClass == DualTextRecyclerViewItemView.class || itemViewClass == UserItemView.class)
+                return classT.getDeclaredConstructor(Context.class, ResultReceiver.class,Boolean.class).newInstance(context, selectionReceiver,isMultipleChoicesItems);
+            else
+                return classT.getDeclaredConstructor(Context.class, ResultReceiver.class).newInstance(context, selectionReceiver);
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         } catch (InstantiationException e) {
@@ -298,14 +457,16 @@ public class GeneralRecyclerViewAdapter<T extends BindableItem> extends Recycler
     }
 
 
-    @Override
-    public void getUsersList(List<User> users, Fragment owner) {
-        recyclerViewState = recyclerView.getLayoutManager().onSaveInstanceState();
-        List<ListItemBindableItemContentProvider> oldDataSet = dataset;
-        List<ListItemBindableItemContentProvider> newDataSet = new ArrayList<>(users);
-        dataset = newDataSet;
-        DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new BindableListItemContentProviderDiffUtilsCallback(newDataSet, oldDataSet));
-        diffResult.dispatchUpdatesTo(this);
+
+    private GenericListCallable atUserListConsumed = new GenericListCallable() {
+        @Override
+        public void call(List<ListItemBindableItemContentProvider> list) {
+            recyclerViewState = recyclerView.getLayoutManager().onSaveInstanceState();
+            List<ListItemBindableItemContentProvider> oldDataSet = dataset;
+            List<ListItemBindableItemContentProvider> newDataSet = list;
+            dataset = newDataSet;
+            DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new BindableListItemContentProviderDiffUtilsCallback(newDataSet, oldDataSet));
+            diffResult.dispatchUpdatesTo(thiz);
 //        if(dataset == null && users == null)
 //            return;
 //        else if(dataset != null && users != null) {
@@ -322,7 +483,56 @@ public class GeneralRecyclerViewAdapter<T extends BindableItem> extends Recycler
 //            dataset = null;
 //            notifyDataSetChanged();
 //        }
-        recyclerView.getLayoutManager().onRestoreInstanceState(recyclerViewState);
+            recyclerView.getLayoutManager().onRestoreInstanceState(recyclerViewState);
+        }
+    };
+
+    @Override
+    public void getUsersList(List<User> users, Fragment owner) {
+        String query = searchQuery;
+        if(initialDataSet != null) {
+            synchronized (initialDataSet) {
+                initialDataSet = new ArrayList<>(users);
+            }
+        }
+        else{
+            initialDataSet = new ArrayList<>(users);
+        }
+        List<ListItemBindableItemContentProvider> newFilteredDataSet = new ArrayList<>();
+        for(User user : users){
+            if(user.getUsername().toLowerCase().contains(query.toLowerCase())){
+                newFilteredDataSet.add(user);
+            }
+        }
+        if(context!=null) {
+            if(((TranslationMainActivity)context).getCurrentDestenationId() != R.id.nav_groups)
+                filterUsersListDataSet(newFilteredDataSet, atUserListConsumed);
+        }
+
+
+    }
+
+    @Override
+    public void getGroupList(List<Group> groups, Fragment fragment) {
+        String query = searchQuery;
+        if(initialDataSet != null) {
+            synchronized (initialDataSet) {
+                initialDataSet = new ArrayList<>(groups);
+            }
+        }
+        else{
+            initialDataSet = new ArrayList<>(groups);
+        }
+        List<ListItemBindableItemContentProvider> newFilteredDataSet = new ArrayList<>();
+        for(Group group : groups){
+            if(group.getName().toLowerCase().contains(query.toLowerCase())){
+                newFilteredDataSet.add(group);
+            }
+        }
+        if(context!=null) {
+            if(((TranslationMainActivity)context).getCurrentDestenationId() == R.id.nav_groups)
+                filterUsersListDataSet(newFilteredDataSet, atUserListConsumed);
+        }
 
     }
 
@@ -330,34 +540,70 @@ public class GeneralRecyclerViewAdapter<T extends BindableItem> extends Recycler
     @Override
     public void newMessage(long senderUserId, Message message) {
         // Save state
-        if(!checkIfControlMessage(message)) {
-
-            if (senderUserId == me.getUserid() || speakerProvider.isForCall()) {
-                takeNewMessage(senderUserId, message);
-                recyclerView.scrollToPosition(dataset.size() - 1);
-            } else {
-                recyclerViewState = recyclerView.getLayoutManager().onSaveInstanceState();
-
-                takeNewMessage(senderUserId, message);
-
-                recyclerView.getLayoutManager().onRestoreInstanceState(recyclerViewState);
-
-            }
-
-            notifyItemInserted(dataset.size() - 1);
-            if(recyclerView != null) {
-                recyclerView.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        recyclerView.scrollToPosition(dataset.size() - 1);
+        if(dataset != null) {
+            synchronized (dataset) {
+                boolean isDeleteMessage = false;
+                if (message.getControlText() != null)
+                    isDeleteMessage = message.getControlText().equals(Utils.MESSAGE_DELETE_COMMAND);
+                int deletedItemPosition = 0;
+                if (isDeleteMessage) {
+                    for (int i = 0; i < dataset.size(); i++) {
+                        if (((Message) dataset.get(i)).getMessageid() == message.getControlnumber()) {
+                            message = (Message) dataset.get(i);
+                            message.setControlnumber(message.getMessageid());
+                            deletedItemPosition = i;
+                        }
                     }
-                },1300);
-            }
-            if (speakerProvider.isForCall() && message.getSenderid() != myUserId) {
-                speakerProvider.speak(message);
+                }
+
+                if (!checkIfControlMessage(message) || isDeleteMessage) {
+
+                    if (senderUserId == me.getUserid() || speakerProvider.isForCall() || isDeleteMessage) {
+                        takeNewMessage(senderUserId, message, isDeleteMessage);
+                        recyclerView.scrollToPosition(dataset.size() - 1);
+                    } else {
+                        recyclerViewState = recyclerView.getLayoutManager().onSaveInstanceState();
+
+                        takeNewMessage(senderUserId, message, isDeleteMessage);
+
+                        recyclerView.getLayoutManager().onRestoreInstanceState(recyclerViewState);
+
+                    }
+
+                    if (isDeleteMessage)
+                        notifyItemRemoved(deletedItemPosition);
+                    else
+                        notifyItemInserted(dataset.size() - 1);
+                    if (recyclerView != null && !isDeleteMessage) {
+                        recyclerView.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                recyclerView.scrollToPosition(dataset.size() - 1);
+                            }
+                        }, 500);
+                    } else if (recyclerView != null && isDeleteMessage) {
+                        int position = deletedItemPosition;
+                        if (position != 0) {
+                            if (position >= dataset.size())
+                                position--;
+                        }
+                        if (position < dataset.size() && position >= 0) {
+                            final int position1 = position;
+
+                            recyclerView.postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    recyclerView.scrollToPosition(position1);
+                                }
+                            }, 500);
+                        }
+                    }
+                    if (speakerProvider.isForCall() && message.getSenderid() != myUserId) {
+                        speakerProvider.speak(message);
+                    }
+                }
             }
         }
-
     }
 
     private boolean checkIfControlMessage(Message message) {
@@ -369,18 +615,119 @@ public class GeneralRecyclerViewAdapter<T extends BindableItem> extends Recycler
         return false;
     }
 
-    private void takeNewMessage(long useid, Message message){
-        dataset.add(message);
-        message.setIsToShowTranslatedText(true);
-        List<ListItemBindableItemContentProvider> newList = new ArrayList<>(dataset);
-        newList.add(message);
-        DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new BindableListItemContentProviderDiffUtilsCallback(this.dataset, newList));
-        diffResult.dispatchUpdatesTo(this);
+    private void takeNewMessage(long useid, Message message, boolean isDeleteMessage){
+        if(dataset != null) {
+            synchronized (dataset) {
+                if (isDeleteMessage)
+                    dataset.remove(message);
+                else
+                    dataset.add(message);
+                message.setIsToShowTranslatedText(true);
+                List<ListItemBindableItemContentProvider> newList = new ArrayList<>(dataset);
+                if (isDeleteMessage)
+                    newList.remove(message);
+                else
+                    newList.add(message);
+                DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new BindableListItemContentProviderDiffUtilsCallback(this.dataset, newList));
+                diffResult.dispatchUpdatesTo(this);
+            }
+        }
     }
 
     @Override
     public void sendAndSaveThisMessage(Message message) {
         // Done : send and save this message
 
+    }
+
+    @Override
+    public void deleteMessage(final long messageid) {
+//        Utils.runOnUIThread(new Runnable() {
+//            @Override
+//            public void run() {
+//                if (thiz != null && dataset != null) {
+//                    for (ListItemBindableItemContentProvider item : dataset) {
+//                        if (((Message) item).getControlnumber() == messageid) {
+//                            List<ListItemBindableItemContentProvider> newList = new ArrayList<>(dataset);
+//                            newList.remove(item);
+//                            DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new BindableListItemContentProviderDiffUtilsCallback(dataset, newList));
+//                            diffResult.dispatchUpdatesTo(thiz);
+//                        }
+//                    }
+//                }
+//            }
+//        });
+
+    }
+
+    @Override
+    public void unreadMessages(List<Message> unreadMessages) {
+        if(unreadMessages != null &&dataset != null && itemViewClass == MessageView.class) {
+            synchronized (dataset) {
+                for (ListItemBindableItemContentProvider item : dataset) {
+                    if (item != null && item instanceof Message) {
+                        if (unreadMessages.size() == 0) {
+                            final Message read = (Message) item;
+                            Utils.runOnUIThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    read.setContext(context);
+                                    read.setMessagestatus(MessageStatus.read);
+                                }
+                            });
+                            continue;
+                        }
+                        for (Message urm : unreadMessages) {
+                            Message rm = (Message) item;
+                            if (rm.getMessageid() == urm.getMessageid()) {
+                                final Message read = rm;
+                                Utils.runOnUIThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        read.setContext(context);
+                                        read.setMessagestatus(MessageStatus.delivered);
+                                    }
+                                });
+                            } else {
+                                final Message read = rm;
+                                Utils.runOnUIThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        read.setContext(context);
+                                        read.setMessagestatus(MessageStatus.read);
+                                    }
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @Override
+    public long getGroupId() {
+        if(chatGroup != null)
+            return chatGroup.getGroupid();
+        else
+            return 0;
+    }
+
+
+
+
+    //Call backs for popup selection window
+//    private EditText searchET;
+
+    public List<ListItemBindableItemContentProvider> getSelection(){
+        List<ListItemBindableItemContentProvider> selection = new ArrayList<>();
+        if(dataset != null) {
+            for (ListItemBindableItemContentProvider item : dataset) {
+                if(item.getIsHighLighted()){
+                    selection.add(item);
+                }
+            }
+        }
+        return selection;
     }
 }

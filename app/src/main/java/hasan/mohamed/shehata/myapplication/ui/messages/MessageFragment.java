@@ -1,18 +1,12 @@
 package hasan.mohamed.shehata.myapplication.ui.messages;
 
 import android.app.Activity;
-import android.graphics.Rect;
 import android.os.Bundle;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.CompoundButton;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -28,7 +22,6 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import hasan.mohamed.shehata.myapplication.AppDatabase;
-import hasan.mohamed.shehata.myapplication.MainTranslationActivityViewModel;
 import hasan.mohamed.shehata.myapplication.R;
 import hasan.mohamed.shehata.myapplication.TranslationMainActivity;
 import hasan.mohamed.shehata.myapplication.Utils;
@@ -41,9 +34,9 @@ import hasan.mohamed.shehata.myapplication.languages.ASR_Enhanced;
 import hasan.mohamed.shehata.myapplication.languages.HMSTransloator;
 import hasan.mohamed.shehata.myapplication.languages.TRNSLG;
 import hasan.mohamed.shehata.myapplication.languages.TTS;
+import hasan.mohamed.shehata.myapplication.models.Group;
 import hasan.mohamed.shehata.myapplication.models.ListItemBindableItemContentProvider;
 import hasan.mohamed.shehata.myapplication.models.Message;
-import hasan.mohamed.shehata.myapplication.models.UnreadReceivedMessage;
 import hasan.mohamed.shehata.myapplication.models.User;
 import hasan.mohamed.shehata.myapplication.templates.GeneralPopupWindow;
 import hasan.mohamed.shehata.myapplication.templates.GeneralRecyclerViewAdapter;
@@ -56,6 +49,7 @@ import hasan.mohamed.shehata.myapplication.types.HighContrastObserver;
 import hasan.mohamed.shehata.myapplication.types.MessageFragmentReverseCallbacks;
 import hasan.mohamed.shehata.myapplication.types.NewMessagesConsumer;
 import hasan.mohamed.shehata.myapplication.types.PermissionRequestProvider;
+import hasan.mohamed.shehata.myapplication.types.SearchCallbacks;
 import hasan.mohamed.shehata.myapplication.types.SpeakerProvider;
 import hasan.mohamed.shehata.myapplication.types.TranslationReadyHandler;
 import hasan.mohamed.shehata.myapplication.views.MessageView;
@@ -66,9 +60,14 @@ import retrofit2.Response;
 public class MessageFragment extends Fragment implements SpeakerProvider, MessageFragmentReverseCallbacks, HighContrastObserver {
 
 
+    private boolean isViewForGroupChat = false;
+    private Group chatGroup;
     public static final String BUNDLE_KEY_FOR_ME_USER = "hasan.mohamed.shehata.myapplication.MeUser";
     public static final String BUNDLE_KEY_FOR_BUDDY_USER = "hasan.mohamed.shehata.myapplication.MyBuddyUser";
     public static final String BUNDLE_KEY_FOR_IS_FOR_CALL = "hasan.mohamed.shehata.myapplication.BUNDLE_KEY_FOR_IS_FOR_CALL";
+    public static final String BUNDLE_KEY_FOR_IS_FOR_GROUP = "hasan.mohamed.shehata.myapplication.BUNDLE_KEY_FOR_IS_FOR_GROUP";
+    public static final String BUNDLE_KEY_FOR_CHAT_GROUP = "hasan.mohamed.shehata.myapplication.BUNDLE_KEY_FOR_CHAT_GROUP";
+
     private MessageViewModel messagesViewModel;
     private FragmentMessagesBinding binding;
     private User buddy;
@@ -176,7 +175,8 @@ public class MessageFragment extends Fragment implements SpeakerProvider, Messag
         tts = new TTS(getContext(), me.getUserlanguage());
         if(translatedTTS != null)
             translatedTTS.release();
-        translatedTTS = new TTS(getContext(), buddy.getUserlanguage());
+        if(buddy!=null)
+            translatedTTS = new TTS(getContext(), buddy.getUserlanguage());
     }
 
 
@@ -203,6 +203,7 @@ public class MessageFragment extends Fragment implements SpeakerProvider, Messag
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
 
+
         messagesViewModel =
                 new ViewModelProvider(this).get(MessageViewModel.class);
         if(getArguments().containsKey(BUNDLE_KEY_FOR_ME_USER)) {
@@ -218,6 +219,14 @@ public class MessageFragment extends Fragment implements SpeakerProvider, Messag
             messagesViewModel.getIsForCall().setValue(isForCall);
         }
 
+        if(getArguments().containsKey(BUNDLE_KEY_FOR_IS_FOR_GROUP)){
+            isViewForGroupChat = getArguments().getBoolean(BUNDLE_KEY_FOR_IS_FOR_GROUP);
+            messagesViewModel.getIsGroupChatView().setValue(isViewForGroupChat);
+        }
+        if(getArguments().containsKey(BUNDLE_KEY_FOR_CHAT_GROUP)) {
+            chatGroup = (Group) getArguments().getSerializable(BUNDLE_KEY_FOR_CHAT_GROUP);
+            messagesViewModel.getChatGroup().setValue(chatGroup);
+        }
 
 
         binding = FragmentMessagesBinding.inflate(inflater, container, false);
@@ -363,41 +372,62 @@ public class MessageFragment extends Fragment implements SpeakerProvider, Messag
     }
 
     private void sendMessageFromString(String string){
-        final Message newMessage = new Message();
+        final Message newMessage = new Message(getContext());
         newMessage.setSenderid(me.getUserid());
-        newMessage.setReceiverid(buddy.getUserid());
+        if(buddy != null && !isViewForGroupChat)
+            newMessage.setReceiverid(buddy.getUserid());
+        if(isViewForGroupChat && chatGroup!= null)
+            newMessage.setGroupid(chatGroup.getGroupid());
         newMessage.setMessagetext(string);
         newMessage.setIsToShowTranslatedText(false);
-        if(buddy.getUserlanguage() != me.getUserlanguage()){
-            if(Utils.getIsToUseCloudTranslation()) {
+        if (buddy != null && !isViewForGroupChat) {
+            if (buddy.getUserlanguage() != me.getUserlanguage()) {
+                if (Utils.getIsToUseCloudTranslation()) {
 
-                // Using G
-                TRNSLG.translate(newMessage, me.getUserlanguage(), buddy.getUserlanguage(), new TranslationReadyHandler() {
-                    @Override
-                    public void translationDone(Message messageToBeSent) {
-                        messageToBeSent.setIsToShowTranslatedText(false);
-                        shakkelha(messageToBeSent);
-                    }
-                });
-            }
-            else{
-                //// Using hms Translation
-                translator.translateMessageAsync(newMessage, new NewMessagesConsumer() {
-                    @Override
-                    public void newMessage(long senderUserId, Message message) {
-                        // Not implemented
-                    }
+                    // Using G
+                    TRNSLG.translate(newMessage, me.getUserlanguage(), buddy.getUserlanguage(), new TranslationReadyHandler() {
+                        @Override
+                        public void translationDone(Message messageToBeSent) {
+                            messageToBeSent.setIsToShowTranslatedText(false);
+                            shakkelha(messageToBeSent);
+                        }
+                    });
+                } else {
+                    //// Using hms Translation
+                    translator.translateMessageAsync(newMessage, new NewMessagesConsumer() {
+                        @Override
+                        public void newMessage(long senderUserId, Message message) {
+                            // Not implemented
+                        }
 
-                    @Override
-                    public void sendAndSaveThisMessage(final Message message) {
-                        message.setIsToShowTranslatedText(false);
-                        shakkelha(message);
-                    }
-                });
+                        @Override
+                        public void sendAndSaveThisMessage(final Message message) {
+                            message.setIsToShowTranslatedText(false);
+                            shakkelha(message);
+                        }
+
+                        @Override
+                        public void deleteMessage(long messageid) {
+                            if (binding != null && binding.fragmentRecyclerView != null && binding.fragmentRecyclerView.getAdapter() != null) {
+                                GeneralRecyclerViewAdapter<MessageView> adapter =
+                                        (GeneralRecyclerViewAdapter<MessageView>)
+                                                binding.fragmentRecyclerView.getAdapter();
+                                adapter.deleteMessage(messageid);
+                            }
+                        }
+
+                        @Override
+                        public void unreadMessages(List<Message> unreadMessages) {
+
+                        }
+                    });
+                }
+            } else {
+                newMessage.setMessagetranslatedtext(newMessage.getMessagetext());
+                shakkelha(newMessage);
             }
         }
         else{
-            newMessage.setMessagetranslatedtext(newMessage.getMessagetext());
             shakkelha(newMessage);
         }
     }
@@ -455,23 +485,44 @@ public class MessageFragment extends Fragment implements SpeakerProvider, Messag
         }
         if(messageDao != null){
 
-            messageDao.getMyMessages(Utils.getUserID(getContext()), buddy.getUserid()).observe(getActivity(), new Observer<List<Message>>() {
-                @Override
-                public void onChanged(List<Message> messages) {
-                    List<ListItemBindableItemContentProvider> list = new ArrayList<>();
-                    if (messages != null) {
+            if(isViewForGroupChat){
+                messageDao.getMyGroupMessages(chatGroup.getGroupid()).observe(getActivity(), new Observer<List<Message>>() {
+                    @Override
+                    public void onChanged(List<Message> messages) {
+                        List<ListItemBindableItemContentProvider> list = new ArrayList<>();
+                        if (messages != null) {
 
 //                    list = new ArrayList<>(messages);
-                        for (Message msg : messages) {
-                            if (!checkIfControlMessage(msg)) {
-                                list.add(msg);
+                            for (Message msg : messages) {
+                                if (!checkIfControlMessage(msg)) {
+                                    list.add(msg);
+                                }
                             }
                         }
-                    }
-                    initList(list);
+                        initList(list);
 
-                }
-            });
+                    }
+                });
+            }
+            else {
+                messageDao.getMyMessages(Utils.getUserID(getContext()), buddy.getUserid()).observe(getActivity(), new Observer<List<Message>>() {
+                    @Override
+                    public void onChanged(List<Message> messages) {
+                        List<ListItemBindableItemContentProvider> list = new ArrayList<>();
+                        if (messages != null) {
+
+//                    list = new ArrayList<>(messages);
+                            for (Message msg : messages) {
+                                if (!checkIfControlMessage(msg)) {
+                                    list.add(msg);
+                                }
+                            }
+                        }
+                        initList(list);
+
+                    }
+                });
+            }
         }
     }
 
@@ -493,14 +544,37 @@ public class MessageFragment extends Fragment implements SpeakerProvider, Messag
     private void initList(List<ListItemBindableItemContentProvider> listItemBindableItemContentProviders) {
         if(binding == null || binding.fragmentRecyclerView == null)
             return;
-        GeneralRecyclerViewAdapter<MessageView> adapter = new GeneralRecyclerViewAdapter<MessageView>(getContext(), listItemBindableItemContentProviders, null, MessageView.class, FabActionType.None,null, buddy,this,binding.fragmentRecyclerView,me);
+        SearchCallbacks searchCallbacks = null;
+        if(this != null && this.getActivity() != null)
+            searchCallbacks = ((TranslationMainActivity)getActivity()).getSearchableCallBacks();
+        GeneralRecyclerViewAdapter<MessageView> adapter = new GeneralRecyclerViewAdapter<MessageView>(getContext(), listItemBindableItemContentProviders, null, MessageView.class, FabActionType.None,null, buddy,this,binding.fragmentRecyclerView,me , isViewForGroupChat , chatGroup, null,false,searchCallbacks);
         binding.fragmentRecyclerView.setAdapter(adapter);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if(isViewForGroupChat){
+            Utils.currentOpenedGroupIdChatView = 0;
+        }
+        else{
+            Utils.currentOpenedBuddyIdChatView = 0;
+        }
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
+        if(isViewForGroupChat){
+            if(chatGroup != null){
+                Utils.currentOpenedGroupIdChatView = chatGroup.getGroupid();
+            }
+        }
+        else{
+            if(buddy != null){
+                Utils.currentOpenedBuddyIdChatView = buddy.getID();
+            }
+        }
         binding.fragmentRecyclerView.setHasFixedSize(false);
         // use a linear layout manager
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext(), RecyclerView.VERTICAL, false);
@@ -510,6 +584,8 @@ public class MessageFragment extends Fragment implements SpeakerProvider, Messag
         messagesViewModel.getBuddyLiveData().observe(getViewLifecycleOwner(), new Observer<User>() {
             @Override
             public void onChanged(User user) {
+                if(user == null)
+                    return;;
                 buddy = user;
                 UserDao userDao = AppDatabase.getUserDao();
                 if(userDao == null){
@@ -538,6 +614,42 @@ public class MessageFragment extends Fragment implements SpeakerProvider, Messag
 //                                getDatasetFromDB();
                                 }
                             }
+                        }
+                    });
+                }
+            }
+        });
+
+        messagesViewModel.getIsGroupChatView().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean aBoolean) {
+                if(aBoolean != null)
+                    isViewForGroupChat = aBoolean;
+            }
+        });
+
+        messagesViewModel.getChatGroup().observe(getViewLifecycleOwner(), new Observer<Group>() {
+            @Override
+            public void onChanged(Group group) {
+                if(group == null)
+                    return;
+                chatGroup = group;
+                UserDao userDao = AppDatabase.getUserDao();
+                if(userDao == null){
+                    AppDatabase.callInActivityOnCreate(getContext());
+                }
+                if (userDao != null) {
+                    userDao.loadUser(Utils.getUserID(getContext())).observe(getViewLifecycleOwner(), new Observer<User>() {
+                        @Override
+                        public void onChanged(User user) {
+                            me = user;
+                            User guser = new User();
+                            guser.setGroup(chatGroup);
+                            binding.setUser(guser);
+                            binding.getUser().drawLogo(binding.headerMyMsgImageView);
+                            messagesViewModel.getMeLiveData().setValue(me);
+                            makeASR();
+                            makeTTS();
                         }
                     });
                 }
@@ -586,7 +698,7 @@ public class MessageFragment extends Fragment implements SpeakerProvider, Messag
                 Utils.hideKeybaord(view);
                 sendMessageFromString(binding.sendingTextEt.getText().toString());
                 binding.sendingTextEt.getText().clear();
-//                final Message newMessage = new Message();
+//                final Message newMessage = new Message(getContext());
 //                newMessage.setSenderid(me.getUserid());
 //                newMessage.setReceiverid(buddy.getUserid());
 //                newMessage.setMessagetext(binding.sendingTextEt.getText().toString());
@@ -631,23 +743,44 @@ public class MessageFragment extends Fragment implements SpeakerProvider, Messag
     }
 
     private void clearUnreadFlags() {
-        final long id = buddy.getID();
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                if(AppDatabase.getUnreadReceivedMessageNotificationDao() == null) {
-                    AppDatabase.callInActivityOnCreate(getContext());
+        if(isViewForGroupChat){
+            final long id = chatGroup.getGroupid();
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    if (AppDatabase.getUnreadReceivedMessageNotificationDao() == null) {
+                        AppDatabase.callInActivityOnCreate(getContext());
+                    }
+                    if (AppDatabase.getUnreadReceivedMessageNotificationDao() != null)
+                        AppDatabase.getUnreadReceivedMessageNotificationDao().deleteGroupUnreadNotifications(id);
+                    if (AppDatabase.getUnreadReceivedMessageNotificationDao() != null)
+                        AppDatabase.getUnreadReceivedMessageNotificationDao().getAll();
+                    if (pinger != null)
+                        pinger.notifyUnreadItemsDatabaseUpdated();
+                    if (Utils.getGlobalPinger() != null)
+                        Utils.getGlobalPinger().notifyUnreadItemsDatabaseUpdated();
                 }
-                if(AppDatabase.getUnreadReceivedMessageNotificationDao() != null)
-                    AppDatabase.getUnreadReceivedMessageNotificationDao().deleteSenderUnreadNotifications(id);
-                if(AppDatabase.getUnreadReceivedMessageNotificationDao() != null)
-                    AppDatabase.getUnreadReceivedMessageNotificationDao().getAll();
-                if(pinger!=null)
-                    pinger.notifyUnreadItemsDatabaseUpdated();
-                if(Utils.getGlobalPinger() != null)
-                    Utils.getGlobalPinger().notifyUnreadItemsDatabaseUpdated();
-            }
-        }).start();
+            }).start();
+        }
+        else {
+            final long id = buddy.getID();
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    if (AppDatabase.getUnreadReceivedMessageNotificationDao() == null) {
+                        AppDatabase.callInActivityOnCreate(getContext());
+                    }
+                    if (AppDatabase.getUnreadReceivedMessageNotificationDao() != null)
+                        AppDatabase.getUnreadReceivedMessageNotificationDao().deleteSenderUnreadNotifications(id);
+                    if (AppDatabase.getUnreadReceivedMessageNotificationDao() != null)
+                        AppDatabase.getUnreadReceivedMessageNotificationDao().getAll();
+                    if (pinger != null)
+                        pinger.notifyUnreadItemsDatabaseUpdated();
+                    if (Utils.getGlobalPinger() != null)
+                        Utils.getGlobalPinger().notifyUnreadItemsDatabaseUpdated();
+                }
+            }).start();
+        }
     }
 
     @Override
@@ -694,8 +827,15 @@ public class MessageFragment extends Fragment implements SpeakerProvider, Messag
     public void onResume() {
         super.onResume();
 //        ((FabSource)getActivity()).refreshFab();
-        if(buddy != null){
-            ((Activity)getActivity()).setTitle(buddy.getUsername());
+        if(isViewForGroupChat){
+            if (chatGroup != null) {
+                ((Activity) getActivity()).setTitle(chatGroup.getName());
+            }
+        }
+        else {
+            if (buddy != null) {
+                ((Activity) getActivity()).setTitle(buddy.getUsername());
+            }
         }
         ((FabSource)getActivity()).disableFab();
 

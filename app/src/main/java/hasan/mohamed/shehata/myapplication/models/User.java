@@ -34,7 +34,7 @@ import hasan.mohamed.shehata.myapplication.types.ListItemCallbacks;
 import hasan.mohamed.shehata.myapplication.types.StatusOfServerObject;
 
 @Entity
-public class User extends BaseObservable implements ListItemBindableItemContentProvider, Serializable, ImageReady {
+public class User extends BaseObservable implements ListItemBindableItemContentProvider, Serializable, ImageReady,Comparable<User> {
     /*
     {
         "country": "egypt",
@@ -54,6 +54,8 @@ public class User extends BaseObservable implements ListItemBindableItemContentP
         this.isOnline = user.isOnline;
         this.isExist = user.isExist;
     }
+
+
 
     @SerializedName("userid")
     @PrimaryKey(autoGenerate = true)
@@ -112,6 +114,17 @@ public class User extends BaseObservable implements ListItemBindableItemContentP
     @ColumnInfo(name = "gender")
     private Gender gender;
 
+    public String getCreateddate() {
+        return createddate;
+    }
+
+    public void setCreateddate(String createddate) {
+        this.createddate = createddate;
+    }
+
+    @SerializedName("createddate")
+    private String createddate;
+
     @Bindable
     public String getPassword() {
         return password;
@@ -164,7 +177,12 @@ public class User extends BaseObservable implements ListItemBindableItemContentP
 
     @Bindable
     public String getUsername() {
-        return username;
+        if(isThisAGroup()){
+            return group.getName();
+        }
+        else {
+            return username;
+        }
     }
 
     public void setUsername(String value) {
@@ -273,17 +291,22 @@ public class User extends BaseObservable implements ListItemBindableItemContentP
 
     @Override
     public String getPrimaryText() {
-        return null;
+        return username;
     }
 
     @Override
     public String getSecondaryText() {
-        return null;
+        return userphone;
     }
 
     @Override
     public long getID() {
-        return userid;
+        if(isThisAGroup()){
+            return group.getID();
+        }
+        else{
+            return userid;
+        }
     }
 
 
@@ -300,39 +323,81 @@ public class User extends BaseObservable implements ListItemBindableItemContentP
     private int numberOfUnreadMessages;
 
     public int getNumberOfUnreadMessages() {
-        return numberOfUnreadMessages;
+        if(isThisAGroup()){
+            return group.getNumberOfUnreadMessages();
+        }
+        else{
+            return numberOfUnreadMessages;
+        }
     }
 
     public void setNumberOfUnreadMessages(int numberOfUnreadMessages) {
-        if(this.numberOfUnreadMessages != numberOfUnreadMessages){
-            this.numberOfUnreadMessages = numberOfUnreadMessages;
-            notifyPropertyChanged(BR.numberOfUnreadMessagesString);
-            notifyPropertyChanged(BR.selectUnreadMessagesTVVisibility);
+        if(isThisAGroup()){
+            if(this.group.getNumberOfUnreadMessages() != numberOfUnreadMessages){
+                this.group.setNumberOfUnreadMessages(numberOfUnreadMessages);
+                notifyPropertyChanged(BR.numberOfUnreadMessagesString);
+                notifyPropertyChanged(BR.selectUnreadMessagesTVVisibility);
+            }
+        }
+        else{
+            if(this.numberOfUnreadMessages != numberOfUnreadMessages){
+                this.numberOfUnreadMessages = numberOfUnreadMessages;
+                notifyPropertyChanged(BR.numberOfUnreadMessagesString);
+                notifyPropertyChanged(BR.selectUnreadMessagesTVVisibility);
+            }
         }
     }
 
     @Bindable
     public String getNumberOfUnreadMessagesString() {
-        return String.valueOf(numberOfUnreadMessages);
+        if(isThisAGroup()){
+            return String.valueOf(group.getNumberOfUnreadMessages());
+        }
+        else {
+            return String.valueOf(numberOfUnreadMessages);
+        }
     }
 
     @Bindable
     public int getSelectUnreadMessagesTVVisibility(){
-        switch(numberOfUnreadMessages){
-            case 0:{
-                return View.GONE;
+        if(isThisAGroup()){
+            switch(group.getNumberOfUnreadMessages()){
+                case 0:{
+                    return View.GONE;
+                }
+                default:{
+                    return View.VISIBLE;
+                }
             }
-            default:{
-                return View.VISIBLE;
+        }
+        else {
+            switch (numberOfUnreadMessages) {
+                case 0: {
+                    return View.GONE;
+                }
+                default: {
+                    return View.VISIBLE;
+                }
             }
         }
     }
 
     @Override
     public boolean isEqualTo(ListItemBindableItemContentProvider item) {
-        if(userid == ((User)item).userid){
-            if(numberOfUnreadMessages == ((User)item).numberOfUnreadMessages){
-                return true;
+        if(item == null)
+            return false;
+        if(isThisAGroup() && ((User)item).group != null){
+            if (group.getGroupid() == ((User) item).group.getGroupid()) {
+                if (group.getNumberOfUnreadMessages() == ((User) item).group.getNumberOfUnreadMessages()) {
+                    return true;
+                }
+            }
+        }
+        else {
+            if (userid == ((User) item).userid) {
+                if (numberOfUnreadMessages == ((User) item).numberOfUnreadMessages) {
+                    return true;
+                }
             }
         }
         return false;
@@ -340,23 +405,33 @@ public class User extends BaseObservable implements ListItemBindableItemContentP
 
     @Bindable
     public int getCallButtonVisibility(){
-        if(isOnline)
-            return View.VISIBLE;
-        else
+        if(isThisAGroup()){
             return View.GONE;
+        }
+        else {
+            if (isOnline)
+                return View.VISIBLE;
+            else
+                return View.GONE;
+        }
     }
 
     @Override
     public boolean equals(@Nullable Object obj) {
         User other = (User)obj;
-        return (this.userid == other.userid && this.isOnline == other.isOnline);
+        if(isThisAGroup() && other.isThisAGroup()){
+            return (this.group.getGroupid() == other.group.getGroupid());
+        }
+        else {
+            return (this.userid == other.userid && this.isOnline == other.isOnline);
+        }
     }
 
 
     @Override
     public void imageReady(long userid, Bitmap image) {
         if(lastInstanceOfImageView != null) {
-            if (this.userid == userid) {
+            if ((!isThisAGroup() && this.userid == userid) || (isThisAGroup() && this.group.getGroupid() == userid)) {
                 RequestOptions requestOptions = new RequestOptions();
 
                 if(isLogoCircular){
@@ -402,7 +477,13 @@ public class User extends BaseObservable implements ListItemBindableItemContentP
         lastInstanceOfImageView = view;
         AsyncPinger asyncPinger = ((AsyncPingerProvider)view.getContext()).getCurrentPinger();
         if(asyncPinger != null){
-            asyncPinger.registerImageReadyListenerOrGetImageIfExist(userid,this);
+//            asyncPinger.registerImageReadyListenerOrGetImageIfExist(userid,this);
+            if(isThisAGroup()){
+                asyncPinger.registerImageReadyListenerOrGetImageIfExistForGroups(group.getGroupid(), this);
+            }
+            else {
+                asyncPinger.registerImageReadyListenerOrGetImageIfExist(userid, this);
+            }
         }
     }
 
@@ -415,7 +496,12 @@ public class User extends BaseObservable implements ListItemBindableItemContentP
         lastInstanceOfImageView = view;
         AsyncPinger asyncPinger = ((AsyncPingerProvider)view.getContext()).getCurrentPinger();
         if(asyncPinger != null){
-            asyncPinger.registerImageReadyListenerOrGetImageIfExist(userid,this);
+            if(isThisAGroup()){
+                asyncPinger.registerImageReadyListenerOrGetImageIfExistForGroups(group.getGroupid(), this);
+            }
+            else {
+                asyncPinger.registerImageReadyListenerOrGetImageIfExist(userid, this);
+            }
         }
     }
 
@@ -426,7 +512,87 @@ public class User extends BaseObservable implements ListItemBindableItemContentP
         lastInstanceOfImageView = view;
         AsyncPinger asyncPinger = ((AsyncPingerProvider)activity).getCurrentPinger();
         if(asyncPinger != null){
-            asyncPinger.registerImageReadyListenerOrGetImageIfExist(userid,this);
+            if(isThisAGroup()){
+                asyncPinger.registerImageReadyListenerOrGetImageIfExistForGroups(group.getGroupid(),this);
+            }
+            else {
+                asyncPinger.registerImageReadyListenerOrGetImageIfExist(userid,this);
+            }
         }
+    }
+
+    private transient Group group;// thisIsNotUserObjectItAnInstanceUsedByGroupToUseItsUiView;
+
+    public Group getGroup() {
+        return group;
+    }
+
+    public void setGroup(Group group) {
+        if(this.group != group){
+            this.group = group;
+            notifyPropertyChanged(BR.numberOfUnreadMessagesString);
+            notifyPropertyChanged(BR.selectUnreadMessagesTVVisibility);
+
+            notifyPropertyChanged(BR.languageBoxVisibility);
+            notifyPropertyChanged(BR.username);
+            notifyPropertyChanged(BR.callButtonVisibility);
+        }
+    }
+
+    public boolean isThisAGroup(){
+        return group==null?false:true;
+    }
+
+    @Bindable
+    public int getLanguageBoxVisibility(){
+        if(isThisAGroup())
+            return View.GONE;
+        else
+            return View.VISIBLE;
+    }
+
+    @Override
+    public int compareTo(User user) {
+        if(getNumberOfUnreadMessages() > user.getNumberOfUnreadMessages())
+            return -1;
+        else if (getNumberOfUnreadMessages() < user.getNumberOfUnreadMessages())
+            return 1;
+        else {//if (getNumberOfUnreadMessages() == group.getNumberOfUnreadMessages()){
+            if(userid < user.userid)
+                return -1;
+            else if(userid > user.userid)
+                return 1;
+            else
+                return 0;
+        }
+    }
+
+
+    @Ignore
+    private transient boolean isHighLighted;
+    @Override
+    public boolean getIsHighLighted() {
+        return isHighLighted;
+    }
+
+    @Override
+    public void setIsHighLighted(boolean isHighLighted) {
+        if(this.isHighLighted != isHighLighted) {
+            notifyPropertyChanged(BR.highlightedFilterVisibility);
+            this.isHighLighted = isHighLighted;
+        }
+    }
+    @Override
+    public void toggleHighLight() {
+        isHighLighted = !isHighLighted;
+        notifyPropertyChanged(BR.highlightedFilterVisibility);
+    }
+
+    @Bindable
+    public int getHighlightedFilterVisibility(){
+        if(isHighLighted)
+            return View.VISIBLE;
+        else
+            return View.GONE;
     }
 }

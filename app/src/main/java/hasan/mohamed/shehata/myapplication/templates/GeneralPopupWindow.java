@@ -3,6 +3,8 @@ package hasan.mohamed.shehata.myapplication.templates;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,9 +16,7 @@ import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModel;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -37,6 +37,7 @@ import hasan.mohamed.shehata.myapplication.databinding.SignUpInLayoutBinding;
 import hasan.mohamed.shehata.myapplication.internet.APIClient;
 import hasan.mohamed.shehata.myapplication.models.BindableItem;
 import hasan.mohamed.shehata.myapplication.models.DownloadWindowContent;
+import hasan.mohamed.shehata.myapplication.models.Group;
 import hasan.mohamed.shehata.myapplication.models.Language;
 import hasan.mohamed.shehata.myapplication.models.ListItemBindableItemContentProvider;
 import hasan.mohamed.shehata.myapplication.models.Message;
@@ -48,6 +49,7 @@ import hasan.mohamed.shehata.myapplication.types.FabSource;
 import hasan.mohamed.shehata.myapplication.types.LoginResult;
 import hasan.mohamed.shehata.myapplication.types.NavHeader;
 import hasan.mohamed.shehata.myapplication.types.ResultReceiver;
+import hasan.mohamed.shehata.myapplication.types.SearchCallbacks;
 import hasan.mohamed.shehata.myapplication.types.SpeakerProvider;
 import hasan.mohamed.shehata.myapplication.types.StatusOfServerObject;
 import hasan.mohamed.shehata.myapplication.types.TranslatorCapabilities;
@@ -61,10 +63,10 @@ public abstract class GeneralPopupWindow extends DialogFragment {
     private static String WINDOW_LIST_ITEMS_EXTRA_PARAM = "hasan.mohamed.shehata.myapplication.templates.GeneralListViewLayoutBinding.WINDOW_LIST_ITEMS_EXTRA_PARAM";
     private static String WINDOW_RESULT_RECEIVER_EXTRA_PARAM = "hasan.mohamed.shehata.myapplication.templates.GeneralListViewLayoutBinding.WINDOW_RESULT_RECEIVER_EXTRA_PARAM";
     private static String PARCEL_EXTRA_PARAM = "hasan.mohamed.shehata.myapplication.templates.GeneralListViewLayoutBinding.PARCEL_EXTRA_PARAM";
-    public static void makeSelectionWindow(Context context, String title, List<ListItemBindableItemContentProvider> listData , ResultReceiver selectionResultReceiver,boolean isRefreshFab){
+    public static void makeSelectionWindow(Context context, String title, List<ListItemBindableItemContentProvider> listData , ResultReceiver selectionResultReceiver,boolean isRefreshFab,boolean isMultipleChoices){
         FragmentManager supportFragmentManager = Utils.getSupportFragmentManager(context);
         Bundle bundle = new Bundle();
-        SerializedParcel serializedParcel = new SerializedParcel(title, listData, selectionResultReceiver);
+        SerializedParcel serializedParcel = new SerializedParcel(title, listData, selectionResultReceiver,isMultipleChoices);
         serializedParcel.setItemWithImage(false);
         bundle.putSerializable(PARCEL_EXTRA_PARAM, serializedParcel);
         GSPWindow window = new GSPWindow(bundle);
@@ -76,7 +78,7 @@ public abstract class GeneralPopupWindow extends DialogFragment {
     public static void makeLanguageSelectionWindow(Context context, String title , ResultReceiver selectionResultReceiver,boolean isRefreshFab){
         FragmentManager supportFragmentManager = Utils.getSupportFragmentManager(context);
         Bundle bundle = new Bundle();
-        SerializedParcel serializedParcel = new SerializedParcel(title, Arrays.asList(Language.values()), selectionResultReceiver);
+        SerializedParcel serializedParcel = new SerializedParcel(title, Arrays.asList(Language.values()), selectionResultReceiver,isRefreshFab);
         serializedParcel.setItemWithImage(true);
         bundle.putSerializable(PARCEL_EXTRA_PARAM, serializedParcel);
         GSPWindow window = new GSPWindow(bundle);
@@ -140,11 +142,17 @@ public abstract class GeneralPopupWindow extends DialogFragment {
         private List<ListItemBindableItemContentProvider> listData;
         private ResultReceiver selectionResultReceiver;
         private boolean isItemWithImage = true;
+        private boolean isMultipleChoices;
 
-        public SerializedParcel(String title, List<ListItemBindableItemContentProvider> listData, ResultReceiver selectionResultReceiver) {
+        public SerializedParcel(String title, List<ListItemBindableItemContentProvider> listData, ResultReceiver selectionResultReceiver, boolean isMultipleChoices) {
             this.title = title;
             this.listData = listData;
             this.selectionResultReceiver = selectionResultReceiver;
+            this.isMultipleChoices= isMultipleChoices;
+        }
+
+        public boolean isMultipleChoices() {
+            return isMultipleChoices;
         }
 
         public String getTitle() {
@@ -209,6 +217,7 @@ public abstract class GeneralPopupWindow extends DialogFragment {
 
     public static class GSPWindow extends GeneralPopupWindow {
         private PopupViewModel viewModel;
+        private SearchCallbacks searchCallbacks = new SearchCallbacks();
         public GSPWindow(Bundle bundle) {
             super();
             setArguments(bundle);
@@ -231,6 +240,14 @@ public abstract class GeneralPopupWindow extends DialogFragment {
             SerializedParcel serializedParcel = getSerializableParcel();
             if(serializedParcel !=null)
                 return serializedParcel.isItemWithImage();
+            else
+                return false;
+        }
+
+        private boolean getIsMultipleChoices() {
+            SerializedParcel serializedParcel = getSerializableParcel();
+            if(serializedParcel !=null)
+                return serializedParcel.isMultipleChoices();
             else
                 return false;
         }
@@ -269,12 +286,22 @@ public abstract class GeneralPopupWindow extends DialogFragment {
             }
 
             @Override
+            public void receiveMultipleChoices(List<ListItemBindableItemContentProvider> list) {
+
+            }
+
+            @Override
             public void deleteItem(ListItemBindableItemContentProvider item) {
 
             }
 
             @Override
             public User getBuddy() {
+                return null;
+            }
+
+            @Override
+            public Group getGroup() {
                 return null;
             }
 
@@ -309,17 +336,52 @@ public abstract class GeneralPopupWindow extends DialogFragment {
 
         }
 
+
         private void initRV(){
             String title = getWindowTitle();
             getDialog().setTitle(title);
             getDialog().getWindow().setSoftInputMode(
                     WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
 
-            binding.generalFragmentRecyclerView.setHasFixedSize(true);
+            binding.generalFragmentRecyclerView.setHasFixedSize(false);
             // use a linear layout manager
             LinearLayoutManager layoutManager = new LinearLayoutManager(getContext(), RecyclerView.VERTICAL, false);
             binding.generalFragmentRecyclerView.setLayoutManager(layoutManager);
-            binding.generalFragmentRecyclerView.setAdapter(new GeneralRecyclerViewAdapter<DualTextRecyclerViewItemView>(getContext(), getListData(), resultReceiver, DualTextRecyclerViewItemView.class, FabActionType.None, TranslatorCapabilities.NotApplicable, null,null,binding.generalFragmentRecyclerView,null));
+            binding.generalFragmentRecyclerView.setAdapter(new GeneralRecyclerViewAdapter<DualTextRecyclerViewItemView>(getContext(), getListData(), resultReceiver, DualTextRecyclerViewItemView.class, FabActionType.None, TranslatorCapabilities.NotApplicable, null,null,binding.generalFragmentRecyclerView,null, false, null, null, getIsMultipleChoices(),searchCallbacks));
+            binding.gspSearchEtPopupId.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                }
+
+                @Override
+                public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                }
+
+                @Override
+                public void afterTextChanged(Editable editable) {
+                    if(searchCallbacks.getSearchable() != null){
+                        searchCallbacks.getSearchable().find(binding.gspSearchEtPopupId.getText().toString());
+                    }
+                }
+            });
+            if(getIsMultipleChoices()){
+                binding.gspOkButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        if (binding != null &&
+                                binding.generalFragmentRecyclerView != null &&
+                                binding.generalFragmentRecyclerView.getAdapter() != null &&
+                                resultReceiver != null) {
+                            resultReceiver.receiveMultipleChoices(((GeneralRecyclerViewAdapter) binding.generalFragmentRecyclerView.getAdapter()).getSelection());
+                        }
+                    }
+                });
+            }
+            else{
+                binding.gspOkButton.setVisibility(View.GONE);
+            }
         }
 
         public void closeDialog() {
@@ -393,6 +455,11 @@ public abstract class GeneralPopupWindow extends DialogFragment {
         }
 
         @Override
+        public void bind(Group group) {
+
+        }
+
+        @Override
         public void bind(Message msg) {
             throw new UnsupportedOperationException("This operation is not supported for this datatype please use DownloadWindowContent as argument.");
         }
@@ -438,12 +505,22 @@ public abstract class GeneralPopupWindow extends DialogFragment {
                                 }
 
                                 @Override
+                                public void receiveMultipleChoices(List<ListItemBindableItemContentProvider> list) {
+
+                                }
+
+                                @Override
                                 public void deleteItem(ListItemBindableItemContentProvider item) {
 
                                 }
 
                                 @Override
                                 public User getBuddy() {
+                                    return null;
+                                }
+
+                                @Override
+                                public Group getGroup() {
                                     return null;
                                 }
 
@@ -832,6 +909,11 @@ public abstract class GeneralPopupWindow extends DialogFragment {
         }
 
         @Override
+        public void bind(Group group) {
+
+        }
+
+        @Override
         public void bind(Message msg) {
             throw new UnsupportedOperationException("This operation is not supported for this datatype please use DownloadWindowContent as argument.");
         }
@@ -978,6 +1060,11 @@ public abstract class GeneralPopupWindow extends DialogFragment {
         }
 
         @Override
+        public void bind(Group group) {
+
+        }
+
+        @Override
         public void bind(Message msg) {
             throw new UnsupportedOperationException("This operation is not supported for this datatype please use DownloadWindowContent as argument.");
         }
@@ -1001,5 +1088,6 @@ public abstract class GeneralPopupWindow extends DialogFragment {
             return serializedParcelMutableLiveData;
         }
     }
+
 
 }

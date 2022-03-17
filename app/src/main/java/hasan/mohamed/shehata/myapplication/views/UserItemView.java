@@ -14,6 +14,7 @@ import hasan.mohamed.shehata.myapplication.databinding.TranslationItemLayoutBind
 import hasan.mohamed.shehata.myapplication.databinding.UsersListItemLayoutBinding;
 import hasan.mohamed.shehata.myapplication.models.BindableItem;
 import hasan.mohamed.shehata.myapplication.models.DownloadWindowContent;
+import hasan.mohamed.shehata.myapplication.models.Group;
 import hasan.mohamed.shehata.myapplication.models.ListItemBindableItemContentProvider;
 import hasan.mohamed.shehata.myapplication.models.Message;
 import hasan.mohamed.shehata.myapplication.models.TranslationItem;
@@ -29,8 +30,10 @@ public class UserItemView  extends FrameLayout implements BindableItem , View.On
     private ResultReceiver selectionReceiver;
     private boolean isAsrEnabled = false;
     private long userid;
-    public UserItemView(Context context, ResultReceiver selectionReceiver) {
+    private boolean isMultipleChoices;
+    public UserItemView(Context context, ResultReceiver selectionReceiver,Boolean isMultipleChoices) {
         super(context);
+        this.isMultipleChoices = isMultipleChoices;
         userid = Utils.getUserID(context);
         this.selectionReceiver = selectionReceiver;
         setWillNotDraw(false);
@@ -41,7 +44,7 @@ public class UserItemView  extends FrameLayout implements BindableItem , View.On
         //attach to parent must be true to be displayed
         binding = DataBindingUtil.inflate(li, R.layout.users_list_item_layout,this,true);
         View view = this.binding.getRoot();
-        this.setOnClickListener(this);
+
         binding.messageBut.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -61,13 +64,32 @@ public class UserItemView  extends FrameLayout implements BindableItem , View.On
         isHighContrastEnabled = Utils.getIsHighContrastTheme(getContext());
         Utils.registerHighContrastObserver(this);
 
+        if(isMultipleChoices) {
+            this.binding.userItemRootOfRootContainer.setOnLongClickListener(new OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View view) {
+                    if (binding.getUser() != null)
+                        binding.getUser().toggleHighLight();
+                    return true;
+                }
+            });
+        }
+        else{
+            this.setOnClickListener(this);
+        }
+
     }
 
 
 
     @Override
     public void bind(ListItemBindableItemContentProvider bindableItemContentProvider) {
-        bind((User)bindableItemContentProvider);
+        if(bindableItemContentProvider instanceof User)
+            bind((User)bindableItemContentProvider);
+        else if(bindableItemContentProvider instanceof Group){
+            Group group = (Group) bindableItemContentProvider;
+            bind(group);
+        }
     }
 
     @Override
@@ -92,6 +114,13 @@ public class UserItemView  extends FrameLayout implements BindableItem , View.On
     }
 
     @Override
+    public void bind(Group group) {
+        User user = new User();
+        user.setGroup(group);
+        bind(user);
+    }
+
+    @Override
     public void bind(Message msg) {
         throw new UnsupportedOperationException("This operation is not supported for this datatype please use DownloadWindowContent as argument.");
     }
@@ -104,7 +133,9 @@ public class UserItemView  extends FrameLayout implements BindableItem , View.On
 
     @Override
     public void onClick(View view) {
-        if(userid != binding.getUser().getID())
+        if(binding.getUser().isThisAGroup())
+            ((MessageFragmentProvider)getContext()).provideGroupMessageFragment(binding.getUser().getGroup());
+        else if(userid != binding.getUser().getID())
             ((MessageFragmentProvider)getContext()).provideMessageFragment(binding.getUser(),false);
     }
 

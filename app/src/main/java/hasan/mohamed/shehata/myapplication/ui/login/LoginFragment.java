@@ -30,6 +30,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -42,6 +43,7 @@ import hasan.mohamed.shehata.myapplication.internet.APIClient;
 import hasan.mohamed.shehata.myapplication.models.BindableItem;
 import hasan.mohamed.shehata.myapplication.models.CountryPhoneCode;
 import hasan.mohamed.shehata.myapplication.models.DownloadWindowContent;
+import hasan.mohamed.shehata.myapplication.models.Group;
 import hasan.mohamed.shehata.myapplication.models.Language;
 import hasan.mohamed.shehata.myapplication.models.ListItemBindableItemContentProvider;
 import hasan.mohamed.shehata.myapplication.models.Message;
@@ -167,12 +169,22 @@ public class LoginFragment extends Fragment implements BindableItem, StartedActi
                             }
 
                             @Override
+                            public void receiveMultipleChoices(List<ListItemBindableItemContentProvider> list) {
+
+                            }
+
+                            @Override
                             public void deleteItem(ListItemBindableItemContentProvider item) {
 
                             }
 
                             @Override
                             public User getBuddy() {
+                                return null;
+                            }
+
+                            @Override
+                            public Group getGroup() {
                                 return null;
                             }
 
@@ -644,6 +656,11 @@ public class LoginFragment extends Fragment implements BindableItem, StartedActi
                             }
 
                             @Override
+                            public void receiveMultipleChoices(List<ListItemBindableItemContentProvider> list) {
+
+                            }
+
+                            @Override
                             public void deleteItem(ListItemBindableItemContentProvider item) {
 
                             }
@@ -654,11 +671,16 @@ public class LoginFragment extends Fragment implements BindableItem, StartedActi
                             }
 
                             @Override
+                            public Group getGroup() {
+                                return null;
+                            }
+
+                            @Override
                             public SpeakerProvider provideSpeaker() {
                                 return null;
                             }
                         }
-                        ,true);
+                        ,true,false);
             }
         });
 
@@ -692,33 +714,33 @@ public class LoginFragment extends Fragment implements BindableItem, StartedActi
                 int randomNumber = 100000 + new Random().nextInt(900000);
                 verificationCode = String.valueOf(randomNumber).substring(0,6);
                 Toast.makeText(getActivity(),verificationCode, Toast.LENGTH_LONG).show();
-                sms.setMessage("Verification code \n " +  verificationCode);
+//                sms.setMessage("Verification code \n " +  verificationCode);
+                checkResendCounter(true);//debug
 
-
-                APIClient.getAPIInterface(getContext()).sendSms(sms).enqueue(new Callback<JSONResult>() {
-                    @Override
-                    public void onResponse(Call<JSONResult> call, Response<JSONResult> response) {
-                        if(response.isSuccessful()){
-
-                            checkResendCounter(true);
-
-//                            Toast.makeText(getContext() , verifiedUserPhone , Toast.LENGTH_LONG).show();
+//                APIClient.getAPIInterface(getContext()).sendSms(sms).enqueue(new Callback<JSONResult>() {
+//                    @Override
+//                    public void onResponse(Call<JSONResult> call, Response<JSONResult> response) {
+//                        if(response.isSuccessful()){
 //
-//                            binding.loginFragmentPersonalInformationContainer.setVisibility(View.VISIBLE);
-//                            binding.loginFragmentPhoneNumberVerificationContainer.setVisibility(View.GONE);
-                        }
-                        else{
-                            Toast.makeText(getContext(), "Verification failed!", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(Call<JSONResult> call, Throwable t) {
-                        call.cancel();
-                        Toast.makeText(getContext(), "Verification failed!", Toast.LENGTH_SHORT).show();
-                    }
-                });
-
+//                            checkResendCounter(true);
+//
+////                            Toast.makeText(getContext() , verifiedUserPhone , Toast.LENGTH_LONG).show();
+////
+////                            binding.loginFragmentPersonalInformationContainer.setVisibility(View.VISIBLE);
+////                            binding.loginFragmentPhoneNumberVerificationContainer.setVisibility(View.GONE);
+//                        }
+//                        else{
+//                            Toast.makeText(getContext(), "Verification failed!", Toast.LENGTH_SHORT).show();
+//                        }
+//                    }
+//
+//                    @Override
+//                    public void onFailure(Call<JSONResult> call, Throwable t) {
+//                        call.cancel();
+//                        Toast.makeText(getContext(), "Verification failed!", Toast.LENGTH_SHORT).show();
+//                    }
+//                });
+//
 
             }
         };
@@ -1130,6 +1152,11 @@ public class LoginFragment extends Fragment implements BindableItem, StartedActi
     public void bind(User user) {
         if(binding != null)
             binding.setUser(user);
+    }
+
+    @Override
+    public void bind(Group group) {
+
     }
 
     @Override

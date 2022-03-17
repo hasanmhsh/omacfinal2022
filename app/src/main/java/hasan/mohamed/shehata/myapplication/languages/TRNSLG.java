@@ -69,6 +69,39 @@ public class TRNSLG {
         }).start();
     }
 
+    public static Message translateBlockable(final Message msg, Language source, Language target){
+        final RequestData data = new RequestData(msg.getMessagetext(),source,target);
+        Response result = null;
+        String formattedPayload  = "No translation";
+
+        try {
+            String text = msg.getMessagetext();
+            OkHttpClient connection = new OkHttpClient();
+            RequestBody formatedOverload = RequestBody.create(MediaType.parse(MIME_T),
+                    JavaScriptObjectFactory.setData(data));
+            Request payload = new Request.Builder()
+                    .url(url+"?key="+Utils.getGoogleKey())
+//                            .addHeader(token_query_param_key, Utils.getGoogleKey())
+                    .addHeader("Content-Type", MIME_T)
+                    .post(formatedOverload)
+                    .build();
+            result =  connection.newCall(payload).execute();
+            formattedPayload = Objects.requireNonNull(result.body()).string();
+            if(result == null || result.code() != 200){
+                throw new ResultFetchError(formattedPayload);
+            }
+            String tText = JavaScriptObjectFactory.toObjectHTMLEscapingIsDisabled(formattedPayload, ResponseData.class).getTranslatedText();
+            tText = tText.replace("&#39;" , "\'");
+            tText = tText.replace("&#34;" , "\"");
+            final String translatedText = tText;
+            msg.setMessagetranslatedtext(translatedText);
+            return msg;
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
+    }
 
 
     static class RequestData{

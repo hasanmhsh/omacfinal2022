@@ -63,6 +63,18 @@ public class CountryPhoneCode implements ListItemBindableItemContentProvider {
         view.setVisibility(View.GONE);
     }
 
+
+    private boolean isHighLighted;
+    @Override
+    public boolean getIsHighLighted() {
+        return isHighLighted;
+    }
+
+    @Override
+    public void setIsHighLighted(boolean isHighLighted) {
+        this.isHighLighted=isHighLighted;
+    }
+
     @Override
     public void setOnListItemCallbacks(ListItemCallbacks callbacks) {
 
@@ -71,6 +83,11 @@ public class CountryPhoneCode implements ListItemBindableItemContentProvider {
     @Override
     public void disposeResources() {
 
+    }
+
+    @Override
+    public void toggleHighLight() {
+        isHighLighted = !isHighLighted;
     }
 
     @Override

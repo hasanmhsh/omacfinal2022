@@ -13,10 +13,10 @@
             android:icon="@drawable/ic_baseline_person_24"
             android:title="@string/users_list" />
 
-        <item
-            android:id="@+id/nav_contacts"
-            android:icon="@drawable/ic_baseline_contacts_24"
-            android:title="@string/my_contacts" />
+<!--        <item-->
+<!--            android:id="@+id/nav_contacts"-->
+<!--            android:icon="@drawable/ic_baseline_contacts_24"-->
+<!--            android:title="@string/my_contacts" />-->
 <!--        <item-->
 <!--            android:id="@+id/nav_messages"-->
 <!--            android:icon="@drawable/ic_menu_messages"-->

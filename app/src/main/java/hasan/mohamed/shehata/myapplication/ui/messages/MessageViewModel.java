@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel;
 
 import java.util.List;
 
+import hasan.mohamed.shehata.myapplication.models.Group;
 import hasan.mohamed.shehata.myapplication.models.ListItemBindableItemContentProvider;
 import hasan.mohamed.shehata.myapplication.models.Message;
 import hasan.mohamed.shehata.myapplication.models.OverloadedPingResult;
@@ -19,6 +20,9 @@ public class MessageViewModel extends ViewModel {
     private MutableLiveData<User> meLiveData;
     private MutableLiveData<Boolean> isForCall;
     private MutableLiveData<String> textInSendBox;
+
+    private MutableLiveData<Boolean> isGroupChatView;
+    private MutableLiveData<Group> chatGroup;
 
 
 
@@ -37,6 +41,14 @@ public class MessageViewModel extends ViewModel {
         isForCall.setValue(null);
         textInSendBox = new MutableLiveData<>();
         textInSendBox.setValue(null);
+
+
+        isGroupChatView = new MutableLiveData<>();
+        isGroupChatView.setValue(null);
+
+
+        chatGroup = new MutableLiveData<>();
+        chatGroup.setValue(null);
     }
 
     public LiveData<String> getText() {
@@ -61,5 +73,13 @@ public class MessageViewModel extends ViewModel {
 
     public MutableLiveData<String> getTextInSendBox() {
         return textInSendBox;
+    }
+
+    public MutableLiveData<Boolean> getIsGroupChatView() {
+        return isGroupChatView;
+    }
+
+    public MutableLiveData<Group> getChatGroup() {
+        return chatGroup;
     }
 }

@@ -11,6 +11,7 @@ import hasan.mohamed.shehata.myapplication.R;
 import hasan.mohamed.shehata.myapplication.databinding.DualTextRvItemViewLayoutBinding;
 import hasan.mohamed.shehata.myapplication.models.BindableItem;
 import hasan.mohamed.shehata.myapplication.models.DownloadWindowContent;
+import hasan.mohamed.shehata.myapplication.models.Group;
 import hasan.mohamed.shehata.myapplication.models.ListItemBindableItemContentProvider;
 import hasan.mohamed.shehata.myapplication.models.Message;
 import hasan.mohamed.shehata.myapplication.models.User;
@@ -19,8 +20,10 @@ import hasan.mohamed.shehata.myapplication.types.ResultReceiver;
 public class DualTextRecyclerViewItemView extends FrameLayout implements View.OnClickListener, BindableItem {
     private DualTextRvItemViewLayoutBinding binding;
     private ResultReceiver selectionReceiver;
-    public DualTextRecyclerViewItemView(Context context, ResultReceiver selectionReceiver) {
+    private boolean isMultipleChoices;
+    public DualTextRecyclerViewItemView(Context context, ResultReceiver selectionReceiver, Boolean isMultipleChoices) {
         super(context);
+        this.isMultipleChoices = isMultipleChoices;
         this.selectionReceiver = selectionReceiver;
         setWillNotDraw(false);
         String infService = Context.LAYOUT_INFLATER_SERVICE;
@@ -30,8 +33,21 @@ public class DualTextRecyclerViewItemView extends FrameLayout implements View.On
         //attach to parent must be true to be displayed
         binding = DataBindingUtil.inflate(li,R.layout.dual_text_rv_item_view_layout,this,true);
         View view = this.binding.getRoot();
-        this.setOnClickListener(this);
         this.binding.dualTextRvItemContainer.setOnClickListener(this);
+
+        if(isMultipleChoices) {
+            this.binding.dualTextRvItemContainer.setOnLongClickListener(new OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View view) {
+                    if (binding.getDualtext() != null)
+                        binding.getDualtext().toggleHighLight();
+                    return true;
+                }
+            });
+        }
+        else{
+            this.setOnClickListener(this);
+        }
     }
 
     @Override
@@ -53,6 +69,11 @@ public class DualTextRecyclerViewItemView extends FrameLayout implements View.On
     @Override
     public void bind(User user) {
         throw new UnsupportedOperationException("This operation is not supported for this datatype please use DownloadWindowContent as argument.");
+    }
+
+    @Override
+    public void bind(Group group) {
+
     }
 
     @Override

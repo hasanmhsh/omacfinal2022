@@ -26,6 +26,17 @@ public class UnreadReceivedMessage {
     @ColumnInfo(name = "senderid")
     private long senderid;
 
+    public long getGroupid() {
+        return groupid;
+    }
+
+    public void setGroupid(long groupid) {
+        this.groupid = groupid;
+    }
+
+    @ColumnInfo(name = "groupid")
+    private long groupid;
+
     public long getMessageid() {
         return messageid;
     }

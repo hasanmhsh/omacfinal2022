@@ -15,6 +15,8 @@ public interface ListItemBindableItemContentProvider extends ListItemContentProv
     public String getSecondaryText();
     public long getID();
     public void drawLogo(ImageView view);
+    public boolean getIsHighLighted();
+    public void setIsHighLighted(boolean isHighLighted);
     public void setOnListItemCallbacks(ListItemCallbacks callbacks);
     public void disposeResources();
     public static void getNewItem(Context context, List<ListItemBindableItemContentProvider> dataSet, TranslatorCapabilities capabilities, ListItemCallbacks listItemCallbacks,Language targetLanguage) {
@@ -26,4 +28,6 @@ public interface ListItemBindableItemContentProvider extends ListItemContentProv
             new TranslationItem(context ,((TranslationItem)dataSet.get(0)).getSourceLanguage(),  ((TranslationItem)dataSet.get(0)), targetLanguage,TranslationItemType.Target, capabilities, listItemCallbacks);
         }
     }
+
+    void toggleHighLight();
 }

@@ -6,12 +6,48 @@
         android:keepScreenOn="true"
         android:background="@color/pupup_window_background_color"
         xmlns:app="http://schemas.android.com/apk/res-auto">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+        <EditText
+            android:layout_weight="1"
+            android:id="@+id/gsp_search_et_popup_id"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="search..."
+            android:backgroundTint="@color/generalTextColor"
+            android:textColor="@color/generalTextColor"
+            android:textColorHint="@color/generalHintTextColor"
+            android:textSize="20sp"
+            app:layout_constraintTop_toTopOf="parent"
+            android:fitsSystemWindows="true"
+            />
         <androidx.recyclerview.widget.RecyclerView
+            android:layout_weight="10"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:id="@+id/general_fragment_recycler_view">
 
         </androidx.recyclerview.widget.RecyclerView>
 
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_weight="1">
+            <Button
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:id="@+id/gsp_ok_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="OK"
+                android:layout_weight="1"
+                android:textSize="17sp"
+                android:fitsSystemWindows="true"/>
+            </FrameLayout>
+        </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

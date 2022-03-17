@@ -16,10 +16,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.Arrays;
+import java.util.List;
 
 import hasan.mohamed.shehata.myapplication.R;
 import hasan.mohamed.shehata.myapplication.databinding.TextTranslationFragmentBinding;
 import hasan.mohamed.shehata.myapplication.languages.HMSTransloator;
+import hasan.mohamed.shehata.myapplication.models.Group;
 import hasan.mohamed.shehata.myapplication.models.ListItemBindableItemContentProvider;
 import hasan.mohamed.shehata.myapplication.models.User;
 import hasan.mohamed.shehata.myapplication.types.FabSource;
@@ -40,12 +42,22 @@ public class TextTranslationFragment extends Fragment {
         }
 
         @Override
+        public void receiveMultipleChoices(List<ListItemBindableItemContentProvider> list) {
+
+        }
+
+        @Override
         public void deleteItem(ListItemBindableItemContentProvider item) {
 
         }
 
         @Override
         public User getBuddy() {
+            return null;
+        }
+
+        @Override
+        public Group getGroup() {
             return null;
         }
 
@@ -62,12 +74,22 @@ public class TextTranslationFragment extends Fragment {
         }
 
         @Override
+        public void receiveMultipleChoices(List<ListItemBindableItemContentProvider> list) {
+
+        }
+
+        @Override
         public void deleteItem(ListItemBindableItemContentProvider item) {
 
         }
 
         @Override
         public User getBuddy() {
+            return null;
+        }
+
+        @Override
+        public Group getGroup() {
             return null;
         }
 
@@ -118,7 +140,7 @@ public class TextTranslationFragment extends Fragment {
         binding.textTranslationTranslateFromChooseLanguageBut.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                GeneralPopupWindow.makeSelectionWindow(getContext(), getResources().getString(R.string.select_language), Arrays.asList(Language.values()), fromLanguageResultReceiver , true);
+                GeneralPopupWindow.makeSelectionWindow(getContext(), getResources().getString(R.string.select_language), Arrays.asList(Language.values()), fromLanguageResultReceiver , true,false);
 //                DownloadStickyNotification.make(getContext(), new Canceler() {
 //                }, "filename");
             }
@@ -126,7 +148,7 @@ public class TextTranslationFragment extends Fragment {
         binding.textTranslationTranslateToChooseLanguageBut.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                GeneralPopupWindow.makeSelectionWindow(getContext(), getResources().getString(R.string.select_language), Arrays.asList(Language.values()), toLanguageResultReceiver, true );
+                GeneralPopupWindow.makeSelectionWindow(getContext(), getResources().getString(R.string.select_language), Arrays.asList(Language.values()), toLanguageResultReceiver, true,false );
             }
         });
         binding.checkModelExistanceDownloadIfNotExistBut.setOnClickListener(new View.OnClickListener() {

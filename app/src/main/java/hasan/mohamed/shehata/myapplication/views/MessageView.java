@@ -11,13 +11,18 @@ import android.widget.Toast;
 
 import androidx.databinding.DataBindingUtil;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import hasan.mohamed.shehata.myapplication.AppDatabase;
 import hasan.mohamed.shehata.myapplication.R;
 import hasan.mohamed.shehata.myapplication.Utils;
 import hasan.mohamed.shehata.myapplication.databinding.MessageItemLayoutBinding;
 import hasan.mohamed.shehata.myapplication.internet.APIClient;
+import hasan.mohamed.shehata.myapplication.languages.TRNSLG;
 import hasan.mohamed.shehata.myapplication.models.BindableItem;
 import hasan.mohamed.shehata.myapplication.models.DownloadWindowContent;
+import hasan.mohamed.shehata.myapplication.models.Group;
 import hasan.mohamed.shehata.myapplication.models.ListItemBindableItemContentProvider;
 import hasan.mohamed.shehata.myapplication.models.Message;
 import hasan.mohamed.shehata.myapplication.models.User;
@@ -55,35 +60,32 @@ public class MessageView  extends FrameLayout implements BindableItem, HighContr
             @Override
             public void onClick(View view) {
                 // Delete message
-                new Thread(new Runnable() {
+                binding.getMessage().setControlnumber(binding.getMessage().getMessageid());
+                binding.getMessage().seControltext(Utils.MESSAGE_DELETE_COMMAND);
+                final List<Message> messagesToDelete = new ArrayList<>();
+                messagesToDelete.add(binding.getMessage());
+                APIClient.getAPIInterface(getContext()).deleteMessage(messagesToDelete).enqueue(new Callback<MessageDeletionResult>() {
                     @Override
-                    public void run() {
-                        APIClient.getAPIInterface(getContext()).deleteMessage(binding.getMessage().getMessageid()).enqueue(new Callback<MessageDeletionResult>() {
-                            @Override
-                            public void onResponse(Call<MessageDeletionResult> call, Response<MessageDeletionResult> response) {
-                                if(response.isSuccessful()){
-                                    new Thread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            AppDatabase.getMessageDao().deleteMessageById(binding.getMessage().getMessageid());
-                                            Utils.runOnUIThread(new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    selectionReceiver.deleteItem(binding.getMessage());
-                                                }
-                                            });
-                                        }
-                                    }).start();
-                                }
-                            }
+                    public void onResponse(Call<MessageDeletionResult> call, Response<MessageDeletionResult> response) {
+                        if(response.isSuccessful()){
+                            selectionReceiver.deleteItem(binding.getMessage());
+                            new Thread(new Runnable() {
+                                @Override
+                                public void run() {
+                                            for(Message msg : messagesToDelete){
 
-                            @Override
-                            public void onFailure(Call<MessageDeletionResult> call, Throwable t) {
-                                call.cancel();
-                            }
-                        });
+                                                AppDatabase.getMessageDao().deleteMessageById(msg.getMessageid());
+                                            }
+                                }
+                            }).start();
+                        }
                     }
-                }).start();
+
+                    @Override
+                    public void onFailure(Call<MessageDeletionResult> call, Throwable t) {
+                        call.cancel();
+                    }
+                });
             }
         });
 
@@ -115,6 +117,14 @@ public class MessageView  extends FrameLayout implements BindableItem, HighContr
         originalMessageLableTextSize = getResources().getDimension(R.dimen.message_item_sender_name_text_size);//binding.senderNameTv.getTextSize();
         originalMessageTextSize = getResources().getDimension(R.dimen.message_item_textofmessage_text_size);//binding.textOfMessageTv.getTextSize();
 
+        this.binding.messageViewContainer.setOnLongClickListener(new OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                if(binding.getMessage() != null)
+                    binding.getMessage().toggleHighLight();
+                return true;
+            }
+        });
         Utils.registerHighContrastObserver(this);
 
 
@@ -137,6 +147,12 @@ public class MessageView  extends FrameLayout implements BindableItem, HighContr
     public void bind(User user) {
         throw new UnsupportedOperationException("This operation is not supported for this datatype please use DownloadWindowContent as argument.");
     }
+
+    @Override
+    public void bind(Group group) {
+
+    }
+
     private boolean checkIfControlMessage(Message message) {
         String control = message.getMessagemoshakkaltext();
         if(control != null){
@@ -151,6 +167,7 @@ public class MessageView  extends FrameLayout implements BindableItem, HighContr
         || binding.buddyMsgLogo == null || binding.myMsgLogo==null)
             return;
         binding.setMessage(msg);
+
 //        if(checkIfControlMessage(msg)){
 //            binding.messageViewContainer.setVisibility(View.GONE);
 //        }
@@ -162,7 +179,12 @@ public class MessageView  extends FrameLayout implements BindableItem, HighContr
             binding.senderNameTv.setText("You");
         }
         else{
-            binding.senderNameTv.setText(buddy.getUsername());
+            if(msg.getGroupid() !=0) {
+                binding.senderNameTv.setText(msg.getSendername());
+            }
+            else {
+                binding.senderNameTv.setText(buddy.getUsername());
+            }
         }
 
 //        int margin = getContext().getResources().getDimensionPixelSize(R.dimen.messageHorizontalMargin);

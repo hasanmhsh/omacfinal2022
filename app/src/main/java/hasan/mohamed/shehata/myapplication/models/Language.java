@@ -229,4 +229,18 @@ public enum Language implements Serializable , ListItemBindableItemContentProvid
                 .into(view);
     }
 
+    private boolean isHighLighted;
+    @Override
+    public boolean getIsHighLighted() {
+        return isHighLighted;
+    }
+
+    @Override
+    public void setIsHighLighted(boolean isHighLighted) {
+        this.isHighLighted=isHighLighted;
+    }
+    @Override
+    public void toggleHighLight() {
+        isHighLighted = !isHighLighted;
+    }
 }

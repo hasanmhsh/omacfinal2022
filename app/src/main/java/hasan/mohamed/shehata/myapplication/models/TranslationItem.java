@@ -10,6 +10,7 @@ import android.widget.Toast;
 
 import androidx.databinding.BaseObservable;
 import androidx.databinding.Bindable;
+import androidx.room.Ignore;
 
 import java.io.Closeable;
 import java.util.ArrayList;
@@ -81,12 +82,22 @@ public class TranslationItem extends BaseObservable implements ListItemBindableI
         }
 
         @Override
+        public void receiveMultipleChoices(List<ListItemBindableItemContentProvider> list) {
+
+        }
+
+        @Override
         public void deleteItem(ListItemBindableItemContentProvider item) {
 
         }
 
         @Override
         public User getBuddy() {
+            return null;
+        }
+
+        @Override
+        public Group getGroup() {
             return null;
         }
 
@@ -139,12 +150,22 @@ public class TranslationItem extends BaseObservable implements ListItemBindableI
         }
 
         @Override
+        public void receiveMultipleChoices(List<ListItemBindableItemContentProvider> list) {
+
+        }
+
+        @Override
         public void deleteItem(ListItemBindableItemContentProvider item) {
 
         }
 
         @Override
         public User getBuddy() {
+            return null;
+        }
+
+        @Override
+        public Group getGroup() {
             return null;
         }
 
@@ -172,7 +193,7 @@ public class TranslationItem extends BaseObservable implements ListItemBindableI
             }
             case Target:{
                 if(targetLanguage == null)
-                    GeneralPopupWindow.makeSelectionWindow(context, context.getResources().getString(R.string.select_language), Arrays.asList(Language.values()), newelyCreatedResultReceiver , true);
+                    GeneralPopupWindow.makeSelectionWindow(context, context.getResources().getString(R.string.select_language), Arrays.asList(Language.values()), newelyCreatedResultReceiver , true,false);
                 else
                     newelyCreatedResultReceiver.receiveResult(targetLanguage);
                 break;
@@ -188,7 +209,7 @@ public class TranslationItem extends BaseObservable implements ListItemBindableI
 
     public void changeSourceLanguage(){// Ok
         if(translationItemType == TranslationItemType.Source){
-            GeneralPopupWindow.makeSelectionWindow(context, context.getResources().getString(R.string.select_language), Arrays.asList(Language.values()), changeSourceLanguageResultReceiver, true );
+            GeneralPopupWindow.makeSelectionWindow(context, context.getResources().getString(R.string.select_language), Arrays.asList(Language.values()), changeSourceLanguageResultReceiver, true , false);
         }
     }
 
@@ -414,5 +435,20 @@ public class TranslationItem extends BaseObservable implements ListItemBindableI
     @Override
     public boolean isEqualTo(ListItemBindableItemContentProvider item) {
         return false;
+    }
+
+    @Ignore
+    private transient boolean isHighLighted;
+    @Override
+    public boolean getIsHighLighted() {
+        return isHighLighted;
+    }
+    @Override
+    public void toggleHighLight() {
+        isHighLighted = !isHighLighted;
+    }
+    @Override
+    public void setIsHighLighted(boolean isHighLighted) {
+        this.isHighLighted=isHighLighted;
     }
 }

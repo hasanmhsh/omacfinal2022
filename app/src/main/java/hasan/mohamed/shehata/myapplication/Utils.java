@@ -34,6 +34,7 @@ import org.json.JSONObject;
 import java.io.EOFException;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -56,12 +57,26 @@ import hasan.mohamed.shehata.myapplication.types.ContinuousRecognitionObserver;
 import hasan.mohamed.shehata.myapplication.types.HighContrastObserver;
 import hasan.mohamed.shehata.myapplication.types.JSONKey;
 import hasan.mohamed.shehata.myapplication.types.MessageSendingCallbacks;
+import hasan.mohamed.shehata.myapplication.types.UsersViewType;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
 public class Utils {
+
+
+
+    public final transient static String MESSAGE_DELETE_COMMAND = "deletemessage";
+    public static final String MESSAGE_IMAGE_CMD = "image";
+
+    public static long currentOpenedBuddyIdChatView = 0;
+    public static long currentOpenedGroupIdChatView = 0;
+    public static UsersViewType currentUserViewType = UsersViewType.allusers;
+
+
+
+
     public static int getDownloadedPercent(long downLength, long totalLength) {
         return (int) (Math.round( (double) ((double)((double)downLength) / ((double)totalLength)) * 100.0D));
     }
@@ -399,17 +414,21 @@ public class Utils {
     private static boolean isASRClientKeyFetched = false;
     public static void executeKeysFetchRequest(final Context context){
         if(!isTTSKeyFetched){
-            APIClient.getAPIInterface(context).downloadGoogleKey().enqueue(new Callback<JSONKey>() {
+            APIClient.getAPIInterface(context).downloadGoogleKey().enqueue(new Callback<ResponseBody>() {
                 @Override
-                public void onResponse(Call<JSONKey> call, Response<JSONKey> response) {
+                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                     if(response.isSuccessful()){
-                        Utils.setGoogleKey(response.body().getKey());
-                        isTTSKeyFetched = true;
+                        try {
+                            Utils.setGoogleKey(response.body().string());
+                            isTTSKeyFetched = true;
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
 
                 @Override
-                public void onFailure(Call<JSONKey> call, Throwable t) {
+                public void onFailure(Call<ResponseBody> call, Throwable t) {
                     call.cancel();
                 }
             });
@@ -597,6 +616,8 @@ public class Utils {
     private static ArrayList<String> contactsphoneNumberList = null;
 
     public static synchronized List<String> getPhoneNumberList(Context context){
+        if(context == null && contactsphoneNumberList == null)
+            return new ArrayList<>();
         if(contactsphoneNumberList == null)
             getAllContacts(context);
         return contactsphoneNumberList;
@@ -623,6 +644,7 @@ public class Utils {
                             new String[]{id}, null);
                     while (pCur.moveToNext()) {
                         String phoneNo = pCur.getString(pCur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+                        phoneNo.replace("+", "00").replace(" ","").replace("-","");
                         contactsphoneNumberList.add(phoneNo);
                     }
                     pCur.close();

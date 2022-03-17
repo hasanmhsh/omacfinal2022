@@ -5,14 +5,27 @@
             name="message"
             type="hasan.mohamed.shehata.myapplication.models.Message" />
     </data>
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <FrameLayout
+            android:visibility="@{message.highlightedFilterVisibility}"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:translationZ="1000dp"
+            android:background="@color/selection_filter_color"></FrameLayout>
+
+
 <androidx.constraintlayout.widget.ConstraintLayout
     android:id="@+id/message_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_marginStart="3dp"
-    android:layout_marginEnd="3dp"
-    android:layout_marginBottom="6dp"
-    android:paddingTop="@dimen/margin_l">
+    android:paddingStart="3dp"
+    android:paddingEnd="3dp"
+    android:paddingBottom="6dp"
+    android:paddingTop="@dimen/margin_l"
+    android:background="@color/transparent"
+    android:visibility="@{message.messageBoxVisibilityGoneIfDeleted}">
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/message_view_container"
         android:layout_width="match_parent"
@@ -47,6 +60,20 @@
             android:textSize="@dimen/message_item_textofmessage_text_size"
             android:layout_margin="5dp"
             android:textColor="@color/white"/>
+
+<!--        <TextView-->
+<!--            android:id="@+id/textOfMessageStatusTv"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_marginTop="@dimen/margin_m"-->
+<!--            app:layout_constraintTop_toBottomOf="@+id/textOfMessageTv"-->
+<!--            android:text="@{message.messagestatusString}"-->
+<!--            android:fontFamily="@font/nunito"-->
+<!--            android:textFontWeight="500"-->
+<!--            android:visibility="@{message.messagestatusvisivility}"-->
+<!--            android:textSize="@dimen/message_item_textofmessage_text_size"-->
+<!--            android:layout_margin="5dp"-->
+<!--            android:textColor="#FF0000"/>-->
         <Switch
             android:visibility="gone"
             android:id="@+id/is_to_show_translated_text"
@@ -64,6 +91,16 @@
             android:background="@drawable/transparent_button_background"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"/>
+        <ImageView
+            android:id="@+id/message_status_eye_image_id"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="@{message.readEyeVisibility}"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/delete_message_but"
+            android:src="@drawable/ic_baseline_remove_red_eye_24"
+
+            />
         <ImageButton
             android:visibility="gone"
             android:id="@+id/message_tts_but"
@@ -121,4 +158,5 @@
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+    </FrameLayout>
 </layout>

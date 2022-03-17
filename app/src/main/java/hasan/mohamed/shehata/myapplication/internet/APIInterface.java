@@ -34,12 +34,12 @@ public interface APIInterface {
 
     //note that GET not allowed to have @Body
 
-//    @HTTP(method = "GET", path = "shakkelha", hasBody = true)
-    @POST("shakkelha")
-    Call<MoshakkalResult> shakkel(@Body Moshakkal moshakkal);
-
-    @POST("users/login")
-    Call<LoginResult> login(@Body User user);
+////    @HTTP(method = "GET", path = "shakkelha", hasBody = true)
+//    @POST("shakkelha")
+//    Call<MoshakkalResult> shakkel(@Body Moshakkal moshakkal);
+//
+//    @POST("users/login")
+//    Call<LoginResult> login(@Body User user);
 
     @GET("users/users")
     Call<List<User>> getAllUsers();
@@ -50,14 +50,63 @@ public interface APIInterface {
     @POST("users/user/phone")
     Call<User> getUserByPhoneNumber(@Body User user);
 
+    @POST("users/contacts/4534")
+    Call<List<User>> getRegisteredContactsUsers(@Body List<String> contacts);
+
+
+
+
+
+    @POST("groups/groupuser/addall")
+    Call<List<GroupUser>> addAllGroupUsersOrUpdateRoleIfExist(@Body List<GroupUser> groupUsers);
+
+    @POST("groups/groupuser/deleteall")
+    Call<JSONResult> deleteAllGroupUsersOrUpdateRoleIfExist(@Body List<GroupUser> groupUsers);
+
+    @POST("groups/group/{groupCreatorUserID}")
+    Call<Group> createOrUpdateGroup(@Path("groupCreatorUserID") long groupCreatorUserID,@Body Group newGroup);
+
+    @GET("groups/groups/{userid}")
+    Call<List<Group>> getUserGroups(@Path("userid") long userid);
+
+    @GET("groups/users/{groupid}")
+    Call<List<GroupUser>> getGroupUsers(@Path("groupid") long userid);
+
+
+    @GET("messages/overloaded/{myid}")
+    Call<OverloadedPingResult> pingToKeepOnlineAndGetRequiredInfo(@Path("myid") long myid);
+
+    @GET("messages/unreadmessages/user/{senderid}/user/{receiverid}")
+    Call<List<Message>> getUserToUserUnreadMessages(@Path("senderid") long senderid, @Path("receiverid") long receiverid);
+
+
+    @GET("messages/group/unreadmessages/{groupid}")
+    Call<List<Message>> getGroupUnreadMessages(@Path("groupid") long groupid);
+
+    @GET("messages/messages/user/{receiverid}/user/{senderid}")
+    Call<List<Message>> receiveUserToUserMessagesAndDeleteToNotifyReadMessages(@Path("receiverid") long receiverid, @Path("senderid") long senderid);
+
+
+    @GET("messages/messages/user/{receiverid}/group/{sendergroupid}")
+    Call<List<Message>> receiveGroupToUserMessagesNotifyReadMessages(@Path("receiverid") long receiverid, @Path("sendergroupid") long sendergroupid);
+
+
+
+
+
+
+
+
+
+
     @POST ("messages/smsajhhjasbcnksnxcvjhasgdjhsbdhfjvgadsy7td7styf78")
     Call<JSONResult> sendSms(@Body SMS sms);
 
-    @POST("messages")
+    @POST("messages/message")
     Call<Message> createNewMessage(@Body Message message);
 
-    @DELETE("messages/{messageid}")
-    Call<MessageDeletionResult> deleteMessage(@Path("messageid") long messageid);
+    @POST("messages/message/deleteforeveryone")
+    Call<MessageDeletionResult> deleteMessage(@Body List<Message> messages);
 
     @GET("messages/firstuserid/{id1}/seconduserid/{id2}")
     Call<List<Message>> getBuddyMessagesInDescendingOrderNewToOld(@Path("id1") int myid, @Path("id2") int buddyid);
@@ -68,10 +117,9 @@ public interface APIInterface {
     @GET("users/ping/{myid}")
     Call pingToKeepOnline(@Path("myid") long myid);
 
-    @GET("users/ping/overloaded/{myid}")
-    Call<OverloadedPingResult> pingToKeepOnlineAndGetRequiredInfo(@Path("myid") long myid);
 
-    @GET("users/ping/overloaded/{myid}")
+    // This endpoint doesn't notify read messages nor delete any message on backend db
+    @GET("messages/overloaded/{myid}")
     Observable<OverloadedPingResult> pingToKeepOnlineAndGetRequiredInfo2(@Path("myid") long myid);
 
 //    @Streaming
@@ -83,14 +131,31 @@ public interface APIInterface {
     @POST("uploadimagefile/{id}/userimage")
     Call<JSONResult> uploadPhoto(@Path("id") long id, @Part MultipartBody.Part file);//Request body import
 
+    @Multipart
+    @POST("uploadimagefile/{id}/groupimage")
+    Call<JSONResult> uploadGroupPhoto(@Path("id") long id, @Part MultipartBody.Part file);//Request body import
 
-    @GET("download/tts/key")
-    Call<JSONKey> downloadGoogleKey();
+    @Multipart
+    @POST("uploadimagefile/{id}/messageimage")
+    Call<JSONResult> uploadMessagePhoto(@Path("id") long id, @Part MultipartBody.Part file);//Request body import
 
-    @GET("download/asr/clientkey")
+    @GET("downloadrawfile/364/ttskey")
+    Call<ResponseBody> downloadGoogleKey();
+
+    @GET("downloadrawfile/435/asrclientkey")
     Call<ResponseBody> downloadGoogleClientKey();//Request body import
 
 //    @Streaming
     @GET("downloadimagefile/{id}/userimage")
     Call<ResponseBody> downloadPhoto(@Path("id") long id);//Request body import
+
+    @GET("downloadimagefile/{id}/groupimage")
+    Call<ResponseBody> downloadGroupPhoto(@Path("id") long id);//Request body import
+
+    @GET("downloadimagefile/{id}/messageimage")
+    Call<ResponseBody> downloadMessagePhoto(@Path("id") long id);//Request body import
+
+
+    @POST("users/login")
+    Call<LoginResult> login(@Body User user);
 }

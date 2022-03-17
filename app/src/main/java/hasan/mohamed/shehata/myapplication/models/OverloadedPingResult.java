@@ -17,6 +17,13 @@ public class OverloadedPingResult {
     @SerializedName("messages")
     private List<Message> allUserReceivedMessages;
 
+    public List<Group> getMyGroups() {
+        return groups;
+    }
+
+    @SerializedName("groups")
+    private List<Group> groups;
+
     public int getId() {
         return id;
     }

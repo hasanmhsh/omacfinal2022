@@ -37,16 +37,24 @@ public interface MessageDao {
   @Query("SELECT * FROM message")
   List<Message> getAll();
 
-  @Query("SELECT * FROM message WHERE (sender_id = :id1 AND receiver_id=:id2) OR (sender_id = :id2 AND receiver_id=:id1)")
+  @Query("SELECT * FROM message WHERE (senderid = :id1 AND receiverid=:id2) OR (senderid = :id2 AND receiverid=:id1)")
   LiveData<List<Message>> getMyMessages(long id1, long id2);
 
-  @Query("SELECT * FROM message WHERE (sender_id = :id) OR (receiver_id = :id)")
+  @Query("SELECT * FROM message WHERE groupid=:groupid")
+  LiveData<List<Message>> getMyGroupMessages(long groupid);
+
+  @Query("SELECT * FROM message WHERE (senderid = :id) OR (receiverid = :id)")
   LiveData<List<Message>> getAllUserMessages(long id);
 
 
 
+  @Query("SELECT * FROM message WHERE messageid = :id")
+  LiveData<Message> getMessageById(long id);
 //    @Query("SELECT * FROM message WHERE buddyid = :id")
 //    List<Message> getBuddyMessages(int id);
+
+  @Query("SELECT * FROM message WHERE messageid = :id")
+  Message getMessageByIdBlocking(long id);
 
   @Update(onConflict = OnConflictStrategy.REPLACE)
   void updateMessage(Message message);

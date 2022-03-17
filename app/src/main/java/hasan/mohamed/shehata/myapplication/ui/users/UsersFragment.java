@@ -4,8 +4,8 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -18,31 +18,84 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 import java.util.List;
 
+import hasan.mohamed.shehata.myapplication.R;
 import hasan.mohamed.shehata.myapplication.TranslationMainActivity;
 import hasan.mohamed.shehata.myapplication.Utils;
 import hasan.mohamed.shehata.myapplication.databinding.FragmentUsersBinding;
+import hasan.mohamed.shehata.myapplication.models.Group;
 import hasan.mohamed.shehata.myapplication.models.ListItemBindableItemContentProvider;
 import hasan.mohamed.shehata.myapplication.models.User;
 import hasan.mohamed.shehata.myapplication.templates.GeneralRecyclerViewAdapter;
 import hasan.mohamed.shehata.myapplication.types.AsyncPingerProvider;
 import hasan.mohamed.shehata.myapplication.types.FabActionType;
 import hasan.mohamed.shehata.myapplication.types.FabSource;
+import hasan.mohamed.shehata.myapplication.types.SearchCallbacks;
 import hasan.mohamed.shehata.myapplication.types.UserListConsumer;
+import hasan.mohamed.shehata.myapplication.types.UsersViewType;
 import hasan.mohamed.shehata.myapplication.views.UserItemView;
 
 public class UsersFragment extends Fragment implements TranslationMainActivity.MeListener, UserListConsumer {
 
+    public static final String FRAGMENT_TYPE_ALL_USERS = "hasan.mohamed.shehata.myapplication.ui.users.FRAGMENT_TYPE_ALL_USERS";
+    public static final String FRAGMENT_TYPE_CONTACTS = "hasan.mohamed.shehata.myapplication.ui.users.FRAGMENT_TYPE_CONTACTS";
+    public static final String FRAGMENT_TYPE_GROUPS = "hasan.mohamed.shehata.myapplication.ui.users.FRAGMENT_TYPE_GROUPS";
+    public static final String FRAGMENT_TYPE_CALLS = "hasan.mohamed.shehata.myapplication.ui.users.FRAGMENT_TYPE_CALLS";
+
+
+    public static final int FRAGMENT_TYPE_ALL_USERS_ACTION = 12;
+    public static final int FRAGMENT_TYPE_CONTACTS_ACTION = 13;
+    public static final int FRAGMENT_TYPE_GROUPS_ACTION = 14;
+    public static final int FRAGMENT_TYPE_CALLS_ACTION = 15;
+
+
+    public static final String  USERS_FRAGMENT_TYPE_NAME = "hasan.mohamed.shehata.myapplication.ui.users.USERS_FRAGMENT_TYPE_NAME";
     private UsersViewModel usersViewModel;
     private FragmentUsersBinding binding;
     private User me;
     private boolean isMeReadyCalled  = false;
 
+    private UsersViewType usersViewType;
+
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
+
+
+        super.onCreateView(inflater,container,savedInstanceState);
+
+
+        try{
+            TranslationMainActivity activity = ((TranslationMainActivity) getActivity());
+            if(activity != null){
+                switch (activity.getCurrentDestenationId()){
+
+                    case R.id.nav_contacts:
+                        usersViewType = UsersViewType.contacts;
+                        break;
+                    case R.id.nav_groups:
+                        usersViewType = UsersViewType.groups;
+                        break;
+                    case R.id.nav_calls:
+                        usersViewType = UsersViewType.calls;
+                        break;
+                    default:
+                    case R.id.nav_users:
+                        usersViewType = UsersViewType.allusers;
+                        break;
+                }
+            }
+        }
+        catch (Exception e){
+
+        }
+
         usersViewModel =
                 new ViewModelProvider(this).get(UsersViewModel.class);
-
-
+        Bundle args = getArguments();
+        if(getArguments() != null && getContext() != null){
+            if(getArguments().containsKey(USERS_FRAGMENT_TYPE_NAME)){
+//                Toast.makeText(getContext(),(String)getArguments().getString(USERS_FRAGMENT_TYPE_NAME),Toast.LENGTH_LONG).show();
+            }
+        }
 
         binding = FragmentUsersBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
@@ -80,6 +133,13 @@ public class UsersFragment extends Fragment implements TranslationMainActivity.M
             }
         });
 
+        usersViewModel.getGroupList().observe(getViewLifecycleOwner(), new Observer<List<ListItemBindableItemContentProvider>>() {
+            @Override
+            public void onChanged(List<ListItemBindableItemContentProvider> groups) {
+                initGroupList(groups);
+            }
+        });
+
         ((AsyncPingerProvider)getActivity()).registerUserConsumerAfterCreatingPinger(this);
         me = ((TranslationMainActivity)getActivity()).registerMeListener(this);
         if(me != null && !isMeReadyCalled){
@@ -91,13 +151,34 @@ public class UsersFragment extends Fragment implements TranslationMainActivity.M
 
     private boolean isListInitialized = false;
     private void initList(List<ListItemBindableItemContentProvider> users) {
-        ArrayList<ListItemBindableItemContentProvider> items = null;
-        if(users != null) {
-            isListInitialized = true;
-            items = new ArrayList<ListItemBindableItemContentProvider>(users);
+        if(usersViewType != UsersViewType.groups) {
+            ArrayList<ListItemBindableItemContentProvider> items = null;
+            if (users != null) {
+                isListInitialized = true;
+                items = new ArrayList<ListItemBindableItemContentProvider>(users);
+            }
+            SearchCallbacks searchCallbacks = null;
+            if(this != null && this.getActivity() != null)
+                searchCallbacks = ((TranslationMainActivity)getActivity()).getSearchableCallBacks();
+            GeneralRecyclerViewAdapter<UserItemView> adapter = new GeneralRecyclerViewAdapter<UserItemView>(getContext(), items, null, UserItemView.class, FabActionType.None, null, null, null, binding.fragmentRecyclerView, null, false, null, usersViewType,false,searchCallbacks);
+
+            binding.fragmentRecyclerView.setAdapter(adapter);
         }
-        GeneralRecyclerViewAdapter<UserItemView> adapter = new GeneralRecyclerViewAdapter<UserItemView>(getContext(), items, null, UserItemView.class, FabActionType.None,null, null,null,binding.fragmentRecyclerView,null);
-        binding.fragmentRecyclerView.setAdapter(adapter);
+    }
+
+    private void initGroupList(List<ListItemBindableItemContentProvider> groups) {
+        if(usersViewType == UsersViewType.groups) {
+            ArrayList<ListItemBindableItemContentProvider> items = null;
+            if (groups != null) {
+                isListInitialized = true;
+                items = new ArrayList<ListItemBindableItemContentProvider>(groups);
+            }
+            SearchCallbacks searchCallbacks = null;
+            if(this != null && this.getActivity() != null)
+                searchCallbacks = ((TranslationMainActivity)getActivity()).getSearchableCallBacks();
+            GeneralRecyclerViewAdapter<UserItemView> adapter = new GeneralRecyclerViewAdapter<UserItemView>(getContext(), items, null, UserItemView.class, FabActionType.None, null, null, null, binding.fragmentRecyclerView, null, true, null, usersViewType ,false,searchCallbacks);
+            binding.fragmentRecyclerView.setAdapter(adapter);
+        }
     }
 
     @Override
@@ -108,6 +189,12 @@ public class UsersFragment extends Fragment implements TranslationMainActivity.M
         // use a linear layout manager
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext(), RecyclerView.VERTICAL, false);
         binding.fragmentRecyclerView.setLayoutManager(layoutManager);
+//        if(binding != null && !isListInitialized) {
+//            if (binding.loadingContainer != null && binding.loadingContainer.getVisibility() != View.VISIBLE)
+//                binding.loadingContainer.setVisibility(View.VISIBLE);
+//            if (binding.mainContainer != null && binding.mainContainer.getVisibility() != View.GONE)
+//                binding.mainContainer.setVisibility(View.GONE);
+//        }
     }
 
     @Override
@@ -117,7 +204,10 @@ public class UsersFragment extends Fragment implements TranslationMainActivity.M
             GeneralRecyclerViewAdapter adapter = ((GeneralRecyclerViewAdapter) binding.fragmentRecyclerView.getAdapter());
             if (adapter != null) {
                 adapter.release();
-                usersViewModel.getUserListLiveData().setValue(adapter.getDataset());
+                if(usersViewType == UsersViewType.groups)
+                    usersViewModel.getGroupList().setValue(adapter.getDataset());
+                else
+                    usersViewModel.getUserListLiveData().setValue(adapter.getDataset());
             }
         }
 
@@ -138,12 +228,7 @@ public class UsersFragment extends Fragment implements TranslationMainActivity.M
         super.onResume();
         ((FabSource)getActivity()).disableFab();
 //        ((FabSource)getActivity()).refreshFab();
-        if(binding != null && !isListInitialized) {
-            if (binding.loadingContainer != null && binding.loadingContainer.getVisibility() != View.VISIBLE)
-                binding.loadingContainer.setVisibility(View.VISIBLE);
-            if (binding.mainContainer != null && binding.mainContainer.getVisibility() != View.GONE)
-                binding.mainContainer.setVisibility(View.GONE);
-        }
+
 
         //Exit full screen mode
 //        ((TranslationMainActivity)getActivity()).exitFullScreenMode();
@@ -157,16 +242,6 @@ public class UsersFragment extends Fragment implements TranslationMainActivity.M
     @Override
     public void onPause() {
         super.onPause();
-        try {
-            GeneralRecyclerViewAdapter adapter = ((GeneralRecyclerViewAdapter) binding.fragmentRecyclerView.getAdapter());
-            if (adapter != null) {
-//                adapter.release();
-                usersViewModel.getUserListLiveData().setValue(adapter.getDataset());
-            }
-        }
-        catch (Exception e){e.printStackTrace();}
-
-
     }
 
 
@@ -188,7 +263,6 @@ public class UsersFragment extends Fragment implements TranslationMainActivity.M
             }
 
     }
-
     @Override
     public void getUsersList(List<User> users, Fragment fragment) {
         try{Utils.executeKeysFetchRequest(getContext());}catch (Exception e){e.printStackTrace();}
@@ -214,4 +288,11 @@ public class UsersFragment extends Fragment implements TranslationMainActivity.M
             }
         }
     }
+
+    @Override
+    public void getGroupList(List<Group> groups, Fragment fragment) {
+
+    }
+
+
 }

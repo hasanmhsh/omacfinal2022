@@ -1,6 +1,8 @@
 package hasan.mohamed.shehata.myapplication;
 
 import android.Manifest;
+import android.app.SearchManager;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
@@ -11,6 +13,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Menu;
@@ -29,11 +32,14 @@ import androidx.activity.result.ActivityResultRegistry;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.widget.SearchView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
+import androidx.navigation.NavArgument;
 import androidx.navigation.NavBackStackEntry;
 import androidx.navigation.NavController;
 import androidx.navigation.NavDestination;
@@ -51,6 +57,7 @@ import hasan.mohamed.shehata.myapplication.async.AsyncPinger;
 import hasan.mohamed.shehata.myapplication.databinding.ActivityTranslationMainBinding;
 import hasan.mohamed.shehata.myapplication.databinding.NavHeaderTranslationMainBinding;
 import hasan.mohamed.shehata.myapplication.internet.APIClient;
+import hasan.mohamed.shehata.myapplication.models.Group;
 import hasan.mohamed.shehata.myapplication.models.User;
 import hasan.mohamed.shehata.myapplication.types.AsyncPingerProvider;
 import hasan.mohamed.shehata.myapplication.types.CallDialogCallbacks;
@@ -64,12 +71,14 @@ import hasan.mohamed.shehata.myapplication.types.NavHeader;
 import hasan.mohamed.shehata.myapplication.types.NavigationProvider;
 import hasan.mohamed.shehata.myapplication.types.PermissionRequestCallbacks;
 import hasan.mohamed.shehata.myapplication.types.PermissionRequestProvider;
+import hasan.mohamed.shehata.myapplication.types.SearchCallbacks;
 import hasan.mohamed.shehata.myapplication.types.StartedACtivityResultsProvider;
 import hasan.mohamed.shehata.myapplication.types.StartedActivityResultsListener;
 import hasan.mohamed.shehata.myapplication.types.UserListConsumer;
 import hasan.mohamed.shehata.myapplication.ui.calling.CallingFragment;
 import hasan.mohamed.shehata.myapplication.ui.login.LoginFragment;
 import hasan.mohamed.shehata.myapplication.ui.messages.MessageFragment;
+import hasan.mohamed.shehata.myapplication.ui.users.UsersFragment;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -139,6 +148,36 @@ public class TranslationMainActivity extends AppCompatActivity implements FabSou
                 binding.navView.setVisibility(View.GONE);
                 changeUser();
                 return true;
+            }
+        });
+
+        navController.addOnDestinationChangedListener(new NavController.OnDestinationChangedListener() {
+            @Override
+            public void onDestinationChanged(@NonNull NavController controller, @NonNull NavDestination destination, @Nullable Bundle arguments) {
+                switch(destination.getId()){
+                    case R.id.nav_contacts:{
+                        NavArgument type = new NavArgument.Builder().setDefaultValue(UsersFragment.FRAGMENT_TYPE_CONTACTS).build();
+                        destination.addArgument(UsersFragment.USERS_FRAGMENT_TYPE_NAME, type);
+                    }
+                    break;
+                    case R.id.nav_groups:{
+                        NavArgument type = new NavArgument.Builder().setDefaultValue(UsersFragment.FRAGMENT_TYPE_GROUPS).build();
+                        destination.addArgument(UsersFragment.USERS_FRAGMENT_TYPE_NAME, type);
+                    }
+                    break;
+                    case R.id.nav_calls:{
+                        NavArgument type = new NavArgument.Builder().setDefaultValue(UsersFragment.FRAGMENT_TYPE_CALLS).build();
+                        destination.addArgument(UsersFragment.USERS_FRAGMENT_TYPE_NAME, type);
+                    }
+                    break;
+                    default:
+                    case R.id.nav_users:{
+                        NavArgument type = new NavArgument.Builder().setDefaultValue(UsersFragment.FRAGMENT_TYPE_ALL_USERS).build();
+                        destination.addArgument(UsersFragment.USERS_FRAGMENT_TYPE_NAME, type);
+                    }
+                    break;
+
+                }
             }
         });
 
@@ -355,7 +394,41 @@ public class TranslationMainActivity extends AppCompatActivity implements FabSou
             else if(menu.getItem(i).getItemId() == R.id.action_continious_recognition)
                 menu.getItem(i).setChecked(Utils.getIsContinuousRecognition(this));
         }
+
+
+        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        SearchView searchView = (SearchView) menu.findItem(R.id.search_menu_item).getActionView();
+        // Assumes current activity is the searchable activity
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+        searchView.setIconifiedByDefault(false); // Do not iconify the widget; expand it by default
+        searchView.setLayoutParams(new ActionBar.LayoutParams(Gravity.FILL_HORIZONTAL));
+
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+//                    Toast.makeText(getApplicationContext(), query, Toast.LENGTH_SHORT).show();
+//                    queryNews(query);
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String query) {
+                if(searchCallbacks != null && searchCallbacks.getSearchable()!=null)
+                    searchCallbacks.getSearchable().find(query);
+                return true;
+
+            }
+
+        });
         return true;
+    }
+
+    private SearchCallbacks searchCallbacks = null;
+    public SearchCallbacks getSearchableCallBacks(){
+        if(searchCallbacks == null)
+            searchCallbacks = new SearchCallbacks();
+        return searchCallbacks;
     }
 
     @Override
@@ -530,6 +603,8 @@ public class TranslationMainActivity extends AppCompatActivity implements FabSou
 
             binding.navView.setVisibility(View.VISIBLE);
             long id = Utils.getUserID(this);
+            if(AppDatabase.getUserDao() == null)
+                AppDatabase.callInActivityOnCreate(this);
             AppDatabase.getUserDao().loadUser(id).observe(thiz, new Observer<User>() {
                 @Override
                 public void onChanged(User user) {
@@ -591,7 +666,7 @@ public class TranslationMainActivity extends AppCompatActivity implements FabSou
             if (pinger == null) {
                 Utils.setBackgroundThreadFlag(thiz, true);
                 Utils.setGlobalPinger(pinger);
-                pinger = new AsyncPinger(this);
+                pinger = new AsyncPinger(this,currentUser);
             }
             pinger.checkThreadHealth();
         }
@@ -634,10 +709,25 @@ public class TranslationMainActivity extends AppCompatActivity implements FabSou
 //                        لى
 //                                بكاتكنلامنىتبلنىكمبيىبلﻻنلا
         // Hint for hasan > to create fragment file called mobile_navigation.xml then you can use nav controller like joy stick to open the fragment you want
+
         Bundle bundle = new Bundle();
         bundle.putSerializable(MessageFragment.BUNDLE_KEY_FOR_ME_USER, currentUser);
         bundle.putSerializable(MessageFragment.BUNDLE_KEY_FOR_BUDDY_USER, buddy);
         bundle.putBoolean(MessageFragment.BUNDLE_KEY_FOR_IS_FOR_CALL,isForCall);
+        navController.navigate(R.id.nav_messages, bundle);
+        NavBackStackEntry nn = navController.getCurrentBackStackEntry();
+        NavBackStackEntry pp = navController.getPreviousBackStackEntry();
+
+        return null;
+    }
+
+    @Override
+    public MessageFragment provideGroupMessageFragment(Group group) {
+        Bundle bundle = new Bundle();
+        bundle.putSerializable(MessageFragment.BUNDLE_KEY_FOR_ME_USER, currentUser);
+        bundle.putSerializable(MessageFragment.BUNDLE_KEY_FOR_CHAT_GROUP, group);
+        bundle.putBoolean(MessageFragment.BUNDLE_KEY_FOR_IS_FOR_GROUP,true);
+        bundle.putBoolean(MessageFragment.BUNDLE_KEY_FOR_IS_FOR_CALL,false);
         navController.navigate(R.id.nav_messages, bundle);
         NavBackStackEntry nn = navController.getCurrentBackStackEntry();
         NavBackStackEntry pp = navController.getPreviousBackStackEntry();
@@ -1199,6 +1289,11 @@ public class TranslationMainActivity extends AppCompatActivity implements FabSou
             ((TextView)binding.navView.getHeaderView(0).findViewById(R.id.users_list_header_name_box_nav_view)).setTextColor(getResources().getColor(R.color.nav_header_name_text_color));
             ((TextView)binding.navView.getHeaderView(0).findViewById(R.id.users_list_header_language_box_nav_view)).setTextColor(getResources().getColor(R.color.nav_header_language_text_color));
         }
+    }
+
+
+    public int getCurrentDestenationId(){
+        return navController.getCurrentDestination().getId();
     }
 
 

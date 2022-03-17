@@ -4,7 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
-import com.bumptech.glide.Glide;
+import com.google.rpc.context.AttributeContext;
 
 import java.io.Closeable;
 import java.io.File;
@@ -13,17 +13,18 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
 
 import hasan.mohamed.shehata.myapplication.AppDatabase;
-import hasan.mohamed.shehata.myapplication.R;
 import hasan.mohamed.shehata.myapplication.Utils;
 import hasan.mohamed.shehata.myapplication.internet.APIClient;
+import hasan.mohamed.shehata.myapplication.languages.TRNSLG;
+import hasan.mohamed.shehata.myapplication.models.Group;
 import hasan.mohamed.shehata.myapplication.models.Message;
 import hasan.mohamed.shehata.myapplication.models.MissedCall;
 import hasan.mohamed.shehata.myapplication.models.OverloadedPingResult;
@@ -36,13 +37,11 @@ import hasan.mohamed.shehata.myapplication.types.CallDialogCallbacks;
 import hasan.mohamed.shehata.myapplication.types.CallDialogProvider;
 import hasan.mohamed.shehata.myapplication.types.CallDialogReverseCallbacks;
 import hasan.mohamed.shehata.myapplication.types.ImageReady;
-import hasan.mohamed.shehata.myapplication.types.MessageFragmentProvider;
 import hasan.mohamed.shehata.myapplication.types.MessageFragmentReverseCallbacks;
 import hasan.mohamed.shehata.myapplication.types.NavigationProvider;
+import hasan.mohamed.shehata.myapplication.types.NewGroupsMessagesConsumer;
 import hasan.mohamed.shehata.myapplication.types.UserListConsumer;
 import hasan.mohamed.shehata.myapplication.types.NewMessagesConsumer;
-import hasan.mohamed.shehata.myapplication.ui.messages.MessageFragment;
-import okhttp3.Headers;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -67,10 +66,14 @@ public class AsyncPinger implements Serializable, CallCenter, AsyncPingerCallbac
     // Check calls
     private OverloadedPingResult overloadedPingResult;
     private Thread pingerDaemonThread;
+    private Thread unreadMessagesWorker;
     private Context context;
     private List<UserListConsumer> usersConsumers;
+    private List<UserListConsumer> groupsConsumers;
     private HashMap<Long , NewMessagesConsumer> newMessagesConsumers;
+    private HashMap<Long , NewGroupsMessagesConsumer> newGroupMessagesConsumers;
     private long userid;
+    private User me;
     private static final int NORMAL_RATE = 3333;
     private static final int HIGH_RATE = 1111;
     private List<UnreadReceivedMessage> lastUpdateOfUnreadReceivedMsgsNotifications;
@@ -89,6 +92,7 @@ public class AsyncPinger implements Serializable, CallCenter, AsyncPingerCallbac
     private Closeable callDialog;
 
     private HashMap<Long, Bitmap> userAvatars = new HashMap<Long, Bitmap>();
+    private HashMap<Long, Bitmap> groupAvatars = new HashMap<Long, Bitmap>();
 
 
 
@@ -119,17 +123,18 @@ public class AsyncPinger implements Serializable, CallCenter, AsyncPingerCallbac
     private Runnable asynPingerBackgroundRunnable = new Runnable() {
         @Override
         public void run() {
+
             while (true) {
                 if (context == null)
                     break;
                 else if (Utils.getBackgroundThreadFlag(context)) {
                     handletCallTeminatingTimer();
                     try {
-//                        overloadedPingResult = APIClient.getAPIInterface(context).pingToKeepOnlineAndGetRequiredInfo(userid).execute().body();
-                        List<User> allUsers = APIClient.getAPIInterface(context).getAllUsers().execute().body();
-                        overloadedPingResult = new OverloadedPingResult();
-                        overloadedPingResult.setAllUsers(allUsers);
-                        overloadedPingResult.setAllUserReceivedMessages(new ArrayList<>());
+                        overloadedPingResult = APIClient.getAPIInterface(context).pingToKeepOnlineAndGetRequiredInfo(userid).execute().body();
+//                        List<User> allUsers = APIClient.getAPIInterface(context).getAllUsers().execute().body();
+//                        overloadedPingResult = new OverloadedPingResult();
+//                        overloadedPingResult.setAllUsers(allUsers);
+//                        overloadedPingResult.setAllUserReceivedMessages(new ArrayList<>());
                     } catch (Exception e) {
                         e.printStackTrace();
                         continue;
@@ -144,20 +149,35 @@ public class AsyncPinger implements Serializable, CallCenter, AsyncPingerCallbac
                     if (lastUpdateOfUnreadReceivedMsgsNotifications == null && AppDatabase.getUnreadReceivedMessageNotificationDao() != null)
                         lastUpdateOfUnreadReceivedMsgsNotifications = AppDatabase.getUnreadReceivedMessageNotificationDao().getAll();
                     if (overloadedPingResult != null) {
+                        boolean isPlayingNewSoundRing = false;
                         final List<Message> newReceivedMessages = overloadedPingResult.getAllUserReceivedMessages();
                         final AtomicBoolean isNonControlMsgReceived = new AtomicBoolean(false);
                         final List<RequiredNewMessage> requiredNewMessageList = new ArrayList<>();
+                        final List<RequiredNewGroupMessage> requiredNewGroupMessageList = new ArrayList<>();
                         final List<Message> nonCallControlMsgsToSaveInDatabase = new ArrayList<>();
                         if (newReceivedMessages != null && newReceivedMessages.size() > 0) {
                             final List<UnreadReceivedMessage> unreadReceivedMessages = new ArrayList<>();
                             for (int i = 0; i < newReceivedMessages.size(); i++) {
                                 Message newMessage = newReceivedMessages.get(i);
-                                if (newMessage.getMessagemoshakkaltext() == null) {
+                                long senderUserId = newReceivedMessages.get(i).getSenderid();
+                                if (newMessage.getMessagemoshakkaltext() == null || newMessage.getControlText().equals(Utils.MESSAGE_IMAGE_CMD)) {
                                     isNonControlMsgReceived.set(true);
                                     UnreadReceivedMessage umsg = new UnreadReceivedMessage();
                                     umsg.setMessageid(newMessage.getMessageid());
                                     umsg.setSenderid(newMessage.getSenderid());
-                                    unreadReceivedMessages.add(umsg);
+                                    umsg.setGroupid(newMessage.getGroupid());
+                                    if(newMessage.getGroupid() == 0) {
+                                        if (Utils.currentOpenedBuddyIdChatView != newMessage.getSenderid()) {
+                                            unreadReceivedMessages.add(umsg);
+                                            isPlayingNewSoundRing = true;
+                                        }
+                                    }
+                                    else{
+                                        if (Utils.currentOpenedGroupIdChatView != newMessage.getGroupid()) {
+                                            unreadReceivedMessages.add(umsg);
+                                            isPlayingNewSoundRing = true;
+                                        }
+                                    }
                                     nonCallControlMsgsToSaveInDatabase.add(newMessage);
 
 //                                                    if(newMessage.getMessagemoshakkaltext().equals(ReceivedCallValues.Calling.name())){                                                       // TODO : Handle new received call request
@@ -169,19 +189,82 @@ public class AsyncPinger implements Serializable, CallCenter, AsyncPingerCallbac
 //                                                                // TODO : Log any unanswered call in missed calles table
 //
 //                                                    }
-                                    long senderUserId = newReceivedMessages.get(i).getSenderid();
-                                    synchronized (newMessagesConsumers) {
-                                        if (newMessagesConsumers.containsKey(senderUserId)) {
-                                            NewMessagesConsumer consumer = newMessagesConsumers.get(senderUserId);
-                                            if (consumer != null) {
-                                                requiredNewMessageList.add(new RequiredNewMessage(senderUserId, consumer, newReceivedMessages.get(i)));
-                                            } else {
-                                                newMessagesConsumers.remove(senderUserId);
+                                    if(newMessage.isGroupMessage()){
+                                        if(me == null){
+                                            me = AppDatabase.getUserDao().loadUserBlockable(userid);
+                                        }
+                                        newMessage.setMessagetranslatedtext(
+                                                TRNSLG.translateBlockable(
+                                                        newMessage,
+                                                        newMessage.getSenderlanguage(),
+                                                        me.getUserlanguage()
+                                                ).getMessagetranslatedtext()
+                                        );
+                                        synchronized (newGroupMessagesConsumers) {
+                                            if (newGroupMessagesConsumers.containsKey(newMessage.getGroupid())) {
+                                                NewGroupsMessagesConsumer consumer = newGroupMessagesConsumers.get(newMessage.getGroupid());
+                                                if (consumer != null) {
+                                                    requiredNewGroupMessageList.add(new RequiredNewGroupMessage(senderUserId, consumer, newReceivedMessages.get(i)));
+                                                } else {
+                                                    newGroupMessagesConsumers.remove(newMessage.getGroupid());
+                                                }
                                             }
                                         }
                                     }
-                                } else {
-                                    handleVoiceCall(newReceivedMessages.get(i));
+                                    else {
+                                        synchronized (newMessagesConsumers) {
+                                            if (newMessagesConsumers.containsKey(senderUserId)) {
+                                                NewMessagesConsumer consumer = newMessagesConsumers.get(senderUserId);
+                                                if (consumer != null) {
+                                                    requiredNewMessageList.add(new RequiredNewMessage(senderUserId, consumer, newReceivedMessages.get(i)));
+                                                } else {
+                                                    newMessagesConsumers.remove(senderUserId);
+                                                }
+                                            }
+                                        }
+                                    }
+
+
+
+                                }
+                                else {
+                                    if(newMessage.getControlText().equals(Utils.MESSAGE_DELETE_COMMAND) && context != null){
+                                        if(AppDatabase.getMessageDao() == null){
+                                            AppDatabase.callInActivityOnCreate(context);
+                                        }
+//                                        Message fetchedMsg = AppDatabase.getMessageDao().getMessageByIdBlocking(newMessage.getControlnumber());
+//                                        fetchedMsg.setMessagestatus(MessageStatus.deleted);
+//                                        AppDatabase.getMessageDao().updateMessage(fetchedMsg);
+                                        AppDatabase.getMessageDao().deleteMessageById(newMessage.getControlnumber());
+
+                                        if(newMessage.isGroupMessage()){
+                                            synchronized (newGroupMessagesConsumers) {
+                                                if (newGroupMessagesConsumers.containsKey(newMessage.getGroupid())) {
+                                                    NewGroupsMessagesConsumer consumer = newGroupMessagesConsumers.get(newMessage.getGroupid());
+                                                    if (consumer != null) {
+                                                        requiredNewGroupMessageList.add(new RequiredNewGroupMessage(senderUserId, consumer, newReceivedMessages.get(i)));
+                                                    } else {
+                                                        newGroupMessagesConsumers.remove(newMessage.getGroupid());
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        else {
+                                            synchronized (newMessagesConsumers) {
+                                                if (newMessagesConsumers.containsKey(senderUserId)) {
+                                                    NewMessagesConsumer consumer = newMessagesConsumers.get(senderUserId);
+                                                    if (consumer != null) {
+                                                        requiredNewMessageList.add(new RequiredNewMessage(senderUserId, consumer, newReceivedMessages.get(i)));
+                                                    } else {
+                                                        newMessagesConsumers.remove(senderUserId);
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                    else
+                                        if(newMessage.getGroupid() != 0)
+                                            handleVoiceCall(newReceivedMessages.get(i));
                                 }
 
                             }
@@ -194,7 +277,7 @@ public class AsyncPinger implements Serializable, CallCenter, AsyncPingerCallbac
                             }
                             if (AppDatabase.getUnreadReceivedMessageNotificationDao() != null)
                                 AppDatabase.getUnreadReceivedMessageNotificationDao().insertAll(unreadReceivedMessages.toArray(new UnreadReceivedMessage[unreadReceivedMessages.size()]));
-                            if (status == PingerStatus.Free && isNonControlMsgReceived.get()) {
+                            if ((status == PingerStatus.Free && isNonControlMsgReceived.get()) || isPlayingNewSoundRing) {
                                 Utils.runOnUIThread(new Runnable() {
                                     @Override
                                     public void run() {
@@ -210,7 +293,7 @@ public class AsyncPinger implements Serializable, CallCenter, AsyncPingerCallbac
                                         e.printStackTrace();
                                     }
                                 }
-                                AppDatabase.getMessageDao().insertAll(newReceivedMessages.toArray(new Message[nonCallControlMsgsToSaveInDatabase.size()]));
+                                AppDatabase.getMessageDao().insertAll(nonCallControlMsgsToSaveInDatabase.toArray(new Message[nonCallControlMsgsToSaveInDatabase.size()]));
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
@@ -236,9 +319,18 @@ public class AsyncPinger implements Serializable, CallCenter, AsyncPingerCallbac
                         if (lastUpdateOfUnreadReceivedMsgsNotifications != null && lastUpdateOfUnreadReceivedMsgsNotifications.size() > 0) {
                             List<User> users = overloadedPingResult.getAllUsers();
                             for (UnreadReceivedMessage umsg : lastUpdateOfUnreadReceivedMsgsNotifications) {
-                                for (User user : users) {
-                                    if (user.getUserid() == umsg.getSenderid()) {
-                                        user.setNumberOfUnreadMessages(user.getNumberOfUnreadMessages() + 1);
+                                if(umsg.getGroupid() == 0) {
+                                    for (User user : users) {
+                                        if (user.getUserid() == umsg.getSenderid()) {
+                                            user.setNumberOfUnreadMessages(user.getNumberOfUnreadMessages() + 1);
+                                        }
+                                    }
+                                }
+                                else{
+                                    for (Group group : overloadedPingResult.getMyGroups()) {
+                                        if (group.getGroupid() == umsg.getGroupid()) {
+                                            group.setNumberOfUnreadMessages(group.getNumberOfUnreadMessages() + 1);
+                                        }
                                     }
                                 }
                             }
@@ -254,17 +346,41 @@ public class AsyncPinger implements Serializable, CallCenter, AsyncPingerCallbac
                                 newUserList.add(user);
                         }
 
+                        Collections.sort(newUserList);
+
+                        final List<Group> newGroupList = new ArrayList<>();
+                        for (Group group : overloadedPingResult.getMyGroups()) {
+                            newGroupList.add(group);
+                        }
+                        Collections.sort(newGroupList);
+
                         final Runnable consumersUpdater = new Runnable() {
                             @Override
                             public void run() {
                                 for (int i = 0; i < usersConsumers.size(); i++) {
-                                    if (usersConsumers.get(i) != null)
+                                    if (usersConsumers.get(i) != null) {
                                         usersConsumers.get(i).getUsersList(newUserList, null);
+//                                        usersConsumers.get(i).getGroupList(newGroupList, null);
+                                    }
                                     else
                                         usersConsumers.remove(i);
                                 }
+
+                                for (int i = 0; i < groupsConsumers.size(); i++) {
+                                    if (groupsConsumers.get(i) != null) {
+//                                        groupsConsumers.get(i).getUsersList(newUserList, null);
+                                        groupsConsumers.get(i).getGroupList(newGroupList, null);
+                                    }
+                                    else
+                                        groupsConsumers.remove(i);
+                                }
+
                                 for (RequiredNewMessage requiredNewMessage : requiredNewMessageList) {
                                     requiredNewMessage.notifyNewMessage();
+                                }
+
+                                for (RequiredNewGroupMessage requiredNewGroupMessage : requiredNewGroupMessageList) {
+                                    requiredNewGroupMessage.notifyNewMessage();
                                 }
 
                             }
@@ -306,6 +422,77 @@ public class AsyncPinger implements Serializable, CallCenter, AsyncPingerCallbac
         }
     };
 
+    private Runnable unreadMessagesTask = new Runnable() {
+        @Override
+        public void run() {
+            while (true) {
+                if (newGroupMessagesConsumers != null && context != null) {
+                    HashMap<Long, NewMessagesConsumer> usersMsgConsumers = new HashMap<>();
+                    synchronized (newMessagesConsumers) {
+                        for (Long consumerid : newMessagesConsumers.keySet()) {
+                            usersMsgConsumers.put(consumerid, newMessagesConsumers.get(consumerid));
+                        }
+                    }
+
+                    for (Long consumerid : usersMsgConsumers.keySet()) {
+                        try {
+                            final NewMessagesConsumer consumer = usersMsgConsumers.get(consumerid);
+                            if(consumer != null) {
+                                final List<Message> unreadMsgs = APIClient.getAPIInterface(context).getUserToUserUnreadMessages(userid, consumerid).execute().body();
+//                        Utils.runOnUIThread(new Runnable() {
+//                            @Override
+//                            public void run() {
+                                if (consumer != null) {
+                                    consumer.unreadMessages(unreadMsgs);
+                                }
+//                            }
+//                        });
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                }
+
+                if (newGroupMessagesConsumers != null && context != null) {
+                    HashMap<Long, NewGroupsMessagesConsumer> groupsMsgConsumers = new HashMap<>();
+                    synchronized (newGroupMessagesConsumers) {
+                        for (Long consumerid : newGroupMessagesConsumers.keySet()) {
+                            groupsMsgConsumers.put(consumerid, newGroupMessagesConsumers.get(consumerid));
+                        }
+                    }
+
+                    for (Long consumerid : groupsMsgConsumers.keySet()) {
+                        try {
+                            final NewGroupsMessagesConsumer consumer = groupsMsgConsumers.get(consumerid);
+                            if(consumer != null) {
+                                final List<Message> unreadMsgs = APIClient.getAPIInterface(context).getGroupUnreadMessages(consumer.getGroupId()).execute().body();
+//                        Utils.runOnUIThread(new Runnable() {
+//                            @Override
+//                            public void run() {
+                                if (consumer != null) {
+                                    consumer.unreadMessages(unreadMsgs);
+                                }
+//                            }
+//                        });
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                }
+
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    };
+
 
     @Override
     public void call(final User user) {
@@ -316,7 +503,7 @@ public class AsyncPinger implements Serializable, CallCenter, AsyncPingerCallbac
         Utils.runOnUIThread(new Runnable() {
             @Override
             public void run() {
-                Message response = new Message();
+                Message response = new Message(context);
                 response.setReceiverid(user.getUserid());
                 response.setSenderid(userid);
                 response.setMessagemoshakkaltext(ReceivedCallValues.Calling.name());
@@ -406,6 +593,11 @@ public class AsyncPinger implements Serializable, CallCenter, AsyncPingerCallbac
                 pingerDaemonThread = new Thread(asynPingerBackgroundRunnable);
                 pingerDaemonThread.start();
             }
+
+            if(unreadMessagesWorker == null){
+                unreadMessagesWorker = new Thread(unreadMessagesTask);
+                unreadMessagesWorker.start();
+            }
         }
         catch (Exception e){
 
@@ -413,7 +605,7 @@ public class AsyncPinger implements Serializable, CallCenter, AsyncPingerCallbac
     }
 
     private void sendOriginalTerminateMessage(){
-        Message terminateMessage= new Message();
+        Message terminateMessage= new Message(context);
         terminateMessage.setMessagemoshakkaltext(ReceivedCallValues.Terminate.name());
         terminateMessage.setSenderid(callerId);//Note that this ids reversed in sendTerminateResponse
         terminateMessage.setReceiverid(userid);
@@ -476,7 +668,7 @@ public class AsyncPinger implements Serializable, CallCenter, AsyncPingerCallbac
     @Override
     public void respondCall(User user) {
         if(status == PingerStatus.ReceivingCall){
-            Message m = new Message();
+            Message m = new Message(context);
             m.setReceiverid(userid);
             m.setSenderid(callerId);
             m.setMessagemoshakkaltext(ReceivedCallValues.Accept.name());
@@ -544,21 +736,45 @@ public class AsyncPinger implements Serializable, CallCenter, AsyncPingerCallbac
         }
     }
 
+    private static class RequiredNewGroupMessage {
+        private long groupid;
+        private NewGroupsMessagesConsumer consumer;
+        private Message message;
+
+        public RequiredNewGroupMessage(long groupid,NewGroupsMessagesConsumer consumer, Message message) {
+            this.groupid = groupid;
+            this.consumer = consumer;
+            this.message = message;
+        }
+
+
+
+        public void notifyNewMessage(){
+            consumer.newMessage(groupid, message);
+        }
+    }
+
     private void startCallTeminatingTimer(){
         countedTimerSegments.set(0);
         isTeminatingTimerRun.set(true);
 
     }
 
-    public AsyncPinger(Context context) {
+    public AsyncPinger(Context context,User currentUser) {
+        me = currentUser;
         this.context = context;status = PingerStatus.Free;
         try {
             userid = Utils.getUserID(context);
             usersConsumers = new ArrayList<>();
+            groupsConsumers = new ArrayList<>();
             newMessagesConsumers = new HashMap<>();
+            newGroupMessagesConsumers = new HashMap<>();
 
             pingerDaemonThread = new Thread(asynPingerBackgroundRunnable);
             pingerDaemonThread.start();
+
+            unreadMessagesWorker = new Thread(unreadMessagesTask);
+            unreadMessagesWorker.start();
         }
         catch (Exception e){
             e.printStackTrace();
@@ -763,7 +979,7 @@ public class AsyncPinger implements Serializable, CallCenter, AsyncPingerCallbac
         Utils.runOnUIThread(new Runnable() {
             @Override
             public void run() {
-                Message response = new Message();
+                Message response = new Message(context);
                 response.setReceiverid(message.getSenderid());
                 response.setSenderid(message.getReceiverid());
                 response.setMessagemoshakkaltext(value.name());
@@ -832,12 +1048,48 @@ public class AsyncPinger implements Serializable, CallCenter, AsyncPingerCallbac
         if(consumer != null) {
             if (!usersConsumers.contains(consumer))
                 this.usersConsumers.add(consumer);
+            if(overloadedPingResult!=null) {
+                    if (overloadedPingResult != null && overloadedPingResult.getAllUsers() != null) {
+                        List<User> existingUsers = overloadedPingResult.getAllUsers();
+                        List<User> newUsersList = new ArrayList<>();
+                        for (User user : existingUsers) {
+                            if(user.getUserid() != userid)
+                                newUsersList.add(user);
+                        }
+                        Collections.sort(newUsersList);
+                        consumer.getUsersList(newUsersList, null);
+                    }
+            }
+        }
+    }
+
+    public void addGroupsConsumer(UserListConsumer consumer){
+        if(consumer != null) {
+            if (!groupsConsumers.contains(consumer))
+                this.groupsConsumers.add(consumer);
+            if(overloadedPingResult!=null) {
+                    if (overloadedPingResult != null && overloadedPingResult.getMyGroups() != null) {
+                        List<Group> existingGroups = overloadedPingResult.getMyGroups();
+                        List<Group> newGroupList = new ArrayList<>();
+                        for (Group group : existingGroups) {
+                            newGroupList.add(group);
+                        }
+                        Collections.sort(newGroupList);
+                        consumer.getGroupList(newGroupList, null);
+                    }
+            }
         }
     }
 
     public void addNewMessagesConsumer(long senderUseId , NewMessagesConsumer consumer){
         synchronized (newMessagesConsumers) {
             this.newMessagesConsumers.put(senderUseId, consumer);
+        }
+    }
+
+    public void addNewGroupMessagesConsumer(long groupid , NewGroupsMessagesConsumer consumer){
+        synchronized (newGroupMessagesConsumers) {
+            this.newGroupMessagesConsumers.put(groupid, consumer);
         }
     }
 
@@ -871,6 +1123,22 @@ public class AsyncPinger implements Serializable, CallCenter, AsyncPingerCallbac
         try{pingerDaemonThread.interrupt();}catch (Exception e){e.printStackTrace();}
         try{pingerDaemonThread.interrupt();}catch (Exception e){e.printStackTrace();}
         try{pingerDaemonThread.interrupt();}catch (Exception e){e.printStackTrace();}
+
+
+        try{unreadMessagesWorker.interrupt();}catch (Exception e){e.printStackTrace();}
+        try{unreadMessagesWorker.interrupt();}catch (Exception e){e.printStackTrace();}
+        try{unreadMessagesWorker.interrupt();}catch (Exception e){e.printStackTrace();}
+        try{unreadMessagesWorker.interrupt();}catch (Exception e){e.printStackTrace();}
+        try{unreadMessagesWorker.interrupt();}catch (Exception e){e.printStackTrace();}
+        try{unreadMessagesWorker.interrupt();}catch (Exception e){e.printStackTrace();}
+        try{unreadMessagesWorker.interrupt();}catch (Exception e){e.printStackTrace();}
+        try{unreadMessagesWorker.interrupt();}catch (Exception e){e.printStackTrace();}
+        try{unreadMessagesWorker.interrupt();}catch (Exception e){e.printStackTrace();}
+        try{unreadMessagesWorker.interrupt();}catch (Exception e){e.printStackTrace();}
+        try{unreadMessagesWorker.interrupt();}catch (Exception e){e.printStackTrace();}
+        try{unreadMessagesWorker.interrupt();}catch (Exception e){e.printStackTrace();}
+        try{unreadMessagesWorker.interrupt();}catch (Exception e){e.printStackTrace();}
+        try{unreadMessagesWorker.interrupt();}catch (Exception e){e.printStackTrace();}
     }
 
 
@@ -898,6 +1166,25 @@ public class AsyncPinger implements Serializable, CallCenter, AsyncPingerCallbac
                     ArrayDeque<ImageReady> userImageReadyObjects = new ArrayDeque<>();
                     userImageReadyObjects.offer(imageReady);
                     avatarListeners.put(userid, userImageReadyObjects);
+                }
+            }
+        }
+    }
+
+    private HashMap<Long, ArrayDeque<ImageReady>> groupAvatarListeners = new HashMap<>();
+    public void registerImageReadyListenerOrGetImageIfExistForGroups(long groupid, ImageReady imageReady){
+        synchronized (groupAvatars) {
+            if (groupAvatars.containsKey(groupid)) {
+                imageReady.imageReady(groupid, groupAvatars.get(groupid));
+            } else {
+                imageReady.imageReady(userid, null);
+                if(groupAvatarListeners.containsKey(groupid) && groupAvatarListeners.get(groupid) != null){
+                    groupAvatarListeners.get(groupid).offer(imageReady);
+                }
+                else {
+                    ArrayDeque<ImageReady> groupImageReadyObjects = new ArrayDeque<>();
+                    groupImageReadyObjects.offer(imageReady);
+                    groupAvatarListeners.put(groupid, groupImageReadyObjects);
                 }
             }
         }
@@ -1025,43 +1312,85 @@ public class AsyncPinger implements Serializable, CallCenter, AsyncPingerCallbac
 
 
     private void checkImagesOfAvatarAsync() {
-        synchronized (avatarUsersList) {
+        synchronized (avatarUsersAndGroupsList) {
             boolean isCurrentUserAvatarExist = false;
-            for (User user : avatarUsersList) {
-                synchronized (userAvatars) {
-                    isCurrentUserAvatarExist = userAvatars.containsKey(user.getUserid());
-                }
-                if (!isCurrentUserAvatarExist) {
-                    APIClient.getAPIInterface(context).downloadPhoto(user.getUserid()).enqueue(new Callback<ResponseBody>() {
-                        @Override
-                        public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                            if (response.isSuccessful()) {
-                                try {
-                                    byte[] bytes = response.body().bytes();
-                                    Bitmap avatar = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-                                    synchronized (userAvatars) {
-                                        userAvatars.put(user.getUserid(), avatar);
-                                        final long i = user.getUserid();
-                                        if (avatarListeners.containsKey(i) && avatarListeners.get(i) != null && userAvatars.containsKey(i)) {
-                                            ArrayDeque<ImageReady> userImageReadyObjs = avatarListeners.get(i);
-                                            for (ImageReady imageReady: userImageReadyObjs) {
-                                                imageReady.imageReady(i , userAvatars.get(i));
-                                            }
-                                            avatarListeners.remove(i);
-                                        }
-                                    }
+            for (Object userOrGroup : avatarUsersAndGroupsList) {
 
-                                } catch (IOException e) {
-                                    e.printStackTrace();
+                if (userOrGroup instanceof User) {
+                    synchronized (userAvatars) {
+                        isCurrentUserAvatarExist = userAvatars.containsKey(((User) userOrGroup).getUserid());
+                    }
+                } else if (userOrGroup instanceof Group) {
+                    synchronized (groupAvatars) {
+                        isCurrentUserAvatarExist = groupAvatars.containsKey(((Group) userOrGroup).getGroupid());
+                    }
+                }
+                final Object userOrGroup2 = userOrGroup;
+                if (!isCurrentUserAvatarExist) {
+                    if (userOrGroup2 instanceof User) {
+                        APIClient.getAPIInterface(context).downloadPhoto(((User) userOrGroup2).getUserid()).enqueue(new Callback<ResponseBody>() {
+                            @Override
+                            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                                if (response.isSuccessful()) {
+                                    try {
+                                        byte[] bytes = response.body().bytes();
+                                        Bitmap avatar = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                                        synchronized (userAvatars) {
+                                            userAvatars.put(((User) userOrGroup2).getUserid(), avatar);
+                                            final long i = ((User) userOrGroup2).getUserid();
+                                            if (avatarListeners.containsKey(i) && avatarListeners.get(i) != null && userAvatars.containsKey(i)) {
+                                                ArrayDeque<ImageReady> userImageReadyObjs = avatarListeners.get(i);
+                                                for (ImageReady imageReady : userImageReadyObjs) {
+                                                    imageReady.imageReady(i, userAvatars.get(i));
+                                                }
+                                                avatarListeners.remove(i);
+                                            }
+                                        }
+
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
                                 }
                             }
-                        }
 
-                        @Override
-                        public void onFailure(Call<ResponseBody> call, Throwable t) {
-                            call.cancel();
-                        }
-                    });
+                            @Override
+                            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                                call.cancel();
+                            }
+                        });
+                    }
+                    else if (userOrGroup2 instanceof Group) {
+                        APIClient.getAPIInterface(context).downloadGroupPhoto(((Group) userOrGroup2).getGroupid()).enqueue(new Callback<ResponseBody>() {
+                            @Override
+                            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                                if (response.isSuccessful()) {
+                                    try {
+                                        byte[] bytes = response.body().bytes();
+                                        Bitmap avatar = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                                        synchronized (groupAvatars) {
+                                            groupAvatars.put(((Group) userOrGroup2).getGroupid(), avatar);
+                                            final long i = ((Group) userOrGroup2).getGroupid();
+                                            if (groupAvatarListeners.containsKey(i) && groupAvatarListeners.get(i) != null && groupAvatarListeners.containsKey(i)) {
+                                                ArrayDeque<ImageReady> userImageReadyObjs = groupAvatarListeners.get(i);
+                                                for (ImageReady imageReady : userImageReadyObjs) {
+                                                    imageReady.imageReady(i, groupAvatars.get(i));
+                                                }
+                                                groupAvatarListeners.remove(i);
+                                            }
+                                        }
+
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            }
+
+                            @Override
+                            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                                call.cancel();
+                            }
+                        });
+                    }
                     try {
                         Thread.sleep(100);
                     } catch (InterruptedException e) {
@@ -1073,15 +1402,19 @@ public class AsyncPinger implements Serializable, CallCenter, AsyncPingerCallbac
     }
 
     private Thread avatarWorker = null;
-    private List<User> avatarUsersList = null;
+    private List avatarUsersAndGroupsList = null;
     private void checkImagesOfAvatar() {
         if (avatarWorker == null || !avatarWorker.isAlive()) {
-            if (avatarUsersList == null)
-                avatarUsersList = new ArrayList<>();
-            avatarUsersList.clear();
-            synchronized (avatarUsersList) {
+            if (avatarUsersAndGroupsList == null)
+                avatarUsersAndGroupsList = new ArrayList<>();
+            avatarUsersAndGroupsList.clear();
+            synchronized (avatarUsersAndGroupsList) {
                 for (User user : overloadedPingResult.getAllUsers()) {
-                    avatarUsersList.add(user);
+                    avatarUsersAndGroupsList.add(user);
+                }
+
+                for (Group group : overloadedPingResult.getMyGroups()) {
+                    avatarUsersAndGroupsList.add(group);
                 }
             }
             avatarWorker = new Thread(new Runnable() {

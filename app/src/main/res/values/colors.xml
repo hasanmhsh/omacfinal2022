@@ -62,5 +62,6 @@
     <color name="pupup_window_background_color">#FFFFFF</color>
     <color name="login_button_color">#2196F3</color>
     <color name="login_button_color_pressed">#B02196F3</color>
+    <color name="selection_filter_color">#4F005DFF</color>
 
 </resources>

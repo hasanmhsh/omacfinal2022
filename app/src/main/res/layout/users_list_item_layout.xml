@@ -60,6 +60,7 @@
         app:layout_constraintBottom_toTopOf="@id/useremail_tv"
         android:textStyle="normal"
         android:layout_marginStart="@dimen/margin_l"
+        android:visibility="@{user.languageBoxVisibility}"
         android:fontFamily="@font/nunito"
         android:textFontWeight="400"
         android:textColor="@color/userLanguageTextColor"
@@ -121,5 +122,15 @@
         app:layout_constraintEnd_toEndOf="@+id/user_image_view"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+
+        <FrameLayout
+            android:visibility="@{user.highlightedFilterVisibility}"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:translationZ="1000dp"
+            android:background="@color/selection_filter_color"></FrameLayout>
+
     </FrameLayout>
 </layout>
