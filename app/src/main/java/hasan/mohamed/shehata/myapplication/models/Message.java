@@ -3,6 +3,7 @@ import android.content.Context;
 import android.view.View;
 import android.widget.ImageView;
 
+import androidx.core.location.GnssStatusCompat;
 import androidx.databinding.library.baseAdapters.BR;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
@@ -12,6 +13,8 @@ import androidx.room.PrimaryKey;
 import androidx.databinding.BaseObservable;
 import androidx.databinding.Bindable;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
@@ -36,10 +39,12 @@ public class Message extends BaseObservable implements ListItemBindableItemConte
   public Message() {
   }
 
+  @JsonIgnore
   public void setContext(Context context) {
     this.context = context;
   }
 
+  @JsonIgnore
   @Ignore
   private transient Context context;
 
@@ -50,56 +55,70 @@ public class Message extends BaseObservable implements ListItemBindableItemConte
   }
 
 
+  @JsonProperty("messageid")
   @SerializedName("messageid")
   @PrimaryKey(autoGenerate = true)
   private long messageid;
 
+  @JsonProperty("createddate")
   public String getCreateddate() {
     return createddate;
   }
 
+  @JsonProperty("createddate")
   public void setCreateddate(String  createddate) {
     this.createddate = createddate;
   }
 
+  @JsonProperty("createddate")
   @SerializedName("createddate")
   private String createddate;
 
+  @JsonProperty("text")
   @SerializedName("text")
   @ColumnInfo(name = "text")
   private String messagetext;
 
+  @JsonProperty("translatedtext")
   @SerializedName("translatedtext")
   @ColumnInfo(name = "translatedtext")
   private String messagetranslatedtext;
 
+  @JsonProperty("controltext")
   @SerializedName("controltext")
   @ColumnInfo(name = "controltext")
   private String messagemoshakkaltext;
 
+  @JsonProperty("controltext")
   private String getControltext(){
     return messagemoshakkaltext;
   }
 
+  @JsonProperty("controltext")
   private void setControltext(String controltext){
     this.messagemoshakkaltext = controltext;
   }
 
+  @JsonProperty("controlnumber")
   public long getControlnumber() {
     return controlnumber;
   }
 
+  @JsonProperty("controlnumber")
   public void setControlnumber(long controlnumber) {
     this.controlnumber = controlnumber;
   }
 
+  @JsonProperty("controlnumber")
   @SerializedName("controlnumber")
   private long controlnumber;
 
+  @JsonProperty("messagetimedt")
   @ColumnInfo(name = "messagetimedt")
   private transient String messagetimedt;
 
 
+  @JsonProperty("messagestatus")
   @SerializedName("messagestatus")
   @ColumnInfo(name = "messagestatus")
   private MessageStatus messagestatus;
@@ -107,64 +126,78 @@ public class Message extends BaseObservable implements ListItemBindableItemConte
 //    @ColumnInfo(name = "buddyid")
 //    private int buddyid;
 
+  @JsonIgnore
   @ColumnInfo(name = "messagedirection")
   private transient MessageDirection messageDirection;
 
+  @JsonProperty("senderid")
   @ColumnInfo(name = "senderid")
   @SerializedName("senderid")
   private long senderid;
 
+  @JsonProperty("receiverid")
   @ColumnInfo(name = "receiverid")
   @SerializedName("receiverid")
   private long receiverid;
 
+  @JsonProperty("sendername")
   public String getSendername() {
     return sendername;
   }
 
+  @JsonProperty("sendername")
   public void setSendername(String sendername) {
     this.sendername = sendername;
   }
 
+  @JsonProperty("sendername")
   @SerializedName("sendername")
   @ColumnInfo(name = "sendername")
   private String sendername;
 
 
+  @JsonProperty("senderlanguage")
   public void setSenderlanguage(Language senderlanguage) {
     this.senderlanguage = senderlanguage;
   }
 
+  @JsonProperty("senderlanguage")
   @SerializedName("senderlanguage")
   @ColumnInfo(name = "senderlanguage")
   private Language senderlanguage;
 
+  @JsonProperty("senderlanguage")
   public Language getSenderlanguage() {
     return senderlanguage;
   }
 
+  @JsonProperty("groupid")
   public long getGroupid() {
     return groupid;
   }
 
+  @JsonProperty("groupid")
   public void setGroupid(long groupid) {
     this.groupid = groupid;
   }
 
+  @JsonProperty("groupid")
   @ColumnInfo(name = "groupid")
   @SerializedName("groupid")
   private long groupid;
 
 
-
+  @JsonIgnore
   @ColumnInfo(name = "is_read")
   private transient boolean isRead;
 
+  @JsonIgnore
   @Bindable
   public boolean getIsRead() {
     return isRead;
   }
 
+  @JsonIgnore
   public void setIsRead(boolean isRead) {
     if(this.isRead != isRead) {
       this.isRead = isRead;
@@ -172,11 +205,13 @@ public class Message extends BaseObservable implements ListItemBindableItemConte
     }
   }
 
+  @JsonProperty("messageid")
   @Bindable
   public long getMessageid() {
     return messageid;
   }
 
+  @JsonProperty("messageid")
   public void setMessageid(long messageid) {
     if(this.messageid != messageid) {
       this.messageid = messageid;
@@ -184,12 +219,13 @@ public class Message extends BaseObservable implements ListItemBindableItemConte
     }
   }
 
+  @JsonProperty("text")
   @Bindable
   public String getMessagetext() {
     return messagetext;
   }
 
-
+  @JsonIgnore
   public boolean isGroupMessage(){
     if(groupid > 0)
       return true;
@@ -197,6 +233,7 @@ public class Message extends BaseObservable implements ListItemBindableItemConte
       return false;
   }
 
+  @JsonProperty("text")
   public void setMessagetext(String messagetext) {
     if(this.messagetext == null){
       if(messagetext != null){
@@ -210,11 +247,13 @@ public class Message extends BaseObservable implements ListItemBindableItemConte
     }
   }
 
+  @JsonProperty("translatedtext")
   @Bindable
   public String getMessagetranslatedtext() {
     return messagetranslatedtext;
   }
 
+  @JsonProperty("translatedtext")
   public void setMessagetranslatedtext(String messagetranslatedtext) {
     if(this.messagetranslatedtext == null){
       if(messagetranslatedtext != null){
@@ -228,16 +267,19 @@ public class Message extends BaseObservable implements ListItemBindableItemConte
     }
   }
 
+  @JsonIgnore
   @Bindable
   public String getMessagemoshakkaltext() {
     return messagemoshakkaltext;
   }
 
+  @JsonIgnore
   @Bindable
   public String getControlText(){
     return messagemoshakkaltext;
   }
 
+  @JsonIgnore
   public void setMessagemoshakkaltext(String messagemoshakkaltext) {
     if(this.messagemoshakkaltext == null){
       if(messagemoshakkaltext != null){
@@ -252,11 +294,13 @@ public class Message extends BaseObservable implements ListItemBindableItemConte
   }
 
 
+  @JsonIgnore
   @Bindable
   public String getMessagetimedt() {
     return messagetimedt;
   }
 
+  @JsonIgnore
   public void setMessagetimedt(String messagetimedt) {
     if(this.messagetimedt == null){
       if(messagetimedt != null){
@@ -270,11 +314,13 @@ public class Message extends BaseObservable implements ListItemBindableItemConte
     }
   }
 
+  @JsonProperty("messagestatus")
   @Bindable
   public MessageStatus getMessagestatus() {
     return messagestatus;
   }
 
+  @JsonIgnore
   @Bindable
   public String getMessagestatusString() {
     if(messagestatus == null)
@@ -283,6 +329,7 @@ public class Message extends BaseObservable implements ListItemBindableItemConte
       return messagestatus.name();
   }
 
+  @JsonIgnore
   @Bindable
   public int getMessagestatusvisivility() {
     if(context != null){
@@ -296,6 +343,7 @@ public class Message extends BaseObservable implements ListItemBindableItemConte
     return View.VISIBLE;
   }
 
+  @JsonProperty("messagestatus")
   public void setMessagestatus(MessageStatus status) {
     if(this.messagestatus != status) {
       this.messagestatus = status;
@@ -320,6 +368,7 @@ public class Message extends BaseObservable implements ListItemBindableItemConte
 
 
 
+  @JsonIgnore
   @Bindable
   public int getMessageBoxVisibilityGoneIfDeleted() {
     if(messagestatus == MessageStatus.deleted)
@@ -328,6 +377,7 @@ public class Message extends BaseObservable implements ListItemBindableItemConte
       return View.VISIBLE;
   }
 
+  @JsonIgnore
   @Bindable
   public int getReadEyeVisibility() {
     if(messagestatus == MessageStatus.read && context!=null && Utils.getUserID(context) == senderid)
@@ -349,6 +399,7 @@ public class Message extends BaseObservable implements ListItemBindableItemConte
 //    }
 
 
+  @JsonIgnore
   @Bindable
   public MessageDirection getMessageDirection() {
     return messageDirection;
@@ -360,6 +411,7 @@ public class Message extends BaseObservable implements ListItemBindableItemConte
     }
   }
 
+  @JsonProperty("senderid")
   @Bindable
   public long getSenderid() {
     return senderid;
@@ -371,6 +423,8 @@ public class Message extends BaseObservable implements ListItemBindableItemConte
     }
   }
 
+
+  @JsonProperty("receiverid")
   @Bindable
   public long getReceiverid() {
     return receiverid;
@@ -382,13 +436,16 @@ public class Message extends BaseObservable implements ListItemBindableItemConte
     }
   }
 
+  @JsonIgnore
   private boolean isToShowTranslatedText;
 
+  @JsonIgnore
   @Bindable
   public boolean getIsToShowTranslatedText() {
     return isToShowTranslatedText;
   }
 
+  @JsonIgnore
   @Bindable
   public String getCurrentMessageText(){
     if(isToShowTranslatedText){
@@ -399,6 +456,7 @@ public class Message extends BaseObservable implements ListItemBindableItemConte
     }
   }
 
+  @JsonIgnore
   public void setIsToShowTranslatedText(boolean isToShowTranslatedText) {
     if(this.isToShowTranslatedText != isToShowTranslatedText) {
       this.isToShowTranslatedText = isToShowTranslatedText;
@@ -406,36 +464,45 @@ public class Message extends BaseObservable implements ListItemBindableItemConte
     }
   }
 
+  @JsonIgnore
   @Override
   public String getPrimaryText() {
     return messagetext;
   }
 
+  @JsonIgnore
   @Override
   public String getSecondaryText() {
     return messagetranslatedtext;
   }
 
+  @JsonIgnore
   @Override
   public long getID() {
     return messageid;
   }
 
+
+
+  @JsonIgnore
   @Override
   public void drawLogo(ImageView view) {
 
   }
 
+  @JsonIgnore
   @Override
   public void setOnListItemCallbacks(ListItemCallbacks callbacks) {
 
   }
 
+  @JsonIgnore
   @Override
   public void disposeResources() {
 
   }
 
+  @JsonIgnore
   @Override
   public boolean isEqualTo(ListItemBindableItemContentProvider item) {
     if(messageid == ((Message)item).messageid)
@@ -443,11 +510,13 @@ public class Message extends BaseObservable implements ListItemBindableItemConte
     return false;
   }
 
+  @JsonProperty("controltext")
   public void seControltext(String messageDeleteCommand) {
     messagemoshakkaltext = messageDeleteCommand;
   }
 
 
+  @JsonIgnore
   @Ignore
   private transient boolean isHighLighted;
   @Override
@@ -455,6 +524,7 @@ public class Message extends BaseObservable implements ListItemBindableItemConte
     return isHighLighted;
   }
 
+  @JsonIgnore
   @Override
   public void setIsHighLighted(boolean isHighLighted) {
     if(this.isHighLighted != isHighLighted) {
@@ -462,17 +532,40 @@ public class Message extends BaseObservable implements ListItemBindableItemConte
       this.isHighLighted = isHighLighted;
     }
   }
+
+  @JsonIgnore
   @Override
   public void toggleHighLight() {
     isHighLighted = !isHighLighted;
     notifyPropertyChanged(BR.highlightedFilterVisibility);
   }
 
+  @JsonIgnore
   @Bindable
   public int getHighlightedFilterVisibility(){
     if(isHighLighted)
       return View.VISIBLE;
     else
       return View.GONE;
+  }
+
+  @JsonIgnore
+  @Bindable
+  @Override
+  public int getIsAdminCheckBoxVisibility() {
+    return View.GONE;
+  }
+
+
+  @JsonIgnore
+  @Override
+  public void setIsGroupAdmin(boolean isGroupAdmin) {
+
+  }
+
+  @JsonIgnore
+  @Override
+  public boolean getIsGroupAdmin() {
+    return false;
   }
 }

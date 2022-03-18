@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="@dimen/general_text_padding">
+
+        <FrameLayout
+            android:visibility="visible"
+            android:id="@+id/group_create_update_fragment_personal_information_container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/phone_verification_background_color"
+            android:fitsSystemWindows="true">
+
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:fitsSystemWindows="true"
+                android:background="@color/phone_verification_background_color"
+                android:padding="@dimen/margin_l">
+                <TextView
+                    android:id="@+id/group_welcome_tv"
+                    android:gravity="top"
+                    android:layout_width="wrap_content"
+                    android:layout_margin="@dimen/margin_m"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    android:textStyle="bold"
+                    android:textSize="21sp"
+                    android:fitsSystemWindows="true"
+                    android:text="Chat group"
+                    android:backgroundTint="@color/generalTextColor"
+                    android:textColor="@color/generalTextColor"
+                    android:textColorHint="@color/generalHintTextColor"
+                    android:layout_height="wrap_content"/>
+
+
+
+                <ImageButton
+                    android:visibility="visible"
+                    android:id="@+id/group_image_photo_but"
+                    android:layout_width="140dp"
+                    android:layout_height="140dp"
+                    android:fitsSystemWindows="true"
+                    android:background="@drawable/select_photo_button_background"
+                    android:src="@drawable/ic_baseline_photo_camera_100"
+                    android:layout_margin="@dimen/margin_l"
+                    app:layout_constraintTop_toBottomOf="@id/group_welcome_tv"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"/>
+
+                <EditText
+                    android:id="@+id/group_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/margin_m"
+                    android:hint="@string/enter_your_name"
+                    android:text=""
+                    android:maxLines="1"
+                    android:lines="1"
+                    android:fitsSystemWindows="true"
+                    android:textSize="@dimen/login_fields_text_size"
+                    android:backgroundTint="@color/generalTextColor"
+                    android:textColor="@color/generalTextColor"
+                    android:textColorHint="@color/generalHintTextColor"
+                    app:layout_constraintTop_toBottomOf="@id/group_image_photo_but"
+                    android:padding="@dimen/padding_large"
+                    android:visibility="visible"
+                    />
+
+                <CheckBox
+                    android:buttonTint="@color/generalTextColor"
+                    android:id="@+id/is_group_read_only_chkbx"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/margin_m"
+                    android:textColor="@color/generalTextColor"
+                    android:textSize="@dimen/login_fields_text_size"
+                    android:text="Readonly group?"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/group_name"
+                    />
+
+                <Button
+                    android:visibility="visible"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/add_group_members_but"
+                    android:text="Add members"
+                    android:layout_margin="@dimen/margin_m"
+                    android:layout_marginStart="@dimen/margin_m"
+                    android:background="@drawable/signin_signup_button_background"
+                    android:paddingEnd="@dimen/margin_m"
+                    android:paddingStart="@dimen/margin_m"
+                    android:textAllCaps="false"
+                    android:fitsSystemWindows="true"
+                    android:textColor="@color/white"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/is_group_read_only_chkbx"/>
+
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/save_group_but"
+                    android:text="Save"
+                    android:textAllCaps="false"
+                    android:background="@drawable/signin_signup_button_background"
+                    android:textColor="@color/white"
+                    android:fitsSystemWindows="true"
+                    android:layout_margin="@dimen/padding_large"
+                    app:layout_constraintTop_toBottomOf="@id/add_group_members_but"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/cancel_group_but"/>
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/cancel_group_but"
+                    android:text="Cancel"
+                    android:textAllCaps="false"
+                    android:background="@drawable/signin_signup_button_background"
+                    android:textColor="@color/white"
+                    android:fitsSystemWindows="true"
+                    android:layout_margin="@dimen/padding_large"
+                    app:layout_constraintTop_toBottomOf="@id/add_group_members_but"
+                    app:layout_constraintStart_toEndOf="@id/save_group_but"
+                    app:layout_constraintEnd_toEndOf="parent"/>
+
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </FrameLayout>
+
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

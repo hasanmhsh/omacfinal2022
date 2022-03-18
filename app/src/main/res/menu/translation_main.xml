@@ -19,4 +19,13 @@
         android:checkable="true"
         android:title="Continuous Recognition"
         app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_delete_messages"
+        android:orderInCategory="100"
+        android:checkable="true"
+        android:visible="false"
+        android:icon="@drawable/ic_baseline_delete_24"
+        android:title="Continuous Recognition"
+        app:showAsAction="always" />
 </menu>

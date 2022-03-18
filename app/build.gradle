@@ -161,6 +161,14 @@ def room_version = "2.4.1"
 
     implementation 'com.huawei.hms:ml-computer-translate:2.2.0.300'
     implementation 'com.huawei.hms:ml-computer-translate-model:2.2.0.300'
+
+
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.8.5'
+    implementation 'com.fasterxml.jackson.core:jackson-core:2.8.5'
+    implementation 'com.fasterxml.jackson.core:jackson-annotations:2.8.5'
+
+    implementation ('com.squareup.retrofit2:converter-jackson:2.9.0')
+    implementation 'com.squareup.retrofit2:converter-scalars:2.9.0'
     
 }
 //repositories {

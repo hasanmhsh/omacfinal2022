@@ -157,7 +157,9 @@
         <!--        app:layout_constraintWidth_default="spread"-->
         <!--        android:scaleType="fitXY"-->
     <ImageButton
-        android:translationZ="4dp"
+
+        android:elevation="56dp"
+        android:translationZ="56dp"
         android:id="@+id/send_but"
         android:layout_width="50dp"
         android:layout_height="50dp"

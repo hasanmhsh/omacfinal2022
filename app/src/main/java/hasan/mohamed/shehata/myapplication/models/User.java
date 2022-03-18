@@ -18,6 +18,8 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.CenterCrop;
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.bumptech.glide.request.RequestOptions;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
@@ -57,37 +59,47 @@ public class User extends BaseObservable implements ListItemBindableItemContentP
 
 
 
+    @JsonProperty("userid")
     @SerializedName("userid")
     @PrimaryKey(autoGenerate = true)
     private long userid;
 
+    @JsonProperty("name")
     @SerializedName("name")
     @ColumnInfo(name = "name")
     private String username;
 
+    @JsonProperty("email")
     @SerializedName("email")
     @ColumnInfo(name = "email")
     private String useremail;
 
+    @JsonProperty("phone")
     @SerializedName("phone")
     @ColumnInfo(name = "phone")
     private String userphone;
 
+    @JsonProperty("language") //Example English
     @SerializedName("language") //Example English
     @ColumnInfo(name = "language")
     private Language userlanguage;
 
 
+    @JsonProperty("country")
     @SerializedName("country")
     @ColumnInfo(name = "country")
     private String usercountry;
 
+    @JsonIgnore
     @ColumnInfo(name = "status")
     private StatusOfServerObject userstatus;
 
+
+    @JsonProperty("isOnline")
     @SerializedName("isOnline")
     private boolean isOnline;
 
+    @JsonIgnore
     @SerializedName("exist")
     private boolean isExist;
 
@@ -95,41 +107,51 @@ public class User extends BaseObservable implements ListItemBindableItemContentP
 
     }
 
+    @JsonIgnore
     public boolean isExist() {
         return isExist;
     }
 
+    @JsonIgnore
     public void setExist(boolean exist) {
         isExist = exist;
     }
 
+    @JsonProperty("lastactivetimedt")
     @SerializedName("lastactivetimedt")
     private String lastactivetimedt;
 
+    @JsonIgnore
     @SerializedName("password")
     @ColumnInfo(name = "password")
     private String password;
 
+    @JsonIgnore
     @SerializedName("gender")
     @ColumnInfo(name = "gender")
     private Gender gender;
 
+    @JsonProperty("createddate")
     public String getCreateddate() {
         return createddate;
     }
 
+    @JsonProperty("createddate")
     public void setCreateddate(String createddate) {
         this.createddate = createddate;
     }
 
+    @JsonProperty("createddate")
     @SerializedName("createddate")
     private String createddate;
 
+    @JsonIgnore
     @Bindable
     public String getPassword() {
         return password;
     }
 
+    @JsonIgnore
     public void setPassword(String password) {
         if(this.password == null){
             if(password != null){
@@ -144,10 +166,13 @@ public class User extends BaseObservable implements ListItemBindableItemContentP
     }
 
     @Bindable
+    @JsonIgnore
     public Gender getGender() {
         return gender;
     }
 
+
+    @JsonIgnore
     public void setGender(Gender gender) {
         if(this.gender != gender) {
             this.gender = gender;
@@ -155,19 +180,23 @@ public class User extends BaseObservable implements ListItemBindableItemContentP
         }
     }
 
+    @JsonProperty("lastactivetime")
     public String getLastactivetimedt() {
         return lastactivetimedt;
     }
 
+    @JsonProperty("lastactivetime")
     public void setLastactivetimedt(String lastactivetimedt) {
         this.lastactivetimedt = lastactivetimedt;
     }
 
+    @JsonProperty("userid")
     @Bindable
     public long getUserid() {
         return userid;
     }
 
+    @JsonProperty("userid")
     public void setUserid(long userid) {
         if(this.userid != userid) {
             this.userid = userid;
@@ -175,6 +204,7 @@ public class User extends BaseObservable implements ListItemBindableItemContentP
         }
     }
 
+    @JsonProperty("name")
     @Bindable
     public String getUsername() {
         if(isThisAGroup()){
@@ -185,6 +215,7 @@ public class User extends BaseObservable implements ListItemBindableItemContentP
         }
     }
 
+    @JsonProperty("name")
     public void setUsername(String value) {
         if(this.username == null){
             if(value != null){
@@ -198,6 +229,7 @@ public class User extends BaseObservable implements ListItemBindableItemContentP
         }
     }
 
+    @JsonProperty("email")
     @Bindable
     public String getUseremail() {
         return useremail;
@@ -216,6 +248,7 @@ public class User extends BaseObservable implements ListItemBindableItemContentP
         }
     }
 
+    @JsonProperty("phone")
     @Bindable
     public String getUserphone() {
         return userphone;
@@ -234,6 +267,7 @@ public class User extends BaseObservable implements ListItemBindableItemContentP
         }
     }
 
+    @JsonProperty("language")
     @Bindable
     public Language getUserlanguage() {
         return userlanguage;
@@ -246,16 +280,19 @@ public class User extends BaseObservable implements ListItemBindableItemContentP
         }
     }
 
+    @JsonProperty("country")
     @Bindable
     public String getUsercountry() {
         return usercountry;
     }
 
+    @JsonIgnore
     @Bindable
     public StatusOfServerObject getUserstatus() {
         return userstatus;
     }
 
+    @JsonIgnore
     public void setUserstatus(StatusOfServerObject userstatus) {
         if(this.userstatus != userstatus) {
             this.userstatus = userstatus;
@@ -263,6 +300,7 @@ public class User extends BaseObservable implements ListItemBindableItemContentP
         }
     }
 
+    @JsonProperty("isOnline")
     @Bindable
     public boolean getIsOnline() {
         return isOnline;
@@ -281,6 +319,7 @@ public class User extends BaseObservable implements ListItemBindableItemContentP
         }
     }
 
+    @JsonProperty("isOnline")
     public void setIsOnline(boolean online) {
         if(online != this.isOnline) {
             isOnline = online;
@@ -289,16 +328,19 @@ public class User extends BaseObservable implements ListItemBindableItemContentP
         }
     }
 
+    @JsonIgnore
     @Override
     public String getPrimaryText() {
         return username;
     }
 
+    @JsonIgnore
     @Override
     public String getSecondaryText() {
         return userphone;
     }
 
+    @JsonIgnore
     @Override
     public long getID() {
         if(isThisAGroup()){
@@ -310,18 +352,23 @@ public class User extends BaseObservable implements ListItemBindableItemContentP
     }
 
 
+
+    @JsonIgnore
     @Override
     public void setOnListItemCallbacks(ListItemCallbacks callbacks) {
 
     }
 
+    @JsonIgnore
     @Override
     public void disposeResources() {
 
     }
 
+    @JsonIgnore
     private int numberOfUnreadMessages;
 
+    @JsonIgnore
     public int getNumberOfUnreadMessages() {
         if(isThisAGroup()){
             return group.getNumberOfUnreadMessages();
@@ -331,6 +378,7 @@ public class User extends BaseObservable implements ListItemBindableItemContentP
         }
     }
 
+    @JsonIgnore
     public void setNumberOfUnreadMessages(int numberOfUnreadMessages) {
         if(isThisAGroup()){
             if(this.group.getNumberOfUnreadMessages() != numberOfUnreadMessages){
@@ -348,6 +396,7 @@ public class User extends BaseObservable implements ListItemBindableItemContentP
         }
     }
 
+    @JsonIgnore
     @Bindable
     public String getNumberOfUnreadMessagesString() {
         if(isThisAGroup()){
@@ -358,6 +407,7 @@ public class User extends BaseObservable implements ListItemBindableItemContentP
         }
     }
 
+    @JsonIgnore
     @Bindable
     public int getSelectUnreadMessagesTVVisibility(){
         if(isThisAGroup()){
@@ -382,6 +432,7 @@ public class User extends BaseObservable implements ListItemBindableItemContentP
         }
     }
 
+    @JsonIgnore
     @Override
     public boolean isEqualTo(ListItemBindableItemContentProvider item) {
         if(item == null)
@@ -403,6 +454,7 @@ public class User extends BaseObservable implements ListItemBindableItemContentP
         return false;
     }
 
+    @JsonIgnore
     @Bindable
     public int getCallButtonVisibility(){
         if(isThisAGroup()){
@@ -416,6 +468,7 @@ public class User extends BaseObservable implements ListItemBindableItemContentP
         }
     }
 
+    @JsonIgnore
     @Override
     public boolean equals(@Nullable Object obj) {
         User other = (User)obj;
@@ -428,6 +481,7 @@ public class User extends BaseObservable implements ListItemBindableItemContentP
     }
 
 
+    @JsonIgnore
     @Override
     public void imageReady(long userid, Bitmap image) {
         if(lastInstanceOfImageView != null) {
@@ -454,13 +508,17 @@ public class User extends BaseObservable implements ListItemBindableItemContentP
         }
     }
 
+    @JsonIgnore
     @Override
     public long getUserId() {
         return userid;
     }
 
+    @JsonIgnore
     @Ignore
     private ImageView lastInstanceOfImageView;
+
+    @JsonIgnore
     @Override
     public void drawLogo(ImageView view) {
         if(view == null)
@@ -487,6 +545,8 @@ public class User extends BaseObservable implements ListItemBindableItemContentP
         }
     }
 
+
+    @JsonIgnore
     @Ignore
     private boolean isLogoCircular = false;
     public void drawCircularLogo(ImageView view){
@@ -505,6 +565,8 @@ public class User extends BaseObservable implements ListItemBindableItemContentP
         }
     }
 
+
+    @JsonIgnore
     public void drawCircularLogoWithActivity(ImageView view, TranslationMainActivity activity) {
         if(view == null || activity == null)
             return;
@@ -521,12 +583,18 @@ public class User extends BaseObservable implements ListItemBindableItemContentP
         }
     }
 
+
+    @JsonIgnore
     private transient Group group;// thisIsNotUserObjectItAnInstanceUsedByGroupToUseItsUiView;
 
+
+    @JsonIgnore
     public Group getGroup() {
         return group;
     }
 
+
+    @JsonIgnore
     public void setGroup(Group group) {
         if(this.group != group){
             this.group = group;
@@ -539,10 +607,14 @@ public class User extends BaseObservable implements ListItemBindableItemContentP
         }
     }
 
+
+    @JsonIgnore
     public boolean isThisAGroup(){
         return group==null?false:true;
     }
 
+
+    @JsonIgnore
     @Bindable
     public int getLanguageBoxVisibility(){
         if(isThisAGroup())
@@ -551,6 +623,8 @@ public class User extends BaseObservable implements ListItemBindableItemContentP
             return View.VISIBLE;
     }
 
+
+    @JsonIgnore
     @Override
     public int compareTo(User user) {
         if(getNumberOfUnreadMessages() > user.getNumberOfUnreadMessages())
@@ -568,31 +642,71 @@ public class User extends BaseObservable implements ListItemBindableItemContentP
     }
 
 
+
+    @JsonIgnore
     @Ignore
     private transient boolean isHighLighted;
+
+    @JsonIgnore
     @Override
     public boolean getIsHighLighted() {
         return isHighLighted;
     }
 
+
+    @JsonIgnore
     @Override
     public void setIsHighLighted(boolean isHighLighted) {
         if(this.isHighLighted != isHighLighted) {
-            notifyPropertyChanged(BR.highlightedFilterVisibility);
             this.isHighLighted = isHighLighted;
+            notifyPropertyChanged(BR.highlightedFilterVisibility);
         }
     }
+
+    @JsonIgnore
     @Override
     public void toggleHighLight() {
         isHighLighted = !isHighLighted;
         notifyPropertyChanged(BR.highlightedFilterVisibility);
     }
 
+
+    @JsonIgnore
     @Bindable
+    @Override
     public int getHighlightedFilterVisibility(){
         if(isHighLighted)
             return View.VISIBLE;
         else
             return View.GONE;
+    }
+
+
+    @JsonIgnore
+    @Ignore
+    private transient boolean isGroupAdmin;
+
+    @JsonIgnore
+    @Override
+    public void setIsGroupAdmin(boolean isGroupAdmin) {
+        if(this.isGroupAdmin != isGroupAdmin) {
+            notifyPropertyChanged(BR.isGroupAdmin);
+            this.isGroupAdmin = isGroupAdmin;
+        }
+    }
+
+
+    @JsonIgnore
+    @Bindable
+    @Override
+    public int getIsAdminCheckBoxVisibility() {
+        return View.VISIBLE;
+    }
+
+
+    @JsonIgnore
+    @Bindable
+    public boolean getIsGroupAdmin() {
+        return isGroupAdmin;
     }
 }

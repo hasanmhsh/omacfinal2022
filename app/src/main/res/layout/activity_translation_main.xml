@@ -13,6 +13,18 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
+            <ImageButton
+                android:id="@+id/fab"
+                android:visibility="invisible"
+                android:layout_width="1dp"
+                android:layout_height="1dp"
+                android:elevation="40dp"
+                android:translationZ="40dp"
+                android:src="@drawable/ic_baseline_people_white_alt_24"
+                android:background="@drawable/circular_green_solid_background_button"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:layout_margin="20dp"
+                app:layout_constraintEnd_toEndOf="parent"/>
             <include
                 android:id="@+id/app_bar_translation_main"
                 layout="@layout/app_bar_translation_main"

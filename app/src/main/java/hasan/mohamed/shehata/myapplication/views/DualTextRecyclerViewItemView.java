@@ -3,6 +3,7 @@ package hasan.mohamed.shehata.myapplication.views;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.CompoundButton;
 import android.widget.FrameLayout;
 
 import androidx.databinding.DataBindingUtil;
@@ -33,21 +34,45 @@ public class DualTextRecyclerViewItemView extends FrameLayout implements View.On
         //attach to parent must be true to be displayed
         binding = DataBindingUtil.inflate(li,R.layout.dual_text_rv_item_view_layout,this,true);
         View view = this.binding.getRoot();
-        this.binding.dualTextRvItemContainer.setOnClickListener(this);
+
 
         if(isMultipleChoices) {
-            this.binding.dualTextRvItemContainer.setOnLongClickListener(new OnLongClickListener() {
+            this.binding.dualTextRvItemContainer.setOnClickListener(new OnClickListener() {
                 @Override
-                public boolean onLongClick(View view) {
-                    if (binding.getDualtext() != null)
+                public void onClick(View view) {
+                    if (binding.getDualtext() != null && binding.dualTextHighlitedSelectionContainer!=null) {
                         binding.getDualtext().toggleHighLight();
-                    return true;
+                        int visibility = binding.getDualtext().getIsHighLighted() ? View.VISIBLE : View.GONE;
+                        binding.dualTextHighlitedSelectionContainer.setVisibility(visibility);
+                    }
                 }
             });
+//            this.binding.dualTextRvItemContainer.setOnLongClickListener(new OnLongClickListener() {
+//                @Override
+//                public boolean onLongClick(View view) {
+//                    if (binding.getDualtext() != null && binding.dualTextHighlitedSelectionContainer!=null) {
+//                        binding.getDualtext().toggleHighLight();
+//                        int visibility = binding.getDualtext().getIsHighLighted() ? View.VISIBLE : View.GONE;
+//                        binding.dualTextHighlitedSelectionContainer.setVisibility(visibility);
+//                    }
+//                    return true;
+//                }
+//            });
         }
         else{
-            this.setOnClickListener(this);
+            this.binding.dualTextRvItemContainer.setOnClickListener(this);
         }
+
+        binding.isAdminGpsListItemChkbx.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if(binding != null && binding.getDualtext() != null) {
+                    binding.getDualtext().setIsGroupAdmin(b);
+                    binding.getDualtext().setIsHighLighted(true);
+                    binding.dualTextHighlitedSelectionContainer.setVisibility(VISIBLE);
+                }
+            }
+        });
     }
 
     @Override
@@ -57,8 +82,15 @@ public class DualTextRecyclerViewItemView extends FrameLayout implements View.On
 
     @Override
     public void bind(ListItemBindableItemContentProvider bindableItemContentProvider) {
+        if(binding == null || binding.isAdminGpsListItemChkbx == null)
+            return;
         binding.setDualtext(bindableItemContentProvider);
         bindableItemContentProvider.drawLogo(binding.dualTextLogoIv);
+        binding.isAdminGpsListItemChkbx.setChecked(binding.getDualtext().getIsGroupAdmin());
+        if(!isMultipleChoices)
+            binding.dualTextHighlitedSelectionContainer.setVisibility(binding.getDualtext().getHighlightedFilterVisibility());
+        else
+            binding.dualTextHighlitedSelectionContainer.setVisibility(GONE);
     }
 
     @Override
@@ -68,7 +100,7 @@ public class DualTextRecyclerViewItemView extends FrameLayout implements View.On
 
     @Override
     public void bind(User user) {
-        throw new UnsupportedOperationException("This operation is not supported for this datatype please use DownloadWindowContent as argument.");
+        bind((ListItemBindableItemContentProvider) user);
     }
 
     @Override

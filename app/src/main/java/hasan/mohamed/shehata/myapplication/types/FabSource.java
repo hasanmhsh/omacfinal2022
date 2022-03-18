@@ -5,4 +5,6 @@ public interface FabSource {
     public void setFabActionType(FabActionType type);
     public void refreshFab();
     public void disableFab();
+    public void showFab();
+    public void hideFab();
 }

@@ -16,6 +16,7 @@ import java.util.List;
 
 import hasan.mohamed.shehata.myapplication.AppDatabase;
 import hasan.mohamed.shehata.myapplication.R;
+import hasan.mohamed.shehata.myapplication.TranslationMainActivity;
 import hasan.mohamed.shehata.myapplication.Utils;
 import hasan.mohamed.shehata.myapplication.databinding.MessageItemLayoutBinding;
 import hasan.mohamed.shehata.myapplication.internet.APIClient;
@@ -120,8 +121,26 @@ public class MessageView  extends FrameLayout implements BindableItem, HighContr
         this.binding.messageViewContainer.setOnLongClickListener(new OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
-                if(binding.getMessage() != null)
+                if(binding.getMessage() != null) {
                     binding.getMessage().toggleHighLight();
+                    if(binding.getMessage().getIsHighLighted()){
+                        Utils.messagesToDelete.add(binding.getMessage());
+                        Utils.deletedMessagesResultReceivers.add(selectionReceiver);
+                    }
+                    else{
+                        Utils.messagesToDelete.remove(binding.getMessage());
+                        Utils.deletedMessagesResultReceivers.remove(selectionReceiver);
+
+                    }
+
+                    if(Utils.messagesToDelete.size() ==0){
+                        ((TranslationMainActivity)getContext()).hideDeleteMenuButton();
+                    }
+                    else {
+
+                        ((TranslationMainActivity)getContext()).showDeleteMenuButton();
+                    }
+                }
                 return true;
             }
         });

@@ -19,11 +19,12 @@ import android.view.View;
 import android.view.Menu;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.navigation.NavigationView;
-import com.google.android.material.snackbar.Snackbar;
 import com.huawei.hms.mlsdk.common.MLApplication;
 
 import androidx.activity.result.ActivityResultCallback;
@@ -58,7 +59,9 @@ import hasan.mohamed.shehata.myapplication.databinding.ActivityTranslationMainBi
 import hasan.mohamed.shehata.myapplication.databinding.NavHeaderTranslationMainBinding;
 import hasan.mohamed.shehata.myapplication.internet.APIClient;
 import hasan.mohamed.shehata.myapplication.models.Group;
+import hasan.mohamed.shehata.myapplication.models.Message;
 import hasan.mohamed.shehata.myapplication.models.User;
+import hasan.mohamed.shehata.myapplication.templates.GeneralPopupWindow;
 import hasan.mohamed.shehata.myapplication.types.AsyncPingerProvider;
 import hasan.mohamed.shehata.myapplication.types.CallDialogCallbacks;
 import hasan.mohamed.shehata.myapplication.types.CallDialogProvider;
@@ -66,11 +69,13 @@ import hasan.mohamed.shehata.myapplication.types.Callable;
 import hasan.mohamed.shehata.myapplication.types.FabActionType;
 import hasan.mohamed.shehata.myapplication.types.FabSource;
 import hasan.mohamed.shehata.myapplication.types.HighContrastObserver;
+import hasan.mohamed.shehata.myapplication.types.MessageDeletionResult;
 import hasan.mohamed.shehata.myapplication.types.MessageFragmentProvider;
 import hasan.mohamed.shehata.myapplication.types.NavHeader;
 import hasan.mohamed.shehata.myapplication.types.NavigationProvider;
 import hasan.mohamed.shehata.myapplication.types.PermissionRequestCallbacks;
 import hasan.mohamed.shehata.myapplication.types.PermissionRequestProvider;
+import hasan.mohamed.shehata.myapplication.types.ResultReceiver;
 import hasan.mohamed.shehata.myapplication.types.SearchCallbacks;
 import hasan.mohamed.shehata.myapplication.types.StartedACtivityResultsProvider;
 import hasan.mohamed.shehata.myapplication.types.StartedActivityResultsListener;
@@ -102,6 +107,7 @@ public class TranslationMainActivity extends AppCompatActivity implements FabSou
     private NavHeaderTranslationMainBinding headerTranslationMainBinding = null;
 
 
+    private boolean isFabShown = false;
 
 
     public static interface MeListener{
@@ -120,13 +126,17 @@ public class TranslationMainActivity extends AppCompatActivity implements FabSou
         binding = ActivityTranslationMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         setSupportActionBar(binding.appBarTranslationMain.toolbar);
-//        binding.appBarTranslationMain.fab.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
+        binding.fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // To add move animation
+//                animateFab();
+//                Toast.makeText(getApplicationContext(), "fab" , Toast.LENGTH_SHORT).show();
 //                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                openGroupCreationOrUpdateDialog(null);
 //                        .setAction("Action", null).show();
-//            }
-//        });
+            }
+        });
         DrawerLayout drawer = binding.drawerLayout;
         NavigationView navigationView = binding.navView;
         // Passing each menu ID as a set of Ids because each
@@ -320,6 +330,143 @@ public class TranslationMainActivity extends AppCompatActivity implements FabSou
 
     }
 
+    float originalFabX = 0;
+    @Override
+    public void showFab(){
+        if(getApplicationContext() == null || binding == null
+                || binding.appBarTranslationMain == null || binding == null)
+            return;
+        if(!isFabShown) {
+            isFabShown = true;
+            binding.fab.setEnabled(true);
+//            binding.fab.setTra(TypedValue.COMPLEX_UNIT_PX,Utils.getHighContrastTextFactor(this)*getResources().getDimension(R.dimen.fab_translation)));
+            if(originalFabX == 0)
+                originalFabX = binding.fab.getX();
+//            binding.fab.setX(0.28F*originalFabX +originalFabX);
+            binding.fab.setVisibility(View.VISIBLE);
+            animateFab();
+        }
+    }
+
+    public void openGroupCreationOrUpdateDialog(Group group){
+//        openPickUsersDialog(new ResultReceiver() {
+//            @Override
+//            public void receiveResult(ListItemBindableItemContentProvider bindableItemContentProvider) {
+//
+//            }
+//
+//            @Override
+//            public void receiveMultipleChoices(List<ListItemBindableItemContentProvider> list) {
+//                for(ListItemBindableItemContentProvider item : list){
+//                    Toast.makeText(thiz, item.getPrimaryText(),Toast.LENGTH_SHORT).show();
+//                }
+//            }
+//
+//            @Override
+//            public void deleteItem(ListItemBindableItemContentProvider item) {
+//
+//            }
+//
+//            @Override
+//            public User getBuddy() {
+//                return null;
+//            }
+//
+//            @Override
+//            public Group getGroup() {
+//                return null;
+//            }
+//
+//            @Override
+//            public SpeakerProvider provideSpeaker() {
+//                return null;
+//            }
+//        });
+
+        if(group == null)
+            group=new Group();
+        GeneralPopupWindow.makeGroupCreationWindow(this,
+                "",
+                group,true);
+    }
+
+    public void openPickUsersDialog(ResultReceiver receiver){
+        GeneralPopupWindow.makeSelectionWindow(
+                this,
+                "",
+                new ArrayList<>(Utils.getOverloadedPingResult().getUsers()),
+                receiver,
+                false,
+                true
+        );
+    }
+
+
+
+    @Override
+    public void hideFab(){
+        if(getApplicationContext() == null || binding == null
+                || binding.fab == null)
+            return;
+        if(isFabShown) {
+            isFabShown = false;
+            binding.fab.setEnabled(false);
+            animateFab();
+        }
+    }
+    private void animateFab() {
+        if(getApplicationContext() == null || binding == null
+        || binding.fab == null)
+            return;
+        Animation animation;
+        if(isFabShown) {
+            animation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fab_animation_in);
+        }
+        else {
+            animation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fab_animationa_out);
+        }
+        binding
+
+                .fab
+                .startAnimation(animation);
+        animation.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                if(isFabShown){
+                    if(binding != null && binding.fab != null){
+//                        binding.fab.setX((float) (originalFabX - originalFabX * 0.28));
+//                        Animation animation2 = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fast_out_fab);
+
+//                        binding
+//
+//                                .fab
+//                                .startAnimation(animation2);
+//    //                        binding.fab.setTranslationX(0);
+                    }
+                }
+                else{
+                    if(binding != null && binding.fab != null){
+                        binding.fab.setVisibility(View.INVISIBLE);
+                        binding.fab.setEnabled(false);
+//                        binding.fab.setTranslationX(0);
+//                        binding.fab.setTranslationX(0.28F);
+                    }
+                }
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+
+    }
+
     private boolean isHighContrastEnabled = false;
 
     public void setStatusBarColor() {
@@ -341,14 +488,14 @@ public class TranslationMainActivity extends AppCompatActivity implements FabSou
             @Override
             public void call(boolean result) {
                 if(result){
-                    Snackbar.make(binding.drawerLayout, "Internet available", Snackbar.LENGTH_LONG)
-                            .setAction("Action", null).show();
+//                    Snackbar.make(binding.drawerLayout, "Internet available", Snackbar.LENGTH_LONG)
+//                            .setAction("Action", null).show();
 //                    readSectionsFromInternet();
 //                    alterNewsContents(null,null);
                 }
                 else{
-                    Snackbar.make(binding.drawerLayout, "Internet unavailable!", Snackbar.LENGTH_LONG)
-                            .setAction("Action", null).show();
+//                    Snackbar.make(binding.drawerLayout, "Internet unavailable!", Snackbar.LENGTH_LONG)
+//                            .setAction("Action", null).show();
                 }
             }
         };
@@ -902,6 +1049,42 @@ public class TranslationMainActivity extends AppCompatActivity implements FabSou
                 return true;
             }
 
+            case R.id.action_delete_messages:{
+                APIClient.getAPIInterface(this).deleteMessage(Utils.messagesToDelete).enqueue(new Callback<MessageDeletionResult>() {
+                    @Override
+                    public void onResponse(Call<MessageDeletionResult> call, Response<MessageDeletionResult> response) {
+                        if(response.isSuccessful()){
+                            for(int i = 0 ; i < Utils.deletedMessagesResultReceivers.size() ; i++){
+                                try {
+                                    Utils.deletedMessagesResultReceivers
+                                            .get(i).deleteItem(
+                                            Utils
+                                                    .messagesToDelete
+                                                    .get(i)
+                                    );
+                                }
+                                catch (Exception e){e.printStackTrace();}
+                            }
+                            new Thread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    for(Message msg : Utils.messagesToDelete){
+
+                                        AppDatabase.getMessageDao().deleteMessageById(msg.getMessageid());
+                                    }
+                                }
+                            }).start();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<MessageDeletionResult> call, Throwable t) {
+                        call.cancel();
+                    }
+                });
+                return true;
+            }
+
 
 
             default:
@@ -952,7 +1135,40 @@ public class TranslationMainActivity extends AppCompatActivity implements FabSou
             }
             exitFullScreenMode();
         }
+
+
+        if(navController.getCurrentDestination().getId() == R.id.nav_messages
+        ){
+            Utils.messagesToDelete.clear();
+            Utils.deletedMessagesResultReceivers.clear();
+            actionBarMenuHost.findItem(R.id.search_menu_item).setVisible(false);
+            actionBarMenuHost.findItem(R.id.action_delete_messages).setVisible(false);
+
+        }
+
+        if(navController.getCurrentDestination().getId() == R.id.nav_users
+                || navController.getCurrentDestination().getId() == R.id.nav_contacts
+                || navController.getCurrentDestination().getId() == R.id.nav_groups
+                || navController.getCurrentDestination().getId() == R.id.nav_calls
+        ){
+
+            Utils.messagesToDelete.clear();
+            Utils.deletedMessagesResultReceivers.clear();
+            actionBarMenuHost.findItem(R.id.search_menu_item).setVisible(true);
+            actionBarMenuHost.findItem(R.id.action_delete_messages).setVisible(false);
+        }
     }
+
+    public void showDeleteMenuButton(){
+
+        actionBarMenuHost.findItem(R.id.action_delete_messages).setVisible(true);
+    }
+
+    public void hideDeleteMenuButton(){
+
+        actionBarMenuHost.findItem(R.id.action_delete_messages).setVisible(false);
+    }
+
 
     public void resetUIStateDelayed(){
         resetUIState();
@@ -1263,6 +1479,21 @@ public class TranslationMainActivity extends AppCompatActivity implements FabSou
     protected void onResume() {
         super.onResume();
         refresh(isHighContrastEnabled);
+//        if(binding != null && binding.fab != null && binding.fab.getVisibility() != View.VISIBLE){
+//            binding.fab.postDelayed(new Runnable() {
+//                @Override
+//                public void run() {
+//                    if(binding != null && binding.fab != null && binding.fab.getVisibility() != View.VISIBLE){
+//                        isFabShown = true;
+//                        Animation animation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fast_out_fab);
+//                        binding
+//
+//                                .fab
+//                                .startAnimation(animation);
+//                    }
+//                }
+//            },1000);
+//        }
     }
 
     @Override

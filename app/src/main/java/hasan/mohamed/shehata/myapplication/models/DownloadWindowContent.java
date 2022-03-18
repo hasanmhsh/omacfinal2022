@@ -1,7 +1,9 @@
 package hasan.mohamed.shehata.myapplication.models;
 
 import android.content.Context;
+import android.os.Build;
 
+import androidx.annotation.RequiresApi;
 import androidx.databinding.BaseObservable;
 import androidx.databinding.Bindable;
 
@@ -61,11 +63,13 @@ public class DownloadWindowContent extends BaseObservable {
         return Utils.getDownloadedPercent(downloadedSize , totalSize);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     @Bindable
     public String getDownloadSpeedKBPS(){
         return String.valueOf(Utils.getDownLinkSpeedKBps(context));
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     public String getDownloadSpeedMBPS(){
         double d = Utils.getDownLinkSpeedKBps(context);
         d /= 1000.0D;

@@ -47,6 +47,7 @@ import hasan.mohamed.shehata.myapplication.internet.APIClient;
 import hasan.mohamed.shehata.myapplication.models.CountryPhoneCode;
 import hasan.mohamed.shehata.myapplication.models.Language;
 import hasan.mohamed.shehata.myapplication.models.Message;
+import hasan.mohamed.shehata.myapplication.models.OverloadedPingResult;
 import hasan.mohamed.shehata.myapplication.models.User;
 import hasan.mohamed.shehata.myapplication.servicesandnotifications.ModelType;
 import hasan.mohamed.shehata.myapplication.servicesandnotifications.RemainingTime;
@@ -57,6 +58,7 @@ import hasan.mohamed.shehata.myapplication.types.ContinuousRecognitionObserver;
 import hasan.mohamed.shehata.myapplication.types.HighContrastObserver;
 import hasan.mohamed.shehata.myapplication.types.JSONKey;
 import hasan.mohamed.shehata.myapplication.types.MessageSendingCallbacks;
+import hasan.mohamed.shehata.myapplication.types.ResultReceiver;
 import hasan.mohamed.shehata.myapplication.types.UsersViewType;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -66,7 +68,40 @@ import retrofit2.Response;
 public class Utils {
 
 
+    private static AsyncPinger lastAsyncPinger;
+    public static AsyncPinger getLastAsyncPinger(){
+        return lastAsyncPinger;
+    }
 
+    public static List<ResultReceiver> deletedMessagesResultReceivers = new ArrayList<>();
+    public  static List<Message> messagesToDelete = new ArrayList<>();
+
+    public static void setLastAsyncPinger(AsyncPinger asyncPinger){
+        lastAsyncPinger = asyncPinger;
+    }
+
+    private static OverloadedPingResult overloadedPingResult;
+    public static void setOverLoadedPingResult(OverloadedPingResult result){
+        if(overloadedPingResult != null){
+            synchronized (overloadedPingResult){
+                overloadedPingResult = result;
+            }
+        }
+        else{
+            overloadedPingResult = result;
+        }
+    }
+
+    public static OverloadedPingResult getOverloadedPingResult(){
+        if(overloadedPingResult != null){
+            synchronized (overloadedPingResult){
+                return overloadedPingResult;
+            }
+        }
+        else{
+            return overloadedPingResult;
+        }
+    }
     public final transient static String MESSAGE_DELETE_COMMAND = "deletemessage";
     public static final String MESSAGE_IMAGE_CMD = "image";
 

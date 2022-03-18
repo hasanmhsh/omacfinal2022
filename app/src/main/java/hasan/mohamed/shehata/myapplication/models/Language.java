@@ -1,6 +1,9 @@
 package hasan.mohamed.shehata.myapplication.models;
 
+import android.view.View;
 import android.widget.ImageView;
+
+import androidx.databinding.Bindable;
 
 import com.bumptech.glide.Glide;
 
@@ -148,6 +151,19 @@ public enum Language implements Serializable , ListItemBindableItemContentProvid
         return 0;
     }
 
+    @Override
+    public void setIsGroupAdmin(boolean isGroupAdmin) {
+
+    }
+
+    public int getIsAdminCheckBoxVisibility() {
+        return View.GONE;
+    }
+
+    @Override
+    public boolean getIsGroupAdmin() {
+        return false;
+    }
 
 
     @Override
@@ -242,5 +258,13 @@ public enum Language implements Serializable , ListItemBindableItemContentProvid
     @Override
     public void toggleHighLight() {
         isHighLighted = !isHighLighted;
+    }
+
+//    @Bindable
+    public int getHighlightedFilterVisibility(){
+        if(isHighLighted)
+            return View.VISIBLE;
+        else
+            return View.GONE;
     }
 }

@@ -55,6 +55,7 @@ public class TranslationItemView extends FrameLayout implements View.OnClickList
             }
         });
 
+
     }
 
     @Override

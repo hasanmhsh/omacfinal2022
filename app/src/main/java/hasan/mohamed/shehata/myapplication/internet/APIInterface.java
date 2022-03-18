@@ -57,20 +57,13 @@ public interface APIInterface {
 
 
 
-    @POST("groups/groupuser/addall")
-    Call<List<GroupUser>> addAllGroupUsersOrUpdateRoleIfExist(@Body List<GroupUser> groupUsers);
+    @GET("groups/groups/group/{groupid}")
+    Call<Group> getFullGroupById(@Path("groupid") long groupid);
 
-    @POST("groups/groupuser/deleteall")
-    Call<JSONResult> deleteAllGroupUsersOrUpdateRoleIfExist(@Body List<GroupUser> groupUsers);
+    @POST("groups/groups/group")
+    Call<Group> replaceOrSaveFullGroup(@Body Group group);
 
-    @POST("groups/group/{groupCreatorUserID}")
-    Call<Group> createOrUpdateGroup(@Path("groupCreatorUserID") long groupCreatorUserID,@Body Group newGroup);
 
-    @GET("groups/groups/{userid}")
-    Call<List<Group>> getUserGroups(@Path("userid") long userid);
-
-    @GET("groups/users/{groupid}")
-    Call<List<GroupUser>> getGroupUsers(@Path("groupid") long userid);
 
 
     @GET("messages/overloaded/{myid}")

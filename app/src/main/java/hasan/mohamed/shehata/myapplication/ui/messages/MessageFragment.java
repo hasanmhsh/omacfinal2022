@@ -740,6 +740,16 @@ public class MessageFragment extends Fragment implements SpeakerProvider, Messag
         textSizeOfMessageET = getResources().getDimension(R.dimen.message_fragment_message_et_box_text_size);binding.sendingTextEt.getTextSize();
         refresh(isHighContrastEnabled);
         Utils.registerHighContrastObserver(this);
+
+
+        if(isViewForGroupChat){
+            binding.headerMyMsgImageView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    ((TranslationMainActivity)getActivity()).openGroupCreationOrUpdateDialog(chatGroup);
+                }
+            });
+        }
     }
 
     private void clearUnreadFlags() {

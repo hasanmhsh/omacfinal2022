@@ -400,6 +400,8 @@ public class TranslationItem extends BaseObservable implements ListItemBindableI
         return 0;
     }
 
+
+
     @Override
     public void drawLogo(ImageView view) {
 
@@ -443,6 +445,12 @@ public class TranslationItem extends BaseObservable implements ListItemBindableI
     public boolean getIsHighLighted() {
         return isHighLighted;
     }
+
+    @Override
+    public int getHighlightedFilterVisibility() {
+        return View.GONE;
+    }
+
     @Override
     public void toggleHighLight() {
         isHighLighted = !isHighLighted;
@@ -450,5 +458,20 @@ public class TranslationItem extends BaseObservable implements ListItemBindableI
     @Override
     public void setIsHighLighted(boolean isHighLighted) {
         this.isHighLighted=isHighLighted;
+    }
+
+    @Override
+    public void setIsGroupAdmin(boolean isGroupAdmin) {
+
+    }
+
+    @Override
+    public boolean getIsGroupAdmin() {
+        return false;
+    }
+    @Bindable
+    @Override
+    public int getIsAdminCheckBoxVisibility() {
+        return View.GONE;
     }
 }

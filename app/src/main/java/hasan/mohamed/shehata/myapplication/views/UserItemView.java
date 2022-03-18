@@ -65,7 +65,7 @@ public class UserItemView  extends FrameLayout implements BindableItem , View.On
         Utils.registerHighContrastObserver(this);
 
         if(isMultipleChoices) {
-            this.binding.userItemRootOfRootContainer.setOnLongClickListener(new OnLongClickListener() {
+            this.binding.userListItemRootContainer.setOnLongClickListener(new OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View view) {
                     if (binding.getUser() != null)

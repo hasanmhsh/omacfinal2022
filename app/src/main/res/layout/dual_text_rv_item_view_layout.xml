@@ -1,34 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:app="http://schemas.android.com/apk/res-auto">
+<layout xmlns:app="http://schemas.android.com/apk/res-auto" >
     <data>
         <variable
             name="dualtext"
             type="hasan.mohamed.shehata.myapplication.models.ListItemBindableItemContentProvider" />
     </data>
-    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <FrameLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+    <FrameLayout
+        android:id="@+id/dual_text_highlited_selection_container"
+        android:visibility="@{dualtext.highlightedFilterVisibility}"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:translationZ="10dp"
+        android:background="@color/selection_filter_color"></FrameLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/dual_text_rv_item_container"
-        android:layout_marginBottom="@dimen/margin_l"
+        android:layout_marginBottom="@dimen/margin_m"
+        android:layout_marginTop="@dimen/margin_xs"
         style="@style/PressableStyle">
 
         <ImageView
             android:id="@+id/dual_text_logo_iv"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:layout_marginBottom="@dimen/margin_m"
+            android:background="@drawable/user1"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_marginBottom="@dimen/margin_xs"
             android:layout_marginStart="@dimen/margin_m"
-            android:layout_marginEnd="@dimen/margin_l"
-            android:layout_marginTop="@dimen/margin_m"
+            android:layout_marginEnd="@dimen/margin_m"
+            android:layout_marginTop="@dimen/margin_xs"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/primatry_tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:layout_constraintStart_toEndOf="@id/dual_text_logo_iv"
-            app:layout_constraintTop_toTopOf="@id/dual_text_logo_iv"
+            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toTopOf="@id/secondary_tv"
             android:gravity="start"
             style="@style/PrimaryTextStyle"
@@ -43,11 +59,27 @@
             android:text="@{dualtext.secondaryText}"
             app:layout_constraintStart_toEndOf="@id/dual_text_logo_iv"
             app:layout_constraintTop_toBottomOf="@+id/primatry_tv"
-            app:layout_constraintBottom_toBottomOf="@id/dual_text_logo_iv"
+            app:layout_constraintBottom_toBottomOf="parent"
             android:gravity="start"
             android:textColor="@color/generalHintTextColor"
             style="@style/SecondaryTextStyle"/>
+        <CheckBox
+            android:visibility="@{dualtext.isAdminCheckBoxVisibility}"
+            android:id="@+id/is_admin_gps_list_item_chkbx"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Admin"
+            android:checked="@{dualtext.isGroupAdmin}"
+            android:layout_margin="@dimen/margin_m"
+            android:buttonTint="@color/generalTextColor"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:textColor="@color/generalTextColor"/>
+
+
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+    </FrameLayout>
 </layout>

@@ -518,7 +518,7 @@ public class LoginFragment extends Fragment implements BindableItem, StartedActi
                 @Override
                 public void onResponse(Call<LoginResult> call, Response<LoginResult> response) {
                     if(response.isSuccessful()){
-                        if(response.body().isLoginSuccessfully()){
+                        if(response.body().isSuccess()){
                             closeProgressWindow();
                             final User fetchedUser  = response.body().getUser();
                             new Thread(new Runnable() {
@@ -1240,17 +1240,22 @@ public class LoginFragment extends Fragment implements BindableItem, StartedActi
     }
 
     private void selectPhoto(){
-        ((PermissionRequestProvider)getActivity()).requireStoragePermissions(new PermissionRequestCallbacks() {
-            @Override
-            public void granted() {
-                ((StartedACtivityResultsProvider)getActivity()).pickImage();
-            }
 
-            @Override
-            public void denied() {
+        if(getActivity() != null) {
+            ((PermissionRequestProvider) getActivity()).requireStoragePermissions(new PermissionRequestCallbacks() {
+                @Override
+                public void granted() {
+                    if (getActivity() != null) {
+                        ((StartedACtivityResultsProvider) getActivity()).pickImage();
+                    }
+                }
 
-            }
-        });
+                @Override
+                public void denied() {
+
+                }
+            });
+        }
     }
 
     enum LastLoadedPhotoType{

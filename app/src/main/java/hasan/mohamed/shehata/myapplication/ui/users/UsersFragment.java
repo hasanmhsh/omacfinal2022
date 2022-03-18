@@ -227,6 +227,10 @@ public class UsersFragment extends Fragment implements TranslationMainActivity.M
     public void onResume() {
         super.onResume();
         ((FabSource)getActivity()).disableFab();
+
+        if(usersViewType == UsersViewType.groups && getActivity() !=null)
+            ((FabSource)getActivity()).showFab();
+
 //        ((FabSource)getActivity()).refreshFab();
 
 
@@ -242,6 +246,9 @@ public class UsersFragment extends Fragment implements TranslationMainActivity.M
     @Override
     public void onPause() {
         super.onPause();
+
+        if(usersViewType == UsersViewType.groups && getActivity() !=null)
+            ((FabSource)getActivity()).hideFab();
     }
 
 

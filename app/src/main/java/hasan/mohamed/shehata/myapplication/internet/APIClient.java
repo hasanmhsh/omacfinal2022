@@ -3,6 +3,8 @@ package hasan.mohamed.shehata.myapplication.internet;
 
 import android.content.Context;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -31,12 +33,13 @@ import hasan.mohamed.shehata.myapplication.R;
 import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
+import retrofit2.converter.jackson.JacksonConverterFactory;
 
 public class APIClient {
 
 //    public static String base_url = "https://hasantranslator.herokuapp.com/";
-//    public static String base_url = "https://35.86.30.22:6000/";
     public static String base_url = "https://35.86.30.22:6000/";
+//    public static String base_url = "https://192.168.1.17/";
 
     private static Retrofit retrofit = null;
 
@@ -60,10 +63,20 @@ public class APIClient {
                     .setDateFormat("yyyy-MM-dd HH:mm:ss") //Same as jackson in backend
                     .create();
 
+//            retrofit = new Retrofit.Builder()
+//                    .baseUrl(base_url)
+//    //                .baseUrl(url)
+//                    .addConverterFactory(GsonConverterFactory.create(gson))
+//                    .client(httpsClientForAWS.build())
+//                    .build();
+
+
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
             retrofit = new Retrofit.Builder()
                     .baseUrl(base_url)
-    //                .baseUrl(url)
-                    .addConverterFactory(GsonConverterFactory.create(gson))
+                    //                .baseUrl(url)
+                    .addConverterFactory(JacksonConverterFactory.create(mapper))
                     .client(httpsClientForAWS.build())
                     .build();
         }

@@ -105,6 +105,9 @@
         <entry key="..\:/omacfinal2022/app/src/main/res/drawable/buddy_message_unpressable_background1_high_contrast.xml" value="0.129" />
         <entry key="..\:/omacfinal2022/app/src/main/res/drawable/buddy_message_unpressable_background2_high_contrast.xml" value="0.129" />
         <entry key="..\:/omacfinal2022/app/src/main/res/drawable/chat_background_tiles.xml" value="0.121" />
+        <entry key="..\:/omacfinal2022/app/src/main/res/drawable/circular_green_solid_background_button.xml" value="0.1115" />
+        <entry key="..\:/omacfinal2022/app/src/main/res/drawable/circular_green_solid_background_button_pressed.xml" value="0.1115" />
+        <entry key="..\:/omacfinal2022/app/src/main/res/drawable/circular_green_solid_background_button_released.xml" value="0.1115" />
         <entry key="..\:/omacfinal2022/app/src/main/res/drawable/elegant_button_style1_light.xml" value="0.1" />
         <entry key="..\:/omacfinal2022/app/src/main/res/drawable/elegant_button_style1_pressed_light.xml" value="0.1" />
         <entry key="..\:/omacfinal2022/app/src/main/res/drawable/ic_baseline_call_24.xml" value="0.1" />
@@ -126,6 +129,7 @@
         <entry key="..\:/omacfinal2022/app/src/main/res/drawable/ic_baseline_mic_off_50.xml" value="0.129" />
         <entry key="..\:/omacfinal2022/app/src/main/res/drawable/ic_baseline_mic_off_50_black.xml" value="0.129" />
         <entry key="..\:/omacfinal2022/app/src/main/res/drawable/ic_baseline_people_alt_24.xml" value="0.121" />
+        <entry key="..\:/omacfinal2022/app/src/main/res/drawable/ic_baseline_people_white_alt_24.xml" value="0.1785" />
         <entry key="..\:/omacfinal2022/app/src/main/res/drawable/ic_baseline_person_24.xml" value="0.1" />
         <entry key="..\:/omacfinal2022/app/src/main/res/drawable/ic_baseline_send_50.xml" value="0.129" />
         <entry key="..\:/omacfinal2022/app/src/main/res/drawable/ic_baseline_send_50_black.xml" value="0.129" />
@@ -176,14 +180,17 @@
         <entry key="..\:/omacfinal2022/app/src/main/res/layout/call_popup_layout.xml" value="0.1" />
         <entry key="..\:/omacfinal2022/app/src/main/res/layout/content_translation_main.xml" value="0.1" />
         <entry key="..\:/omacfinal2022/app/src/main/res/layout/create_user_layout.xml" value="0.1" />
-        <entry key="..\:/omacfinal2022/app/src/main/res/layout/dual_text_rv_item_view_layout.xml" value="0.1" />
+        <entry key="..\:/omacfinal2022/app/src/main/res/layout/dual_text_rv_item_view_layout.xml" value="0.25" />
+        <entry key="..\:/omacfinal2022/app/src/main/res/layout/fragment_download.xml" value="0.11145833333333334" />
         <entry key="..\:/omacfinal2022/app/src/main/res/layout/fragment_home.xml" value="0.16666666666666666" />
         <entry key="..\:/omacfinal2022/app/src/main/res/layout/fragment_login.xml" value="0.264" />
         <entry key="..\:/omacfinal2022/app/src/main/res/layout/fragment_messages.xml" value="0.16" />
         <entry key="..\:/omacfinal2022/app/src/main/res/layout/fragment_user_phone_number_verification.xml" value="0.10989583333333333" />
         <entry key="..\:/omacfinal2022/app/src/main/res/layout/fragment_users.xml" value="0.1" />
         <entry key="..\:/omacfinal2022/app/src/main/res/layout/general_list_view_layout.xml" value="0.264" />
+        <entry key="..\:/omacfinal2022/app/src/main/res/layout/group_create_update_fragment.xml" value="0.1" />
         <entry key="..\:/omacfinal2022/app/src/main/res/layout/group_item_layout.xml" value="0.10989583333333333" />
+        <entry key="..\:/omacfinal2022/app/src/main/res/layout/layout_download_window.xml" value="0.1" />
         <entry key="..\:/omacfinal2022/app/src/main/res/layout/message_item_layout.xml" value="0.20817843866171004" />
         <entry key="..\:/omacfinal2022/app/src/main/res/layout/nav_header_translation_main.xml" value="0.1" />
         <entry key="..\:/omacfinal2022/app/src/main/res/layout/spinner_drop_down_view.xml" value="0.12158054711246201" />

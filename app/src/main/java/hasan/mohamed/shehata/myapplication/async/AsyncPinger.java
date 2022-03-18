@@ -4,8 +4,6 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
-import com.google.rpc.context.AttributeContext;
-
 import java.io.Closeable;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -14,7 +12,6 @@ import java.io.Serializable;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -135,6 +132,7 @@ public class AsyncPinger implements Serializable, CallCenter, AsyncPingerCallbac
 //                        overloadedPingResult = new OverloadedPingResult();
 //                        overloadedPingResult.setAllUsers(allUsers);
 //                        overloadedPingResult.setAllUserReceivedMessages(new ArrayList<>());
+                        Utils.setOverLoadedPingResult(overloadedPingResult);
                     } catch (Exception e) {
                         e.printStackTrace();
                         continue;
@@ -150,7 +148,7 @@ public class AsyncPinger implements Serializable, CallCenter, AsyncPingerCallbac
                         lastUpdateOfUnreadReceivedMsgsNotifications = AppDatabase.getUnreadReceivedMessageNotificationDao().getAll();
                     if (overloadedPingResult != null) {
                         boolean isPlayingNewSoundRing = false;
-                        final List<Message> newReceivedMessages = overloadedPingResult.getAllUserReceivedMessages();
+                        final List<Message> newReceivedMessages = overloadedPingResult.getMessages();
                         final AtomicBoolean isNonControlMsgReceived = new AtomicBoolean(false);
                         final List<RequiredNewMessage> requiredNewMessageList = new ArrayList<>();
                         final List<RequiredNewGroupMessage> requiredNewGroupMessageList = new ArrayList<>();
@@ -317,7 +315,7 @@ public class AsyncPinger implements Serializable, CallCenter, AsyncPingerCallbac
 
 
                         if (lastUpdateOfUnreadReceivedMsgsNotifications != null && lastUpdateOfUnreadReceivedMsgsNotifications.size() > 0) {
-                            List<User> users = overloadedPingResult.getAllUsers();
+                            List<User> users = overloadedPingResult.getUsers();
                             for (UnreadReceivedMessage umsg : lastUpdateOfUnreadReceivedMsgsNotifications) {
                                 if(umsg.getGroupid() == 0) {
                                     for (User user : users) {
@@ -341,7 +339,7 @@ public class AsyncPinger implements Serializable, CallCenter, AsyncPingerCallbac
 
 
                         final List<User> newUserList = new ArrayList<>();
-                        for (User user : overloadedPingResult.getAllUsers()) {
+                        for (User user : overloadedPingResult.getUsers()) {
                             if (user.getUserid() != userid)
                                 newUserList.add(user);
                         }
@@ -763,6 +761,7 @@ public class AsyncPinger implements Serializable, CallCenter, AsyncPingerCallbac
     public AsyncPinger(Context context,User currentUser) {
         me = currentUser;
         this.context = context;status = PingerStatus.Free;
+        Utils.setLastAsyncPinger(this);
         try {
             userid = Utils.getUserID(context);
             usersConsumers = new ArrayList<>();
@@ -991,7 +990,7 @@ public class AsyncPinger implements Serializable, CallCenter, AsyncPingerCallbac
 
 
     private User getMessageSender(Message newMessage) {
-        for(User user : overloadedPingResult.getAllUsers()){
+        for(User user : overloadedPingResult.getUsers()){
             if(user.getUserid() == newMessage.getSenderid()){
                 return user;
             }
@@ -1049,8 +1048,8 @@ public class AsyncPinger implements Serializable, CallCenter, AsyncPingerCallbac
             if (!usersConsumers.contains(consumer))
                 this.usersConsumers.add(consumer);
             if(overloadedPingResult!=null) {
-                    if (overloadedPingResult != null && overloadedPingResult.getAllUsers() != null) {
-                        List<User> existingUsers = overloadedPingResult.getAllUsers();
+                    if (overloadedPingResult != null && overloadedPingResult.getUsers() != null) {
+                        List<User> existingUsers = overloadedPingResult.getUsers();
                         List<User> newUsersList = new ArrayList<>();
                         for (User user : existingUsers) {
                             if(user.getUserid() != userid)
@@ -1409,7 +1408,7 @@ public class AsyncPinger implements Serializable, CallCenter, AsyncPingerCallbac
                 avatarUsersAndGroupsList = new ArrayList<>();
             avatarUsersAndGroupsList.clear();
             synchronized (avatarUsersAndGroupsList) {
-                for (User user : overloadedPingResult.getAllUsers()) {
+                for (User user : overloadedPingResult.getUsers()) {
                     avatarUsersAndGroupsList.add(user);
                 }
 

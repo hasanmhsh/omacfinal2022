@@ -3,9 +3,12 @@ package hasan.mohamed.shehata.myapplication.models;
 import android.view.View;
 import android.widget.ImageView;
 
+import androidx.databinding.BaseObservable;
+import androidx.databinding.Bindable;
+
 import hasan.mohamed.shehata.myapplication.types.ListItemCallbacks;
 
-public class CountryPhoneCode implements ListItemBindableItemContentProvider {
+public class CountryPhoneCode extends BaseObservable implements ListItemBindableItemContentProvider {
     private String name;
     private String phoneCode;
     private String countryCode;
@@ -59,6 +62,23 @@ public class CountryPhoneCode implements ListItemBindableItemContentProvider {
     }
 
     @Override
+    public void setIsGroupAdmin(boolean isGroupAdmin) {
+
+    }
+
+    @Override
+    public boolean getIsGroupAdmin() {
+        return false;
+    }
+
+
+    @Bindable
+    @Override
+    public int getIsAdminCheckBoxVisibility() {
+        return View.GONE;
+    }
+
+    @Override
     public void drawLogo(ImageView view) {
         view.setVisibility(View.GONE);
     }
@@ -68,6 +88,11 @@ public class CountryPhoneCode implements ListItemBindableItemContentProvider {
     @Override
     public boolean getIsHighLighted() {
         return isHighLighted;
+    }
+
+    @Override
+    public int getHighlightedFilterVisibility() {
+        return View.GONE;
     }
 
     @Override

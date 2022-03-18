@@ -3,6 +3,8 @@ package hasan.mohamed.shehata.myapplication.models;
 import android.content.Context;
 import android.widget.ImageView;
 
+import androidx.databinding.Bindable;
+
 import java.util.List;
 
 import hasan.mohamed.shehata.myapplication.types.ListItemCallbacks;
@@ -14,8 +16,12 @@ public interface ListItemBindableItemContentProvider extends ListItemContentProv
     public String getPrimaryText();
     public String getSecondaryText();
     public long getID();
+    public void setIsGroupAdmin(boolean isGroupAdmin);
+    public boolean getIsGroupAdmin();
+    public int getIsAdminCheckBoxVisibility();
     public void drawLogo(ImageView view);
     public boolean getIsHighLighted();
+    public int getHighlightedFilterVisibility();
     public void setIsHighLighted(boolean isHighLighted);
     public void setOnListItemCallbacks(ListItemCallbacks callbacks);
     public void disposeResources();
