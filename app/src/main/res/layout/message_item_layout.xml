@@ -111,7 +111,7 @@
             android:visibility="@{message.readEyeVisibility}"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintEnd_toStartOf="@id/delete_message_but"
-            android:src="@drawable/ic_baseline_remove_red_eye_24"
+            android:src="@drawable/ic_baseline_done_all_24"
 
             />
         <ImageButton

@@ -34,6 +34,7 @@ import hasan.mohamed.shehata.myapplication.types.Gender;
 import hasan.mohamed.shehata.myapplication.types.ImageReady;
 import hasan.mohamed.shehata.myapplication.types.ListItemCallbacks;
 import hasan.mohamed.shehata.myapplication.types.StatusOfServerObject;
+import hasan.mohamed.shehata.myapplication.types.UsersViewType;
 
 @Entity
 public class User extends BaseObservable implements ListItemBindableItemContentProvider, ImageReady,Comparable<User> {
@@ -273,6 +274,11 @@ public class User extends BaseObservable implements ListItemBindableItemContentP
         return userlanguage;
     }
 
+    @JsonIgnore
+    public void refreshLanguageBindingUi(){
+        notifyPropertyChanged(BR.userlanguage);
+    }
+
     public void setUserlanguage(Language userlanguage) {
         if(this.userlanguage != userlanguage) {
             this.userlanguage = userlanguage;
@@ -460,12 +466,14 @@ public class User extends BaseObservable implements ListItemBindableItemContentP
         if(isThisAGroup()){
             return View.GONE;
         }
-        else {
+        else if(Utils.currentUserViewType == UsersViewType.calls) {
             if (isOnline)
                 return View.VISIBLE;
             else
                 return View.GONE;
         }
+        else
+            return View.GONE;
     }
 
     @JsonIgnore

@@ -1043,7 +1043,7 @@ public class MessageFragment extends Fragment implements SpeakerProvider, Messag
             }
         }
         ((FabSource)getActivity()).disableFab();
-
+        ((TranslationMainActivity)getActivity()).setAttachActionButtonVeisibility(true);
 
         // This is to hide nav bar
         ((TranslationMainActivity)getActivity()).resetUIStateDelayed();
@@ -1063,6 +1063,8 @@ public class MessageFragment extends Fragment implements SpeakerProvider, Messag
     @Override
     public void onPause() {
         super.onPause();
+
+        ((TranslationMainActivity)getActivity()).setAttachActionButtonVeisibility(false);
         try {
             GeneralRecyclerViewAdapter adapter = ((GeneralRecyclerViewAdapter) binding.fragmentRecyclerView.getAdapter());
             if (adapter != null) {
@@ -1193,6 +1195,7 @@ public class MessageFragment extends Fragment implements SpeakerProvider, Messag
                 newMessage.setReceiverid(buddy.getUserid());
             if (isViewForGroupChat && chatGroup != null)
                 newMessage.setGroupid(chatGroup.getGroupid());
+            newMessage.setMessagetext("image");
             newMessage.setControlnumber(Utils.MESSAGE_IMAGE_CONTROL_CODE_CMD);
             newMessage.setIsToShowTranslatedText(false);
             newMessage.setImage(bytes);

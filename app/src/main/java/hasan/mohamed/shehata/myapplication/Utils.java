@@ -6,6 +6,7 @@ import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -17,6 +18,7 @@ import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
+import android.preference.PreferenceManager;
 import android.provider.ContactsContract;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -79,6 +81,7 @@ public class Utils {
     public  static List<Message> messagesToDelete = new ArrayList<>();
     public static ImageReady lastMessageFragmentImageUpdater = null;
     public static MessageFragment lastMessageFragment;
+
 
     public static Context myCurrentContext = null;
     public static void setLastAsyncPinger(AsyncPinger asyncPinger){
@@ -524,16 +527,8 @@ public class Utils {
 
     public static boolean getIsContinuousRecognition(Context context){
         String key = "hasan.mohamed.shehata.myapplication.getIsContinuousRecognition";
-        PreferenceKey preferenceKey = new PreferenceKey(key, "false");
-        PreferenceItem<String> preferenceItem = new PreferenceItem<String>(context, preferenceKey);
-        if(preferenceItem.get().equals("true")){
-            isContinuousRecognition = true;
-            return true;
-        }
-        else{
-            isContinuousRecognition = false;
-            return false;
-        }
+        isContinuousRecognition = getBooleanPreference(context,key);
+        return isContinuousRecognition;
     }
 
 
@@ -549,16 +544,8 @@ public class Utils {
     }
     public static void setIsContinuousRecognition(Context context, boolean isContinuousRecognitionEnabled){
         String key = "hasan.mohamed.shehata.myapplication.getIsContinuousRecognition";
-        PreferenceKey preferenceKey = new PreferenceKey(key, "false");
-        PreferenceItem<String> preferenceItem = new PreferenceItem<String>(context, preferenceKey);
-        if(isContinuousRecognitionEnabled){
-            preferenceItem.set("true");
-            isContinuousRecognition = true;
-        }
-        else{
-            preferenceItem.set("false");
-            isContinuousRecognition = false;
-        }
+        setBooleanPreference(context, key,isContinuousRecognitionEnabled);
+        isContinuousSpeaking = isContinuousRecognitionEnabled;
         if(continuousRecognitionObservers != null){
             for(ContinuousRecognitionObserver observer : continuousRecognitionObservers){
                 if(observer != null && context != null)
@@ -569,14 +556,8 @@ public class Utils {
 
     public static boolean getIsHighContrastTheme(Context context){
         String key = "hasan.mohamed.shehata.myapplication.getIsHighContrastTheme";
-        PreferenceKey preferenceKey = new PreferenceKey(key, "false");
-        PreferenceItem<String> preferenceItem = new PreferenceItem<String>(context, preferenceKey);
-        if(preferenceItem.get().equals("true")){
-            return true;
-        }
-        else{
-            return false;
-        }
+        return getBooleanPreference(context,key);
+
     }
 
 
@@ -590,16 +571,9 @@ public class Utils {
         if(observer != null)
             highContrastObservers.add(observer);
     }
-    public static void setIsHighContrastTheme(Context context, boolean isContinuousRecognitionEnabled){
+    public static void setIsHighContrastTheme(Context context, boolean value){
         String key = "hasan.mohamed.shehata.myapplication.getIsHighContrastTheme";
-        PreferenceKey preferenceKey = new PreferenceKey(key, "false");
-        PreferenceItem<String> preferenceItem = new PreferenceItem<String>(context, preferenceKey);
-        if(isContinuousRecognitionEnabled){
-            preferenceItem.set("true");
-        }
-        else{
-            preferenceItem.set("false");
-        }
+        setBooleanPreference(context, key,value);
         if(highContrastObservers != null){
             for(HighContrastObserver observer : highContrastObservers){
                 if(observer != null && context != null)
@@ -721,28 +695,102 @@ public class Utils {
     public static boolean isContinuousSpeaking = false;
     public static boolean getIsContinuousSpeaking(Context context){
         String key = "hasan.mohamed.shehata.myapplication.getIsContinuousSpeaking";
-        PreferenceKey preferenceKey = new PreferenceKey(key, "false");
-        PreferenceItem<String> preferenceItem = new PreferenceItem<String>(context, preferenceKey);
-        if(preferenceItem.get().equals("true")){
-            isContinuousSpeaking = true;
-            return true;
-        }
-        else{
-            isContinuousSpeaking = false;
-            return false;
-        }
+        isContinuousSpeaking = getBooleanPreference(context,key);
+        return isContinuousSpeaking;
     }
     public static void setIsContinuousSpeaking(Context context, boolean isContinuousSpeakingEnabled){
         String key = "hasan.mohamed.shehata.myapplication.getIsContinuousSpeaking";
-        PreferenceKey preferenceKey = new PreferenceKey(key, "false");
-        PreferenceItem<String> preferenceItem = new PreferenceItem<String>(context, preferenceKey);
-        if(isContinuousSpeakingEnabled){
-            preferenceItem.set("true");
-            isContinuousSpeaking = true;
+        setBooleanPreference(context, key,isContinuousSpeakingEnabled);
+        isContinuousSpeaking = isContinuousSpeakingEnabled;
+    }
+
+
+    private static boolean getBooleanPreference(Context context, String key){
+        SharedPreferences sp;
+        SharedPreferences.Editor speditor;
+        sp = PreferenceManager.getDefaultSharedPreferences(context);
+        return sp.getBoolean(key, false);
+    }
+
+    private static void setBooleanPreference(Context context, String key, boolean value){
+        SharedPreferences sp;
+        SharedPreferences.Editor speditor;
+        sp = PreferenceManager.getDefaultSharedPreferences(context);
+        speditor = sp.edit();
+        speditor.putBoolean(key,value);
+        speditor.commit();
+    }
+
+    private static String getStringPreference(Context context, String key){
+        SharedPreferences sp;
+        SharedPreferences.Editor speditor;
+        sp = PreferenceManager.getDefaultSharedPreferences(context);
+        return sp.getString(key, null);
+    }
+
+    private static void setStringPreference(Context context, String key, String value){
+        SharedPreferences sp;
+        SharedPreferences.Editor speditor;
+        sp = PreferenceManager.getDefaultSharedPreferences(context);
+        speditor = sp.edit();
+        speditor.putString(key,value);
+        speditor.commit();
+    }
+
+
+    public static boolean getIsLoginForUserInfoUpdate(Context context){
+        String key = "hasan.mohamed.shehata.myapplication.getIsLoginForUserInfoUpdate";
+        return getBooleanPreference(context,key);
+    }
+    public static void setIsLoginForUserInfoUpdate(Context context, boolean value){
+        String key = "hasan.mohamed.shehata.myapplication.getIsLoginForUserInfoUpdate";
+        setBooleanPreference(context, key,value);
+    }
+
+    public static void setUserNameForLoginUpdate(Context context, String value){
+        String key = "hasan.mohamed.shehata.myapplication.setUserNameForLoginUpdate";
+        setStringPreference(context,key,value);
+    }
+
+    public static String getUserNameForLoginUpdate(Context context){
+        String key = "hasan.mohamed.shehata.myapplication.setUserNameForLoginUpdate";
+        return getStringPreference(context,key);
+    }
+
+    public static void setUserLanguageForLoginUpdate(Context context, Language value){
+        String key = "hasan.mohamed.shehata.myapplication.setUserLanguageForLoginUpdate";
+        setStringPreference(context,key,value.name());
+    }
+
+    public static Language getUserLanguageForLoginUpdate(Context context){
+        String key = "hasan.mohamed.shehata.myapplication.setUserLanguageForLoginUpdate";
+        try {
+            return Language.valueOf(getStringPreference(context, key));
         }
-        else{
-            preferenceItem.set("false");
-            isContinuousSpeaking = false;
+        catch (Exception e){
+            return Language.English;
         }
     }
+
+    public static void setUserIdForLoginUpdate(Context context, long value){
+        String key = "hasan.mohamed.shehata.myapplication.setUserIdForLoginUpdate";
+        String str = String.valueOf(value);
+        setStringPreference(context,key,str);
+    }
+
+    public static long getUserIdForLoginUpdate(Context context){
+        String key = "hasan.mohamed.shehata.myapplication.setUserIdForLoginUpdate";
+        try {
+            return Long.parseLong(getStringPreference(context, key));
+        }
+        catch (Exception e){
+            return 0;
+        }
+    }
+
+
+
+
+
+
 }

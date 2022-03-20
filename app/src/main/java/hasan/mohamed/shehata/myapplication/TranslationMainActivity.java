@@ -147,7 +147,7 @@ public class TranslationMainActivity extends AppCompatActivity implements FabSou
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
         mAppBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.nav_users, R.id.nav_contacts, R.id.nav_groups , R.id.nav_calls)
+                R.id.nav_users, R.id.nav_contacts, R.id.nav_groups , R.id.nav_calls, R.id.settingsFragment2)
                 .setOpenableLayout(drawer)
                 .build();
         navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_translation_main);
@@ -331,7 +331,6 @@ public class TranslationMainActivity extends AppCompatActivity implements FabSou
                 Utils.getPhoneNumberList(getApplicationContext());
             }
         });
-
 
     }
 
@@ -755,6 +754,12 @@ public class TranslationMainActivity extends AppCompatActivity implements FabSou
                 navigateFromUsersToLogin();
             else if(navController.getCurrentDestination().getId() == R.id.nav_messages)
                 navigateFromMessagesToLogin();
+            else if(navController.getCurrentDestination().getId() == R.id.nav_groups)
+                navigateFromGroupsToLogin();
+            else if(navController.getCurrentDestination().getId() == R.id.nav_calls)
+                navigateFromCallsToLogin();
+            else if(navController.getCurrentDestination().getId() == R.id.settingsFragment2)
+                navigateFromSettingsToLogin();
         }
         else{
 
@@ -933,6 +938,8 @@ public class TranslationMainActivity extends AppCompatActivity implements FabSou
             navController.navigate(R.id.action_users_toLogin);
         }
     }
+
+
 
     @Override
     public void navigateFromMessagesToLogin() {
@@ -1243,8 +1250,17 @@ public class TranslationMainActivity extends AppCompatActivity implements FabSou
     }
 
 
+    public void updateUser(){
+        Utils.setIsLoginForUserInfoUpdate(this,true);
+        Utils.setUserIdForLoginUpdate(this, currentUser.getUserId());
+        Utils.setUserNameForLoginUpdate(this,currentUser.getUsername());
+        Utils.setUserLanguageForLoginUpdate(this,currentUser.getUserlanguage());
+        changeUser();
+    }
+
+
     boolean isLoggedOut = false;
-    private void changeUser() {
+    public void changeUser() {
         isLoggedOut = true;
         if(pinger != null) {
             pinger.release();
@@ -1637,4 +1653,41 @@ public class TranslationMainActivity extends AppCompatActivity implements FabSou
             super.onBackPressed();
         }
     }
+
+
+    public void setContinousRecognitionMenuCheckbox(boolean isChecked){
+        actionBarMenuHost.findItem(R.id.action_continious_recognition).setChecked(isChecked);
+    }
+
+
+    public void setContinousSpeakingMenuCheckbox(boolean isChecked){
+        actionBarMenuHost.findItem(R.id.action_continious_tts).setChecked(isChecked);
+    }
+
+    public void setAttachActionButtonVeisibility(boolean isVisible){
+        actionBarMenuHost.findItem(R.id.action_attach_messages).setVisible(isVisible);
+    }
+
+
+    @Override
+    public void navigateFromGroupsToLogin() {
+        if(navController.getCurrentDestination().getId() == R.id.nav_groups) {
+            navController.navigate(R.id.action_groups_toLogin);
+        }
+    }
+
+    @Override
+    public void navigateFromCallsToLogin() {
+        if(navController.getCurrentDestination().getId() == R.id.nav_calls) {
+            navController.navigate(R.id.action_calls_toLogin);
+        }
+    }
+
+    @Override
+    public void navigateFromSettingsToLogin() {
+        if(navController.getCurrentDestination().getId() == R.id.settingsFragment2) {
+            navController.navigate(R.id.action_settings_toLogin);
+        }
+    }
+
 }

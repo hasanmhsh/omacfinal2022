@@ -10,7 +10,7 @@
 <!--            android:title="@string/menu_home" />-->
         <item
             android:id="@+id/nav_users"
-            android:icon="@drawable/ic_baseline_person_24"
+            android:icon="@drawable/ic_outline_person_outline_24"
             android:title="@string/users_list" />
 
 <!--        <item-->
@@ -28,12 +28,12 @@
 
         <item
             android:id="@+id/nav_groups"
-            android:icon="@drawable/ic_baseline_people_alt_24"
+            android:icon="@drawable/ic_outline_people_alt_24"
             android:title="@string/my_groups" />
 
         <item
             android:id="@+id/nav_calls"
-            android:icon="@drawable/ic_baseline_call_24"
+            android:icon="@drawable/ic_outline_call_24"
             android:title="@string/calls" />
 
 
@@ -42,6 +42,13 @@
     <item android:title="">
         <menu>
             <group android:checkableBehavior="single">
+
+
+
+                <item
+                    android:id="@+id/settingsFragment2"
+                    android:icon="@drawable/ic_outline_settings_24"
+                    android:title="@string/settings" />
                 <!--        <item-->
                 <!--            android:id="@+id/nav_home"-->
                 <!--            android:icon="@drawable/ic_menu_camera"-->

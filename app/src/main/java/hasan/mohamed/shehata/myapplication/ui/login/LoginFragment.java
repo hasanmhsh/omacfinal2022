@@ -12,6 +12,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -23,11 +24,13 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -63,6 +66,7 @@ import hasan.mohamed.shehata.myapplication.types.StatusOfServerObject;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -94,6 +98,9 @@ public class LoginFragment extends Fragment implements BindableItem, StartedActi
     private boolean isResendCounterOn = false;
     private boolean isNowPhoneNumberVerificationView = true;
     private AtomicInteger resendCounter = new AtomicInteger(30);
+    private boolean isToUpdateCurrentUserOnly = false;
+
+    public static final String ME_PARAM = "ME_PARAM";
 
     @Nullable
     @Override
@@ -101,8 +108,17 @@ public class LoginFragment extends Fragment implements BindableItem, StartedActi
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
 
+        isToUpdateCurrentUserOnly = Utils.getIsLoginForUserInfoUpdate(getContext());
+
         binding = FragmentLoginBinding.inflate(inflater, container, false);
         binding.setUser(new User());
+        if(isToUpdateCurrentUserOnly){
+            binding.getUser().setUserid(Utils.getUserIdForLoginUpdate(getContext()));
+            binding.getUser().setUsername(Utils.getUserNameForLoginUpdate(getContext()));
+            binding.getUser().setUserlanguage(Utils.getUserLanguageForLoginUpdate(getContext()));
+            isNowPhoneNumberVerificationView = false;
+
+        }
         loginViewModel = new ViewModelProvider(this).get(LoginViewModel.class);
         loginViewModel.getIsLogin().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
             @Override
@@ -149,10 +165,11 @@ public class LoginFragment extends Fragment implements BindableItem, StartedActi
         loginViewModel.getLanguage().observe(getViewLifecycleOwner(), new Observer<Language>() {
             @Override
             public void onChanged(Language language) {
-                selectedLanguage = language;
-                binding.getUser().setUserlanguage(language);
-                if(language!=null)
+                if(language!=null) {
+                    selectedLanguage = language;
+                    binding.getUser().setUserlanguage(language);
                     binding.userLanguage.setText(selectedLanguage.getLanguageName());
+                }
             }
         });
         binding.selectLanguageBut.setOnClickListener(new View.OnClickListener() {
@@ -290,7 +307,7 @@ public class LoginFragment extends Fragment implements BindableItem, StartedActi
             public void onChanged(Boolean aBoolean) {
                 if (aBoolean != null)
                     isNowPhoneNumberVerificationView = aBoolean;
-                if(isNowPhoneNumberVerificationView) {
+                if(isNowPhoneNumberVerificationView && !isToUpdateCurrentUserOnly) {
                     phoneVerficationViewInitialization();
                 }
                 else {
@@ -305,7 +322,7 @@ public class LoginFragment extends Fragment implements BindableItem, StartedActi
             public void onChanged(Boolean aBoolean) {
                 if (aBoolean != null)
                     isResendCounterOn = aBoolean;
-                if (isResendCounterOn) {
+                if (isResendCounterOn && !isToUpdateCurrentUserOnly) {
                     binding.countrySelectionTvPhoneNumberVerificationFragment.setEnabled(false);
                     binding.countryCodeEtPhoneVerificationLoginFragment.setEnabled(false);
                     binding.phonenumberEtPhoneNumberVerificationFragmnet.setEnabled(false);
@@ -324,7 +341,7 @@ public class LoginFragment extends Fragment implements BindableItem, StartedActi
             public void onChanged(Boolean aBoolean) {
                 if (aBoolean != null)
                     isVerificationGroupVisible = aBoolean;
-                if (isVerificationGroupVisible) {
+                if (isVerificationGroupVisible && !isToUpdateCurrentUserOnly) {
                     binding.verificationnumberEtPhoneNumberVerificationFragmnet.setVisibility(View.VISIBLE);
                     binding.verificationNumberLabelTvVerificationFragment.setVisibility(View.VISIBLE);
                     binding.resendSmsButPhoneVerificationFragment.setVisibility(View.VISIBLE);
@@ -419,7 +436,14 @@ public class LoginFragment extends Fragment implements BindableItem, StartedActi
 //                            List<User> allUsers = AppDatabase.getUserDao().getAll();  // for debug
 
             //Todo : save user on api
-            Call<User> userCall = APIClient.getAPIInterface(getContext()).createNewUser(newUser);
+            Call<User> userCall;
+            if(isToUpdateCurrentUserOnly){
+                newUser.setUserid(binding.getUser().getUserid());
+                userCall = APIClient.getAPIInterface(getContext()).updateExistingUser(binding.getUser().getUserid(),newUser);
+            }
+            else {
+                userCall = APIClient.getAPIInterface(getContext()).createNewUser(newUser);
+            }
 
             closeProgressWindow();
             progressWindow = GeneralPopupWindow.makeProgressWindow(getContext(), "Saving user...",false);
@@ -429,14 +453,7 @@ public class LoginFragment extends Fragment implements BindableItem, StartedActi
                 @Override
                 public void onResponse(Call<User> call, final Response<User> response) {
                     if (response.isSuccessful()) {
-
-                        if(response.body().isExist()){
-                            closeProgressWindow();
-                            binding.userAlreadyExistsTV.setText("User already exist try login!");
-                            binding.userAlreadyExistsTV.setVisibility(View.VISIBLE);
-                            return;
-                        }
-                        myid = response.body().getID();
+                        myid = response.body().getUserid();
                         compressImage(pickedPhotoContentUri);
                         new Thread(new Runnable() {
                             @Override
@@ -457,6 +474,7 @@ public class LoginFragment extends Fragment implements BindableItem, StartedActi
 //                                                        boolean after = Utils.isUserCreated(getContext());
 //                                                ((NavHeader) getActivity()).setNavHeaderData(fetchedUser.getUsername() + "(" + fetchedUser.getUserlanguage().getLanguageName() + ")", fetchedUser.getUseremail());
                                         ((NavigationProvider)getActivity()).navigateFromLoginToUsers();
+                                        Utils.setIsLoginForUserInfoUpdate(getContext(),false);
                                         closeDialog();
                                     }
                                 });
@@ -1448,6 +1466,12 @@ public class LoginFragment extends Fragment implements BindableItem, StartedActi
 //            bitmap = Utils.AngleBitmapRotation(90.0D,bitmap);
 //        }
         bitmap.compress(Bitmap.CompressFormat.PNG,100 , outStream);
+        if(bitmap == null){
+            if(getContext() != null){
+                Toast.makeText(getContext(), "Unsupported image format!",Toast.LENGTH_SHORT).show();
+            }
+            return;
+        }
         File f = new File(
                 getContext().getFilesDir().getPath() // /data/user/0/hasan.mohamed.shehata.myapplication/files/myphoto34532.png
 //                Environment.getExternalStorageDirectory() //  /storage/o
@@ -1501,5 +1525,43 @@ public class LoginFragment extends Fragment implements BindableItem, StartedActi
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        if(isToUpdateCurrentUserOnly){
+            APIClient.getAPIInterface(getContext()).downloadPhoto(binding.getUser().getUserId()).enqueue(new Callback<ResponseBody>() {
+                @Override
+                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                    if(response.isSuccessful()){
+                        if(binding!=null && binding.selectPhotoBut!=null){
+                            try {
+                                byte[] image = response.body().bytes();
+                                BitmapFactory.Options options = new BitmapFactory.Options();
+                                Bitmap bitmap = BitmapFactory.decodeByteArray(image, 0, image.length, options);
+//                                binding.selectPhotoBut.setImageBitmap(bitmap);
+                                RequestOptions requestOptions = new RequestOptions();
+                                    requestOptions = requestOptions.circleCrop();
+                                Glide
+                                        .with(getContext())
+                                        .load(bitmap)
+                                        .apply(requestOptions)
+                                        .into(binding.selectPhotoBut);
+                            }
+                            catch (IOException e){e.printStackTrace();}
+                        }
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<ResponseBody> call, Throwable t) {
+                    call.cancel();
+                }
+            });
+            binding.loginFragmentPhoneNumberVerificationContainer.setVisibility(View.GONE);
+            binding.loginFragmentPersonalInformationContainer.setVisibility(View.VISIBLE);
+            Utils.runOnUIThreadPostDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    binding.getUser().refreshLanguageBindingUi();
+                }
+            });
+        }
     }
 }

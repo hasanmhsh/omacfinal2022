@@ -1,0 +1,57 @@
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory app:title="@string/settings">
+
+        <!--        <EditTextPreference-->
+        <!--            app:key="signature"-->
+        <!--            app:title="@string/signature_title"-->
+        <!--            app:useSimpleSummaryProvider="true" />-->
+
+        <!--        <ListPreference-->
+        <!--            app:defaultValue="reply"-->
+        <!--            app:entries="@array/reply_entries"-->
+        <!--            app:entryValues="@array/reply_values"-->
+        <!--            app:key="reply"-->
+        <!--            app:title="@string/reply_title"-->
+        <!--            app:useSimpleSummaryProvider="true" />-->
+
+        <SwitchPreferenceCompat
+            app:key="hasan.mohamed.shehata.myapplication.getIsHighContrastTheme"
+            app:summaryOff="High contrast is disabled"
+            app:summaryOn="High contrast is enabled"
+            app:title="High contrast" />
+
+        <SwitchPreferenceCompat
+            app:key="hasan.mohamed.shehata.myapplication.getIsContinuousRecognition"
+            app:summaryOff="Continuous recognition is disabled"
+            app:summaryOn="Continuous recognition is enabled"
+            app:title="Continuous recognition" />
+
+        <SwitchPreferenceCompat
+            app:key="hasan.mohamed.shehata.myapplication.getIsContinuousSpeaking"
+            app:summaryOff="Continuous speaking is disabled"
+            app:summaryOn="Continuous speaking is enabled"
+            app:title="Continuous speaking" />
+
+        <Preference app:key="settings_user_profile"
+            app:title="User profile"
+            app:summary="Edit user information"/>
+
+    </PreferenceCategory>
+
+    <!--    <PreferenceCategory app:title="@string/sync_header">-->
+
+    <!--        <SwitchPreferenceCompat-->
+    <!--            app:key="sync"-->
+    <!--            app:title="@string/sync_title" />-->
+
+    <!--        <SwitchPreferenceCompat-->
+    <!--            app:dependency="sync"-->
+    <!--            app:key="attachment"-->
+    <!--            app:summaryOff="@string/attachment_summary_off"-->
+    <!--            app:summaryOn="@string/attachment_summary_on"-->
+    <!--            app:title="@string/attachment_title" />-->
+
+    <!--    </PreferenceCategory>-->
+
+</PreferenceScreen>

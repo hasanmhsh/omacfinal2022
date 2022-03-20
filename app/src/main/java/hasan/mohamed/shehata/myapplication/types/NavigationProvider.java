@@ -7,6 +7,9 @@ public interface NavigationProvider {
 //    public void setTitleOfCurrentDestination(String title);
     public void navigateFromLoginToUsers();
     public void navigateFromUsersToLogin();
+    public void navigateFromGroupsToLogin();
+    public void navigateFromCallsToLogin();
+    public void navigateFromSettingsToLogin();
     public void navigateFromMessagesToLogin();
     public void navigateFromSplashToLogin();
     public void navigateFromSplashToUsers();
@@ -18,4 +21,6 @@ public interface NavigationProvider {
     public void navigateFromCallingDialogToMessages(User buddy, boolean isCall);
     public void returnToPreviousFragment();
 //    public void navigateToUsers();
+
+
 }

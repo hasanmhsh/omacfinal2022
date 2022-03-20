@@ -54,7 +54,7 @@ public class UsersFragment extends Fragment implements TranslationMainActivity.M
     private User me;
     private boolean isMeReadyCalled  = false;
 
-    private UsersViewType usersViewType;
+    private UsersViewType usersViewType = UsersViewType.allusers;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -87,6 +87,7 @@ public class UsersFragment extends Fragment implements TranslationMainActivity.M
         catch (Exception e){
 
         }
+        Utils.currentUserViewType = usersViewType;
 
         usersViewModel =
                 new ViewModelProvider(this).get(UsersViewModel.class);

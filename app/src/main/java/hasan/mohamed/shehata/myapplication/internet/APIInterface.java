@@ -23,6 +23,7 @@ import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
 import retrofit2.http.HTTP;
 import retrofit2.http.Multipart;
+import retrofit2.http.PATCH;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Part;
@@ -46,6 +47,10 @@ public interface APIInterface {
 
     @POST("users/user")
     Call<User> createNewUser(@Body User user);
+
+
+    @PATCH("users/user/{userid}")
+    Call<User> updateExistingUser(@Path("userid") long userid, @Body User user);
 
     @POST("users/user/phone")
     Call<User> getUserByPhoneNumber(@Body User user);

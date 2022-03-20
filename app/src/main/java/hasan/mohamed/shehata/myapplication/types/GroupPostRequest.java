@@ -79,6 +79,12 @@ public class GroupPostRequest implements Serializable {
         Bitmap bitmap = null;
         try {
             bitmap = MediaStore.Images.Media.getBitmap(this.context.getContentResolver(), uri);
+            if(bitmap == null){
+                if(context != null){
+                    Toast.makeText(context, "Unsupported image format!",Toast.LENGTH_SHORT).show();
+                }
+                return;
+            }
 
         }
         catch(Exception e){
@@ -88,7 +94,12 @@ public class GroupPostRequest implements Serializable {
         int origHeight = bitmap.getHeight();
         if(origWidth > destWidth) {
             Bitmap scaledBm = Bitmap.createScaledBitmap(bitmap, destWidth, destWidth * origHeight / origWidth, true);
-
+            if(scaledBm == null){
+                if(context != null){
+                    Toast.makeText(context, "Unsupported image format!",Toast.LENGTH_SHORT).show();
+                }
+                return;
+            }
             finalizeCompression(scaledBm);
         }
         else
@@ -172,6 +183,12 @@ public class GroupPostRequest implements Serializable {
 //            bitmap = Utils.AngleBitmapRotation(90.0D,bitmap);
 //        }
         bitmap.compress(Bitmap.CompressFormat.PNG,100 , outStream);
+        if(bitmap == null){
+            if(context != null){
+                Toast.makeText(context, "Unsupported image format!",Toast.LENGTH_SHORT).show();
+            }
+            return;
+        }
         File f = new File(
                 context.getFilesDir().getPath() // /data/user/0/hasan.mohamed.shehata.myapplication/files/myphoto34532.png
 //                Environment.getExternalStorageDirectory() //  /storage/o
