@@ -39,6 +39,7 @@ import java.util.List;
 
 import hasan.mohamed.shehata.myapplication.AppDatabase;
 import hasan.mohamed.shehata.myapplication.R;
+import hasan.mohamed.shehata.myapplication.TranslationMainActivity;
 import hasan.mohamed.shehata.myapplication.Utils;
 import hasan.mohamed.shehata.myapplication.async.AsyncPinger;
 import hasan.mohamed.shehata.myapplication.databinding.CallPopupLayoutBinding;
@@ -69,6 +70,7 @@ import hasan.mohamed.shehata.myapplication.types.PermissionRequestCallbacks;
 import hasan.mohamed.shehata.myapplication.types.PermissionRequestProvider;
 import hasan.mohamed.shehata.myapplication.types.ResultReceiver;
 import hasan.mohamed.shehata.myapplication.types.SearchCallbacks;
+import hasan.mohamed.shehata.myapplication.types.SingleObjectReceiver;
 import hasan.mohamed.shehata.myapplication.types.SpeakerProvider;
 import hasan.mohamed.shehata.myapplication.types.StartedACtivityResultsProvider;
 import hasan.mohamed.shehata.myapplication.types.StartedActivityResultsListener;
@@ -87,11 +89,12 @@ public abstract class GeneralPopupWindow extends DialogFragment {
     private static String WINDOW_LIST_ITEMS_EXTRA_PARAM = "hasan.mohamed.shehata.myapplication.templates.GeneralListViewLayoutBinding.WINDOW_LIST_ITEMS_EXTRA_PARAM";
     private static String WINDOW_RESULT_RECEIVER_EXTRA_PARAM = "hasan.mohamed.shehata.myapplication.templates.GeneralListViewLayoutBinding.WINDOW_RESULT_RECEIVER_EXTRA_PARAM";
     private static String PARCEL_EXTRA_PARAM = "hasan.mohamed.shehata.myapplication.templates.GeneralListViewLayoutBinding.PARCEL_EXTRA_PARAM";
-    public static void makeSelectionWindow(Context context, String title, List<ListItemBindableItemContentProvider> listData , ResultReceiver selectionResultReceiver,boolean isRefreshFab,boolean isMultipleChoices){
+    public static void makeSelectionWindow(Context context, String title, List<ListItemBindableItemContentProvider> listData , ResultReceiver selectionResultReceiver,boolean isRefreshFab,boolean isMultipleChoices, boolean isReadOnly){
         FragmentManager supportFragmentManager = Utils.getSupportFragmentManager(context);
         Bundle bundle = new Bundle();
         SerializedParcel serializedParcel = new SerializedParcel(title, listData, selectionResultReceiver,isMultipleChoices);
         serializedParcel.setItemWithImage(false);
+        serializedParcel.setReadOnly(isReadOnly);
         bundle.putSerializable(PARCEL_EXTRA_PARAM, serializedParcel);
         GSPWindow window = new GSPWindow(bundle);
         window.show(supportFragmentManager, title);
@@ -119,11 +122,12 @@ public abstract class GeneralPopupWindow extends DialogFragment {
         return window;
     }
 
-    public static void makeGroupCreationWindow(Context context, String title, Group group,boolean isRefreshFab){
+    public static void makeGroupCreationWindow(Context context, String title, Group group, SingleObjectReceiver receiver, boolean isRefreshFab){
         FragmentManager supportFragmentManager = Utils.getSupportFragmentManager(context);
         Bundle bundle = new Bundle();
         SerializedParcel serializedParcel = new SerializedParcel();
         serializedParcel.setGroup(group);
+        serializedParcel.setSingleObjectReceiver(receiver);
         bundle.putSerializable(PARCEL_EXTRA_PARAM, serializedParcel);
         GroupWindow window = new GroupWindow(bundle);
         window.show(supportFragmentManager, title);
@@ -179,6 +183,29 @@ public abstract class GeneralPopupWindow extends DialogFragment {
         private ResultReceiver selectionResultReceiver;
         private boolean isItemWithImage = true;
         private boolean isMultipleChoices;
+
+        //   VVVObjects cant be serialized except if its value = null VVV
+//        private SingleObjectReceiver singleObjectReceiver;
+
+        public SingleObjectReceiver getSingleObjectReceiver() {
+//            return singleObjectReceiver;
+            return null;
+        }
+
+        public void setSingleObjectReceiver(SingleObjectReceiver singleObjectReceiver) {
+//            this.singleObjectReceiver = singleObjectReceiver;
+        }
+
+
+        public boolean isReadOnly() {
+            return isReadOnly;
+        }
+
+        public void setReadOnly(boolean readOnly) {
+            isReadOnly = readOnly;
+        }
+
+        private boolean isReadOnly;
         private Group group;
 
         public SerializedParcel(String title, List<ListItemBindableItemContentProvider> listData, ResultReceiver selectionResultReceiver, boolean isMultipleChoices) {
@@ -300,6 +327,14 @@ public abstract class GeneralPopupWindow extends DialogFragment {
                 return false;
         }
 
+        private boolean getIsReadOnly() {
+            SerializedParcel serializedParcel = getSerializableParcel();
+            if(serializedParcel !=null)
+                return serializedParcel.isReadOnly();
+            else
+                return false;
+        }
+
         private List<ListItemBindableItemContentProvider> getListData() {
             SerializedParcel serializedParcel = getSerializableParcel();
             if(serializedParcel !=null)
@@ -357,6 +392,11 @@ public abstract class GeneralPopupWindow extends DialogFragment {
             public SpeakerProvider provideSpeaker() {
                 return null;
             }
+
+            @Override
+            public boolean isReadOnly() {
+                return getIsReadOnly();
+            }
         };
 
         @Nullable
@@ -397,7 +437,7 @@ public abstract class GeneralPopupWindow extends DialogFragment {
             binding.generalFragmentRecyclerView.setLayoutManager(layoutManager);
             boolean isMC = getIsMultipleChoices();
             List<ListItemBindableItemContentProvider> list = getListData();
-            binding.generalFragmentRecyclerView.setAdapter(new GeneralRecyclerViewAdapter<DualTextRecyclerViewItemView>(getContext(), list, resultReceiver, DualTextRecyclerViewItemView.class, FabActionType.None, TranslatorCapabilities.NotApplicable, null,null,binding.generalFragmentRecyclerView,null, false, null, null, getIsMultipleChoices(),searchCallbacks));
+            binding.generalFragmentRecyclerView.setAdapter(new GeneralRecyclerViewAdapter<DualTextRecyclerViewItemView>(getContext(), list, resultReceiver, DualTextRecyclerViewItemView.class, FabActionType.None, TranslatorCapabilities.NotApplicable, null,null,binding.generalFragmentRecyclerView,null, false, null, null, getIsMultipleChoices(),searchCallbacks,getIsReadOnly()));
             binding.gspSearchEtPopupId.addTextChangedListener(new TextWatcher() {
                 @Override
                 public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -578,6 +618,11 @@ public abstract class GeneralPopupWindow extends DialogFragment {
                                 @Override
                                 public SpeakerProvider provideSpeaker() {
                                     return null;
+                                }
+
+                                @Override
+                                public boolean isReadOnly() {
+                                    return false;
                                 }
                             }
                     ,false);
@@ -1165,11 +1210,10 @@ public abstract class GeneralPopupWindow extends DialogFragment {
 
     ////////////////GROUP WINDOW
     public static class GroupWindow extends GeneralPopupWindow implements ImageReady , StartedActivityResultsListener {
-        private PopupViewModel viewModel;
         private Group group;
-        private boolean isFullGroupFetched = false;
+        private boolean isReadOnly;
+        private GroupUser myGroupUserInThisGroupInCaseOfUpdatingExistingGroup;
 
-        private GroupWindow thiz;
         public GroupWindow(Bundle bundle) {
             super();
             setArguments(bundle);
@@ -1215,6 +1259,11 @@ public abstract class GeneralPopupWindow extends DialogFragment {
             public SpeakerProvider provideSpeaker() {
                 return null;
             }
+
+            @Override
+            public boolean isReadOnly() {
+                return isReadOnly;
+            }
         };
 
 
@@ -1224,6 +1273,14 @@ public abstract class GeneralPopupWindow extends DialogFragment {
             SerializedParcel serializedParcel = getSerializableParcel();
             if(serializedParcel !=null)
                 return serializedParcel.getGroup();
+            else
+                return null;
+        }
+
+        private SingleObjectReceiver getGroupReceiver() {
+            SerializedParcel serializedParcel = getSerializableParcel();
+            if(serializedParcel !=null)
+                return serializedParcel.getSingleObjectReceiver();
             else
                 return null;
         }
@@ -1248,153 +1305,95 @@ public abstract class GeneralPopupWindow extends DialogFragment {
         @Override
         public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
             super.onViewCreated(view, savedInstanceState);
-//            viewModel = new ViewModelProvider(this).get(PopupViewModel.class);
-//            viewModel.getSerializedParcelMutableLiveData().observe(getViewLifecycleOwner(), new Observer<SerializedParcel>() {
-//                @Override
-//                public void onChanged(SerializedParcel serializedParcel) {
-//                    if(serializedParcel != null)
-//                        initRV();
-//                }
-//            });
             if(getArguments() != null && getSerializableParcel() != null)
                 group = getMyGroup();
             else
                 closeDialog();
-
-            thiz = this;
-
 
             if(group == null)
                 group = new Group();
 
 
             AsyncPinger asyncPinger = Utils.getLastAsyncPinger();
-            if(asyncPinger != null && group.getGroupid() != 0){
-                asyncPinger.registerImageReadyListenerOrGetImageIfExistForGroups(group.getGroupid(), this);
+            if(asyncPinger != null) {
+                if (group.getGroupid() != 0) {
+                    asyncPinger.registerImageReadyListenerOrGetImageIfExistForGroups(group.getGroupid(), this);
+                }
+            }
+            else{
+                closeDialog();
             }
 
             if(getActivity() != null){
                 ((StartedACtivityResultsProvider)getActivity()).registerStartedActivityResultsListener(this);
             }
+            else{
+                closeDialog();
+            }
 
             binding.groupImagePhotoBut.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    selectPhoto();
+                    if(!isReadOnly) {
+                        selectPhoto();
+                    }
                 }
             });
             if(group.getGroupid() != 0){
-                binding.saveGroupBut.setEnabled(false);
-                binding.groupName.setEnabled(false);
-                binding.groupImagePhotoBut.setEnabled(false);
-                if(!isFullGroupFetched) {
-                    APIClient.getAPIInterface(getContext()).getFullGroupById(group.getGroupid()).enqueue(new Callback<Group>() {
-                        @Override
-                        public void onResponse(Call<Group> call, Response<Group> response) {
-                            if (response.isSuccessful()) {
-                                group = response.body();
-                                isFullGroupFetched = true;
-                                if(getContext()!=null) {
-                                    long myid = Utils.getUserID(getContext());
-                                    for(GroupUser groupUser : group.getGroupusers()){
-                                        if(groupUser.getUser().getUserid() == myid){
-                                            if(groupUser.getGrouprole() == GroupRole.ADMIN){
-                                                if(binding != null && binding.saveGroupBut != null){
-                                                    binding.saveGroupBut.setEnabled(true);
-
-                                                    binding.groupName.setEnabled(true);
-                                                    binding.groupImagePhotoBut.setEnabled(true);
-                                                }
-
-                                            }
-                                        }
-                                    }
-                                }
-                            } else {
-                                Toast.makeText(getContext(), "Connection error!", Toast.LENGTH_LONG).show();
-                            }
-                        }
-
-                        @Override
-                        public void onFailure(Call<Group> call, Throwable t) {
-                            call.cancel();
-                            Toast.makeText(getContext(), "Connection error!", Toast.LENGTH_LONG).show();
-                        }
-                    });
+            //Replacing existing group
+                binding.isGroupReadOnlyChkbx.setChecked(group.getDefaultgroupusersrole() == GroupRole.RECEIVE);
+                binding.groupName.setText(group.getName());
+                if(getMyGroupUser().getGrouprole() != GroupRole.ADMIN) {
+                    isReadOnly = true;
+                    binding.saveGroupBut.setEnabled(false);
+                    binding.saveGroupBut.setVisibility(View.GONE);
+                    binding.deleteGroupBut.setVisibility(View.GONE);
+                    binding.groupName.setEnabled(false);
+                    binding.groupImagePhotoBut.setEnabled(false);
+                    binding.isGroupReadOnlyChkbx.setEnabled(false);
+                    binding.deleteGroupBut.setEnabled(false);
                 }
                 else{
-
+                    isReadOnly = false;
+                    binding.saveGroupBut.setEnabled(true);
+                    binding.deleteGroupBut.setEnabled(true);
+                    binding.groupName.setEnabled(true);
+                    binding.groupImagePhotoBut.setEnabled(true);
+                    binding.isGroupReadOnlyChkbx.setEnabled(true);
+                    binding.saveGroupBut.setVisibility(View.VISIBLE);
+                    binding.deleteGroupBut.setVisibility(View.VISIBLE);
                 }
             }
             else{
+                //Creating new group
+                isReadOnly = false;
+                binding.saveGroupBut.setEnabled(true);
+                binding.deleteGroupBut.setEnabled(false);
+                binding.saveGroupBut.setVisibility(View.VISIBLE);
+                binding.deleteGroupBut.setVisibility(View.GONE);
+                binding.groupName.setEnabled(true);
+                binding.groupImagePhotoBut.setEnabled(true);
+                binding.isGroupReadOnlyChkbx.setEnabled(true);
                 group.setGroupusers(new ArrayList<>());
             }
             binding.addGroupMembersBut.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    if(group.getGroupid() != 0){
-                        if(!isFullGroupFetched) {
-                            APIClient.getAPIInterface(getContext()).getFullGroupById(group.getGroupid()).enqueue(new Callback<Group>() {
-                                @Override
-                                public void onResponse(Call<Group> call, Response<Group> response) {
-                                    if (response.isSuccessful()) {
-                                        group = response.body();
-                                        isFullGroupFetched = true;
-                                        if(getContext()!=null) {
-                                            long myid = Utils.getUserID(getContext());
-                                            for(GroupUser groupUser : group.getGroupusers()){
-                                                if(groupUser.getUser().getUserid() == myid){
-                                                    if(groupUser.getGrouprole() == GroupRole.ADMIN){
-                                                        if(binding != null && binding.saveGroupBut != null){
-                                                            binding.saveGroupBut.setEnabled(true);
-
-                                                            binding.groupName.setEnabled(true);
-                                                            binding.groupImagePhotoBut.setEnabled(true);
-                                                        }
-
-                                                    }
-                                                }
-                                            }
-                                        }
-                                        GeneralPopupWindow.makeSelectionWindow(
-                                                getContext(),
-                                                "",
-                                                prepareUserGroupList(group.getGroupusers()),
-                                                resultReceiver,
-                                                true,
-                                                true);
-                                    } else {
-                                        Toast.makeText(getContext(), "Connection error!", Toast.LENGTH_LONG).show();
-                                    }
-                                }
-
-                                @Override
-                                public void onFailure(Call<Group> call, Throwable t) {
-                                    call.cancel();
-                                    Toast.makeText(getContext(), "Connection error!", Toast.LENGTH_LONG).show();
-                                }
-                            });
-
-                        }
-                        else{
-                            GeneralPopupWindow.makeSelectionWindow(
-                                    getContext(),
-                                    "",
-                                    prepareUserGroupList(group.getGroupusers()),
-                                    resultReceiver,
-                                    true,
-                                    true);
-                        }
+                    List<ListItemBindableItemContentProvider> preparedUserList = prepareUserGroupList(group.getGroupusers());
+                    if(preparedUserList == null){
+                        if(getContext() != null)
+                            Toast.makeText(getContext() , "Check internet connection!", Toast.LENGTH_SHORT).show();
+                        return;
                     }
-                    else{
-                        GeneralPopupWindow.makeSelectionWindow(
-                                getContext(),
-                                "",
-                                prepareUserGroupList(group.getGroupusers()),
-                                resultReceiver,
-                                true,
-                                true);
-                    }
+
+                    GeneralPopupWindow.makeSelectionWindow(
+                            getContext(),
+                            "",
+                            preparedUserList,
+                            resultReceiver,
+                            true,
+                            true,
+                            isReadOnly);
                 }
             });
 
@@ -1403,7 +1402,8 @@ public abstract class GeneralPopupWindow extends DialogFragment {
                 public void onClick(View view) {
                     String gname = binding.groupName.getText().toString();
                     if(gname == null || gname.length() == 0){
-                        Toast.makeText(getContext(), "Invalid name!", Toast.LENGTH_SHORT).show();
+                        if(getContext() != null)
+                            Toast.makeText(getContext(), "Invalid name!", Toast.LENGTH_SHORT).show();
                         return;
                     }
                     group.setName(gname);
@@ -1423,36 +1423,12 @@ public abstract class GeneralPopupWindow extends DialogFragment {
                         }
                     }
 
-//                    ObjectMapper mapper = new ObjectMapper();
-//                    String userWithAddressJson = null;
-//                    try {
-//                        userWithAddressJson = mapper.writeValueAsString(group);
-//                    } catch (JsonProcessingException e) {
-//                        e.printStackTrace();
-//                    }
-//                    if(userWithAddressJson == null)
-//                        return;
+                    ((TranslationMainActivity)getActivity()).postGroup(group,pickedPhotoContentUri, getGroupReceiver());
 
 
 
-                    APIClient.getAPIInterface(getContext()).replaceOrSaveFullGroup(group).enqueue(new Callback<Group>() {
-                        @Override
-                        public void onResponse(Call<Group> call, Response<Group> response) {
-                            if (response.isSuccessful()) {
-                                if (pickedPhotoContentUri != null) {
-                                    compressImage(pickedPhotoContentUri);
-                                }
-                            } else {
-                                Toast.makeText(getContext(), "Connection error!", Toast.LENGTH_LONG).show();
-                            }
-                        }
+                    closeDialog();
 
-                        @Override
-                        public void onFailure(Call<Group> call, Throwable t) {
-                            call.cancel();
-                            Toast.makeText(getContext(), "Connection error!", Toast.LENGTH_LONG).show();
-                        }
-                    });
 
 
                 }
@@ -1465,16 +1441,22 @@ public abstract class GeneralPopupWindow extends DialogFragment {
                 }
             });
 
+            binding.deleteGroupBut.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    TranslationMainActivity activity = (TranslationMainActivity) getActivity();
+                    if(activity != null){
+                        activity.deleteGroup(group.getGroupid());
+                    }
+                    closeDialog();
+                }
+            });
 
-            if(group.getName() != null)
-                binding.groupName.setText(group.getName());
-            if(group.getDefaultgroupusersrole() != GroupRole.SEND_RECEIVE)
-                binding.isGroupReadOnlyChkbx.setChecked(true);
-            else
-                binding.isGroupReadOnlyChkbx.setChecked(false);
         }
 
         private List<ListItemBindableItemContentProvider> prepareUserGroupList(List<GroupUser> members){
+            if(Utils.getOverloadedPingResult() == null || Utils.getOverloadedPingResult().getUsers() == null)
+                return null;
             List<User> allUsers = Utils.getOverloadedPingResult().getUsers();
             List<ListItemBindableItemContentProvider> selectionList = new ArrayList<>();
             long myuserid = Utils.getUserID(getContext());
@@ -1490,7 +1472,7 @@ public abstract class GeneralPopupWindow extends DialogFragment {
 
                     for (GroupUser member : members) {
                         if (member.getUser().getUserid() == user.getUserid()) {
-                            if (member.getUser().getIsGroupAdmin()) {
+                            if (member.getGrouprole() == GroupRole.ADMIN) {
                                 newUser.setIsGroupAdmin(true);
                             } else {
                                 newUser.setIsGroupAdmin(false);
@@ -1533,20 +1515,41 @@ public abstract class GeneralPopupWindow extends DialogFragment {
 
         @Override
         public void imageReady(long groupid, Bitmap image) {
-            if(getContext() != null && binding != null && binding.groupImagePhotoBut != null){
-                if(pickedPhotoContentUri == null){
-                    Glide
-                            .with(getContext())
-                            .load(image)
-                            .apply(new RequestOptions().circleCrop())
-                            .into(binding.groupImagePhotoBut);
+            Utils.runOnUIThread(new Runnable() {
+                @Override
+                public void run() {
+                    if(getContext() != null && binding != null && binding.groupImagePhotoBut != null){
+                        if(pickedPhotoContentUri == null){
+                            Glide
+                                    .with(getContext())
+                                    .load(image)
+                                    .apply(new RequestOptions().circleCrop())
+                                    .into(binding.groupImagePhotoBut);
+                        }
+                    }
                 }
-            }
+            });
         }
 
+        long myUserid = 0;
         @Override
         public long getUserId() {
-            return 0;
+            if(myUserid == 0 && getContext() != null){
+                myUserid = Utils.getUserID(getContext());
+            }
+            return myUserid;
+        }
+
+        public GroupUser getMyGroupUser(){
+            if(myGroupUserInThisGroupInCaseOfUpdatingExistingGroup == null && group != null && group.getGroupusers()!=null){
+                for(GroupUser groupUser : group.getGroupusers()){
+                    if(groupUser.getUser().getUserid() == getUserId()){
+                        myGroupUserInThisGroupInCaseOfUpdatingExistingGroup = groupUser;
+                        return myGroupUserInThisGroupInCaseOfUpdatingExistingGroup;
+                    }
+                }
+            }
+            return myGroupUserInThisGroupInCaseOfUpdatingExistingGroup;
         }
 
 //        @Override
@@ -1660,175 +1663,7 @@ public abstract class GeneralPopupWindow extends DialogFragment {
 
 
 
-        private void compressImage(String url){
-//        Bitmap b = BitmapFactory.decodeFile("Pass your file path");
-// original measurements
-            Uri uri = Uri.parse(url);
-//        pickedPhotoPath = uri.getEncodedPath();
-//        url=pickedPhotoPath;
-            if(url==null){
-                return;
-            }
-            final int destWidth = 130;//or the width you need
-            thiz = this;
-            Bitmap bitmap = null;
-            try {
-                bitmap = MediaStore.Images.Media.getBitmap(this.getActivity().getContentResolver(), uri);
 
-            }
-            catch(Exception e){
-                return;
-            }
-            int origWidth = bitmap.getWidth();
-            int origHeight = bitmap.getHeight();
-            if(origWidth > destWidth) {
-                Bitmap scaledBm = Bitmap.createScaledBitmap(bitmap, destWidth, destWidth * origHeight / origWidth, true);
-
-                finalizeCompression(scaledBm);
-            }
-            else
-                finalizeCompression(bitmap);
-//        Glide.with(this)
-//                .asBitmap()
-//                .load(url)
-//                .into(new CustomTarget<Bitmap>() {
-//                    @Override
-//                    public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
-//                        int origWidth = resource.getWidth();
-//                        int origHeight = resource.getHeight();
-//                        if(origWidth > destWidth) {
-//
-//                            RequestOptions myOptions = new RequestOptions()
-//                                    .override(destWidth, destWidth * origHeight / origWidth);//.circleCrop();
-//                            Glide.with(thiz.getContext())
-//                                    .asBitmap()
-////                                    .apply(myOptions)
-//                                    .load(resource)
-//                                    .override(destWidth, destWidth * origHeight / origWidth)
-//                                    .centerCrop()
-//                                    .into(new CustomTarget<Bitmap>() {
-//                                        @Override
-//                                        public void onResourceReady(@NonNull Bitmap resource2, @Nullable Transition<? super Bitmap> transition) {
-//                                            int origWidth = resource2.getWidth();
-//                                            int origHeight = resource2.getHeight();
-//                                            finalizeCompression(resource2);
-//                                        }
-//
-//                                        @Override
-//                                        public void onLoadCleared(@Nullable Drawable placeholder2) {
-//                                        }
-//                                    });
-//                        }
-//                        else{
-//                            finalizeCompression(resource);
-//                        }
-//                    }
-//
-//                    @Override
-//                    public void onLoadCleared(@Nullable Drawable placeholder) {
-//                    }
-//                });
-
-        }
-
-        private void finalizeCompression(Bitmap bitmap){
-
-//        Drawable resizedImage = null;
-//        Bitmap resizedBitmap = null;
-//        int origWidth = bitmap.getWidth();
-//        int origHeight = bitmap.getHeight();
-//        final int destWidth = 120;
-//        try{
-//            resizedImage = Glide
-//                    .with(getActivity())
-//                    .load(bitmap)
-//                    .override(destWidth, destWidth * origHeight / origWidth)
-//                    .submit()
-//                    .get();
-//
-//            resizedBitmap = Bitmap.createBitmap(destWidth, destWidth * origHeight / origWidth, Bitmap.Config.ARGB_8888);
-//            Canvas canvas = new Canvas(resizedBitmap);
-//            resizedImage.setBounds(0, 0, destWidth, destWidth * origHeight / origWidth);
-//            resizedImage.draw(canvas);
-//
-//        }
-//        catch(Exception e){
-//            e.printStackTrace();
-//        }
-//
-//        bitmap = resizedBitmap;
-
-
-
-            ByteArrayOutputStream outStream = new ByteArrayOutputStream();
-//        if(bitmap.getWidth() != 130){
-//            bitmap = Utils.AngleBitmapRotation(90.0D,bitmap);
-//        }
-            bitmap.compress(Bitmap.CompressFormat.PNG,100 , outStream);
-            File f = new File(
-                    getContext().getFilesDir().getPath() // /data/user/0/hasan.mohamed.shehata.myapplication/files/myphoto34532.png
-//                Environment.getExternalStorageDirectory() //  /storage/o
-                            + File.separator + "myphoto34532.png");
-            if(f.exists()){
-                f.delete();
-            }
-            try{f.createNewFile();}
-            catch (Exception e){
-                e.printStackTrace();
-            }
-            //write the bytes in file
-            try {
-                FileOutputStream fo = new FileOutputStream(f);
-                fo.write(outStream.toByteArray());
-                // remember close de FileOutput
-                fo.close();
-                pickedPhotoFile = f;
-                postPhoto(group.getGroupid());
-                trialsOfPhotoPost = 4;
-            }
-            catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-
-        int trialsOfPhotoPost = 4;
-        private void postPhoto(final long myid){
-            trialsOfPhotoPost--;
-            if(trialsOfPhotoPost <= 0)
-                closeDialog();
-            if(pickedPhotoFile != null){
-                RequestBody fbody = RequestBody.create(pickedPhotoFile, MediaType.parse("image/*"));
-                MultipartBody.Part body =
-                        MultipartBody.Part.createFormData("file", pickedPhotoFile.getName(), fbody);
-                APIClient.getAPIInterface(getContext()).uploadGroupPhoto(myid,body).enqueue(new Callback<JSONResult>() {
-                    @Override
-                    public void onResponse(Call<JSONResult> call, Response<JSONResult> response) {
-//                    Toast.makeText(getContext(), response.body().getResult(), Toast.LENGTH_LONG).show();
-                        if(!response.isSuccessful()){
-                            postPhoto(myid);
-                            Utils.runOnUIThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    try{
-                                        closeDialog();
-                                    }
-                                    catch (Exception e){e.printStackTrace();
-                                    }
-                                }
-                            });
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(Call<JSONResult> call, Throwable t) {
-                        call.cancel();
-                        postPhoto(myid);
-//                    Toast.makeText(getContext(), t.getMessage(), Toast.LENGTH_LONG).show();
-                    }
-                });
-
-            }
-        }
     }
 
 

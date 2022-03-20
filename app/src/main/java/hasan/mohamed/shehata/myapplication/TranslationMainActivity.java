@@ -51,6 +51,7 @@ import androidx.navigation.ui.NavigationUI;
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 import hasan.mohamed.shehata.InternetAvailabilityChecker;
@@ -68,7 +69,9 @@ import hasan.mohamed.shehata.myapplication.types.CallDialogProvider;
 import hasan.mohamed.shehata.myapplication.types.Callable;
 import hasan.mohamed.shehata.myapplication.types.FabActionType;
 import hasan.mohamed.shehata.myapplication.types.FabSource;
+import hasan.mohamed.shehata.myapplication.types.GroupPostRequest;
 import hasan.mohamed.shehata.myapplication.types.HighContrastObserver;
+import hasan.mohamed.shehata.myapplication.types.JSONResult;
 import hasan.mohamed.shehata.myapplication.types.MessageDeletionResult;
 import hasan.mohamed.shehata.myapplication.types.MessageFragmentProvider;
 import hasan.mohamed.shehata.myapplication.types.NavHeader;
@@ -77,6 +80,7 @@ import hasan.mohamed.shehata.myapplication.types.PermissionRequestCallbacks;
 import hasan.mohamed.shehata.myapplication.types.PermissionRequestProvider;
 import hasan.mohamed.shehata.myapplication.types.ResultReceiver;
 import hasan.mohamed.shehata.myapplication.types.SearchCallbacks;
+import hasan.mohamed.shehata.myapplication.types.SingleObjectReceiver;
 import hasan.mohamed.shehata.myapplication.types.StartedACtivityResultsProvider;
 import hasan.mohamed.shehata.myapplication.types.StartedActivityResultsListener;
 import hasan.mohamed.shehata.myapplication.types.UserListConsumer;
@@ -122,6 +126,7 @@ public class TranslationMainActivity extends AppCompatActivity implements FabSou
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         thiz = this;
+        Utils.myCurrentContext = this;
 //        binding = ActivityTranslationMainBinding.inflate(getLayoutInflater());
         binding = ActivityTranslationMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
@@ -133,7 +138,7 @@ public class TranslationMainActivity extends AppCompatActivity implements FabSou
 //                animateFab();
 //                Toast.makeText(getApplicationContext(), "fab" , Toast.LENGTH_SHORT).show();
 //                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                openGroupCreationOrUpdateDialog(null);
+                openGroupCreationOrUpdateDialog(null,null);
 //                        .setAction("Action", null).show();
             }
         });
@@ -330,25 +335,10 @@ public class TranslationMainActivity extends AppCompatActivity implements FabSou
 
     }
 
-    float originalFabX = 0;
-    @Override
-    public void showFab(){
-        if(getApplicationContext() == null || binding == null
-                || binding.appBarTranslationMain == null || binding == null)
-            return;
-        if(!isFabShown) {
-            isFabShown = true;
-            binding.fab.setEnabled(true);
-//            binding.fab.setTra(TypedValue.COMPLEX_UNIT_PX,Utils.getHighContrastTextFactor(this)*getResources().getDimension(R.dimen.fab_translation)));
-            if(originalFabX == 0)
-                originalFabX = binding.fab.getX();
-//            binding.fab.setX(0.28F*originalFabX +originalFabX);
-            binding.fab.setVisibility(View.VISIBLE);
-            animateFab();
-        }
-    }
 
-    public void openGroupCreationOrUpdateDialog(Group group){
+
+
+    public void openGroupCreationOrUpdateDialog(Group group, SingleObjectReceiver receiver){
 //        openPickUsersDialog(new ResultReceiver() {
 //            @Override
 //            public void receiveResult(ListItemBindableItemContentProvider bindableItemContentProvider) {
@@ -387,21 +377,38 @@ public class TranslationMainActivity extends AppCompatActivity implements FabSou
             group=new Group();
         GeneralPopupWindow.makeGroupCreationWindow(this,
                 "",
-                group,true);
-    }
-
-    public void openPickUsersDialog(ResultReceiver receiver){
-        GeneralPopupWindow.makeSelectionWindow(
-                this,
-                "",
-                new ArrayList<>(Utils.getOverloadedPingResult().getUsers()),
-                receiver,
-                false,
-                true
-        );
+                group,receiver,true);
     }
 
 
+    float originalFabX = 0;
+    float originalFabWidth = 0;
+    float originalFabHeight = 0;
+    @Override
+    public void showFab(){
+
+        binding.fab.setTranslationZ(20.0f);
+        if(originalFabWidth == 0)
+            originalFabWidth = binding.fab.getWidth();
+
+        if(originalFabHeight == 0)
+            originalFabHeight = binding.fab.getHeight();
+
+
+        if(getApplicationContext() == null || binding == null
+                || binding.appBarTranslationMain == null || binding == null)
+            return;
+        if(!isFabShown) {
+            isFabShown = true;
+            binding.fab.setEnabled(true);
+//            binding.fab.setTra(TypedValue.COMPLEX_UNIT_PX,Utils.getHighContrastTextFactor(this)*getResources().getDimension(R.dimen.fab_translation)));
+            if(originalFabX == 0)
+                originalFabX = binding.fab.getX();
+//            binding.fab.setX(0.28F*originalFabX +originalFabX);
+            binding.fab.setVisibility(View.VISIBLE);
+            animateFab();
+        }
+    }
 
     @Override
     public void hideFab(){
@@ -451,8 +458,9 @@ public class TranslationMainActivity extends AppCompatActivity implements FabSou
                 }
                 else{
                     if(binding != null && binding.fab != null){
-                        binding.fab.setVisibility(View.INVISIBLE);
+                        binding.fab.setVisibility(View.GONE);
                         binding.fab.setEnabled(false);
+                        binding.fab.setTranslationZ(-20.0f);
 //                        binding.fab.setTranslationX(0);
 //                        binding.fab.setTranslationX(0.28F);
                     }
@@ -540,6 +548,8 @@ public class TranslationMainActivity extends AppCompatActivity implements FabSou
                 menu.getItem(i).setChecked(Utils.getIsHighContrastTheme(this));
             else if(menu.getItem(i).getItemId() == R.id.action_continious_recognition)
                 menu.getItem(i).setChecked(Utils.getIsContinuousRecognition(this));
+            else if(menu.getItem(i).getItemId() == R.id.action_continious_tts)
+                menu.getItem(i).setChecked(Utils.getIsContinuousSpeaking(this));
         }
 
 
@@ -1027,7 +1037,7 @@ public class TranslationMainActivity extends AppCompatActivity implements FabSou
                 }
 
                 Utils.setIsHighContrastTheme(this, item.isChecked());
-                return true;
+                break;
             }
 
 //            /** SEARCH **/
@@ -1046,35 +1056,72 @@ public class TranslationMainActivity extends AppCompatActivity implements FabSou
                     item.setChecked(true);
                 }
                 Utils.setIsContinuousRecognition(this, item.isChecked());
-                return true;
+                break;
+            }
+
+            case R.id.action_continious_tts: {
+//                changeUser();
+                if (item.isChecked()) {
+                    item.setChecked(false);
+                }
+                else{
+                    item.setChecked(true);
+                }
+                Utils.setIsContinuousSpeaking(this, item.isChecked());
+                break;
             }
 
             case R.id.action_delete_messages:{
-                APIClient.getAPIInterface(this).deleteMessage(Utils.messagesToDelete).enqueue(new Callback<MessageDeletionResult>() {
+                hideDeleteMenuButton();
+                List<Message> sentMessagesOnlyToBeDeleted = new ArrayList<>();
+                synchronized (Utils.messagesToDelete) {
+                    long myid = Utils.getUserID(this);
+                    for (Message message : Utils.messagesToDelete) {
+                        if (message.getSenderid() == myid) {
+                            sentMessagesOnlyToBeDeleted.add(message);
+                        }
+                    }
+                }
+
+                APIClient.getAPIInterface(this).deleteMessage(sentMessagesOnlyToBeDeleted).enqueue(new Callback<MessageDeletionResult>() {
                     @Override
                     public void onResponse(Call<MessageDeletionResult> call, Response<MessageDeletionResult> response) {
-                        if(response.isSuccessful()){
-                            for(int i = 0 ; i < Utils.deletedMessagesResultReceivers.size() ; i++){
+                        if (response.isSuccessful()) {
+                            synchronized (Utils.deletedMessagesResultReceivers) {
+                            for (int i = 0; i < Utils.deletedMessagesResultReceivers.size(); i++) {
                                 try {
-                                    Utils.deletedMessagesResultReceivers
-                                            .get(i).deleteItem(
-                                            Utils
-                                                    .messagesToDelete
-                                                    .get(i)
-                                    );
+                                    synchronized (Utils.messagesToDelete) {
+                                        Utils.deletedMessagesResultReceivers
+                                                .get(i).deleteItem(
+                                                Utils
+                                                        .messagesToDelete
+                                                        .get(i)
+                                        );
+
+                                    }
+                                } catch (Exception e) {
+                                    e.printStackTrace();
                                 }
-                                catch (Exception e){e.printStackTrace();}
                             }
                             new Thread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    for(Message msg : Utils.messagesToDelete){
+                                    synchronized (Utils.messagesToDelete) {
+                                        for (Message msg : Utils.messagesToDelete) {
 
-                                        AppDatabase.getMessageDao().deleteMessageById(msg.getMessageid());
+                                            AppDatabase.getMessageDao().deleteMessageById(msg.getMessageid());
+                                        }
+                                        synchronized (Utils.messagesToDelete) {
+                                            Utils.messagesToDelete.clear();
+                                        }
+                                        synchronized (Utils.deletedMessagesResultReceivers) {
+                                            Utils.deletedMessagesResultReceivers.clear();
+                                        }
                                     }
                                 }
                             }).start();
                         }
+                    }
                     }
 
                     @Override
@@ -1082,14 +1129,20 @@ public class TranslationMainActivity extends AppCompatActivity implements FabSou
                         call.cancel();
                     }
                 });
-                return true;
+                break;
             }
 
 
+            case R.id.action_attach_messages:{
+                if(Utils.lastMessageFragment != null)
+                    Utils.lastMessageFragment.sendImageMessage();
+                break;
+            }
 
             default:
                 return super.onOptionsItemSelected(item);
         }
+        return true;
     }
 
     @Override
@@ -1138,9 +1191,14 @@ public class TranslationMainActivity extends AppCompatActivity implements FabSou
 
 
         if(navController.getCurrentDestination().getId() == R.id.nav_messages
-        ){
-            Utils.messagesToDelete.clear();
-            Utils.deletedMessagesResultReceivers.clear();
+        ) {
+            synchronized (Utils.messagesToDelete) {
+
+                Utils.messagesToDelete.clear();
+            }
+            synchronized (Utils.deletedMessagesResultReceivers) {
+                Utils.deletedMessagesResultReceivers.clear();
+            }
             actionBarMenuHost.findItem(R.id.search_menu_item).setVisible(false);
             actionBarMenuHost.findItem(R.id.action_delete_messages).setVisible(false);
 
@@ -1152,8 +1210,12 @@ public class TranslationMainActivity extends AppCompatActivity implements FabSou
                 || navController.getCurrentDestination().getId() == R.id.nav_calls
         ){
 
-            Utils.messagesToDelete.clear();
-            Utils.deletedMessagesResultReceivers.clear();
+            synchronized (Utils.messagesToDelete) {
+                Utils.messagesToDelete.clear();
+            }
+            synchronized (Utils.deletedMessagesResultReceivers) {
+                Utils.deletedMessagesResultReceivers.clear();
+            }
             actionBarMenuHost.findItem(R.id.search_menu_item).setVisible(true);
             actionBarMenuHost.findItem(R.id.action_delete_messages).setVisible(false);
         }
@@ -1382,7 +1444,7 @@ public class TranslationMainActivity extends AppCompatActivity implements FabSou
         }
     }
 
-    private ArrayList<StartedActivityResultsListener> startedActivityResultsListeners = new ArrayList<>();
+    private HashSet<StartedActivityResultsListener> startedActivityResultsListeners = new HashSet<>();
     @Override
     public void registerStartedActivityResultsListener(StartedActivityResultsListener startedActivityResultsListener) {
         startedActivityResultsListeners.add(startedActivityResultsListener);
@@ -1528,5 +1590,51 @@ public class TranslationMainActivity extends AppCompatActivity implements FabSou
     }
 
 
+    public void postGroup(Group group, String groupImageContentUri, SingleObjectReceiver newGroupReceiver){
+        new GroupPostRequest(this , group, groupImageContentUri, newGroupReceiver).startRequest();
+    }
 
+
+    public void deleteGroup(long groupid){
+        APIClient.getAPIInterface(this).deleteGroupById(groupid).enqueue(new Callback<JSONResult>() {
+            @Override
+            public void onResponse(Call<JSONResult> call, Response<JSONResult> response) {
+                if (!response.isSuccessful()){
+                    if(thiz != null)
+                        Toast.makeText(thiz, "Failed to delete group!",Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<JSONResult> call, Throwable t) {
+                call.cancel();
+                if(thiz != null)
+                    Toast.makeText(thiz, "Failed to delete group!",Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+
+    @Override
+    public void onBackPressed() {
+        if (navController.getCurrentDestination().getId() == R.id.nav_messages) {
+            synchronized (Utils.messagesToDelete) {
+                if (Utils.messagesToDelete.size() > 0) {
+
+                    for (Message message : Utils.messagesToDelete) {
+                        message.setIsHighLighted(false);
+                    }
+                    Utils.messagesToDelete.clear();
+                    synchronized (Utils.deletedMessagesResultReceivers) {
+                        Utils.deletedMessagesResultReceivers.clear();
+                    }
+                } else {
+                    super.onBackPressed();
+                }
+            }
+        }
+        else {
+            super.onBackPressed();
+        }
+    }
 }

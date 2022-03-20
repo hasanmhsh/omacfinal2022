@@ -4,8 +4,10 @@ import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
+import java.io.Serializable;
+
 @Entity
-public class MissedCall {
+public class MissedCall implements Serializable {
     @PrimaryKey(autoGenerate = true)
     private long id;
 

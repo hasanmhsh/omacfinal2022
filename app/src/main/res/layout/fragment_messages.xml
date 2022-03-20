@@ -9,6 +9,27 @@
             name="user"
             type="hasan.mohamed.shehata.myapplication.models.User" />
     </data>
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <FrameLayout
+            android:id="@+id/myou_are_no_longer_a_member_inThis_group_messages_fragment"
+            android:translationZ="700dp"
+            android:visibility="gone"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:backgroundTint="#88777777"
+            android:backgroundTintMode="multiply"
+            android:background="@color/usersListBackgroundColor">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/generalTextColor"
+                android:gravity="center"
+                android:text="You are no longer a member in this group or the group is deleted!"
+                android:layout_gravity="center"
+                android:textSize="@dimen/margin_l"/>
+        </FrameLayout>
 <androidx.constraintlayout.widget.ConstraintLayout
     android:id="@+id/message_fragment_root_container"
     android:layout_width="match_parent"
@@ -157,9 +178,6 @@
         <!--        app:layout_constraintWidth_default="spread"-->
         <!--        android:scaleType="fitXY"-->
     <ImageButton
-
-        android:elevation="56dp"
-        android:translationZ="56dp"
         android:id="@+id/send_but"
         android:layout_width="50dp"
         android:layout_height="50dp"
@@ -187,6 +205,22 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@id/sending_text_et"
         app:layout_constraintBottom_toBottomOf="@id/sending_text_et"/>
+
+        <TextView
+            android:visibility="gone"
+            android:id="@+id/read_only_group_tv_messages_fragment"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#993C3C3C"
+            android:text="This is read only group!"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_margin="30dp"
+            android:background="@drawable/group_greadonly_box_background"
+
+            />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
+    </FrameLayout>
 </layout>

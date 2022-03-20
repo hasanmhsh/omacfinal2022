@@ -21,7 +21,7 @@ import hasan.mohamed.shehata.myapplication.types.GroupRole;
 import hasan.mohamed.shehata.myapplication.types.ListItemCallbacks;
 
 
-public class Group extends BaseObservable implements ListItemBindableItemContentProvider, Serializable, Comparable<Group> {
+public class Group extends BaseObservable implements ListItemBindableItemContentProvider, Comparable<Group> {
 
     @JsonProperty("groupid")
     @SerializedName("groupid")

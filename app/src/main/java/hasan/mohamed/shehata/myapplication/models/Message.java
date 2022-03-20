@@ -1,5 +1,7 @@
 package hasan.mohamed.shehata.myapplication.models;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.view.View;
 import android.widget.ImageView;
 
@@ -13,16 +15,28 @@ import androidx.room.PrimaryKey;
 import androidx.databinding.BaseObservable;
 import androidx.databinding.Bindable;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.bitmap.CenterCrop;
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
+import com.bumptech.glide.request.RequestOptions;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 
+import java.io.IOException;
+
 import hasan.mohamed.shehata.myapplication.Utils;
+import hasan.mohamed.shehata.myapplication.internet.APIClient;
+import hasan.mohamed.shehata.myapplication.types.ImageReady;
 import hasan.mohamed.shehata.myapplication.types.ListItemCallbacks;
 import hasan.mohamed.shehata.myapplication.types.MessageDirection;
 import hasan.mohamed.shehata.myapplication.types.StatusOfServerObject;
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 @Entity
 public class Message extends BaseObservable implements ListItemBindableItemContentProvider {
@@ -568,4 +582,75 @@ public class Message extends BaseObservable implements ListItemBindableItemConte
   public boolean getIsGroupAdmin() {
     return false;
   }
+
+  @JsonProperty("image")
+  @JsonIgnore
+  public byte [] getImage() {
+    return image;
+  }
+
+  @JsonProperty("image")
+  @JsonIgnore
+  public void setImage(byte [] image) {
+    this.image = image;
+  }
+
+  @JsonProperty("image")
+  @SerializedName("image")
+  @ColumnInfo(typeAffinity = ColumnInfo.BLOB)
+  private byte [] image;
+
+
+  @JsonIgnore
+  @Ignore
+  private transient ImageView currentImageview;
+  @JsonIgnore
+  public void bindImageView(ImageView imageView) {
+    currentImageview = imageView;
+    if (imageView == null || imageView.getContext() == null)
+      return;
+
+    byte[] bytes = image;
+    try {
+      RequestOptions requestOptions = new RequestOptions();
+      boolean isLogoCircular = false;
+      if (isLogoCircular) {
+        requestOptions = requestOptions.circleCrop();
+      } else {
+        requestOptions = requestOptions.transforms(new CenterCrop(), new RoundedCorners(5));
+      }
+      Glide
+              .with(imageView.getContext())
+              .load(image)
+              .apply(requestOptions)
+              .into(imageView);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+
+
+  }
+
+  @JsonIgnore
+  @Bindable
+  public int getMessageTextVisibility(){
+    if(image != null){
+      return View.GONE;
+    }
+    else {
+      return View.VISIBLE;
+    }
+  }
+
+  @JsonIgnore
+  @Bindable
+  public int getMessageImageViewVisibility(){
+    if(image != null){
+      return View.VISIBLE;
+    }
+    else {
+      return View.GONE;
+    }
+  }
+
 }

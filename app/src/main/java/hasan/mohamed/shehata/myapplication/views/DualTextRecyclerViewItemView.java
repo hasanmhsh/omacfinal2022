@@ -29,24 +29,28 @@ public class DualTextRecyclerViewItemView extends FrameLayout implements View.On
         setWillNotDraw(false);
         String infService = Context.LAYOUT_INFLATER_SERVICE;
         LayoutInflater li;
-        li = (LayoutInflater)this.getContext().getSystemService(infService);
+        li = (LayoutInflater) this.getContext().getSystemService(infService);
         this.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT));
         //attach to parent must be true to be displayed
-        binding = DataBindingUtil.inflate(li,R.layout.dual_text_rv_item_view_layout,this,true);
+        binding = DataBindingUtil.inflate(li, R.layout.dual_text_rv_item_view_layout, this, true);
         View view = this.binding.getRoot();
 
+        if (selectionReceiver.isReadOnly()) {
+            binding.dualTextRvItemContainer.setEnabled(false);
+            binding.isAdminGpsListItemChkbx.setEnabled(false);
 
-        if(isMultipleChoices) {
-            this.binding.dualTextRvItemContainer.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    if (binding.getDualtext() != null && binding.dualTextHighlitedSelectionContainer!=null) {
-                        binding.getDualtext().toggleHighLight();
-                        int visibility = binding.getDualtext().getIsHighLighted() ? View.VISIBLE : View.GONE;
-                        binding.dualTextHighlitedSelectionContainer.setVisibility(visibility);
+        } else {
+            if (isMultipleChoices) {
+                this.binding.dualTextRvItemContainer.setOnClickListener(new OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        if (binding.getDualtext() != null && binding.dualTextHighlitedSelectionContainer != null) {
+                            binding.getDualtext().toggleHighLight();
+                            int visibility = binding.getDualtext().getIsHighLighted() ? View.VISIBLE : View.GONE;
+                            binding.dualTextHighlitedSelectionContainer.setVisibility(visibility);
+                        }
                     }
-                }
-            });
+                });
 //            this.binding.dualTextRvItemContainer.setOnLongClickListener(new OnLongClickListener() {
 //                @Override
 //                public boolean onLongClick(View view) {
@@ -58,21 +62,21 @@ public class DualTextRecyclerViewItemView extends FrameLayout implements View.On
 //                    return true;
 //                }
 //            });
-        }
-        else{
-            this.binding.dualTextRvItemContainer.setOnClickListener(this);
-        }
-
-        binding.isAdminGpsListItemChkbx.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if(binding != null && binding.getDualtext() != null) {
-                    binding.getDualtext().setIsGroupAdmin(b);
-                    binding.getDualtext().setIsHighLighted(true);
-                    binding.dualTextHighlitedSelectionContainer.setVisibility(VISIBLE);
-                }
+            } else {
+                this.binding.dualTextRvItemContainer.setOnClickListener(this);
             }
-        });
+
+            binding.isAdminGpsListItemChkbx.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                    if (binding != null && binding.getDualtext() != null) {
+                        binding.getDualtext().setIsGroupAdmin(b);
+                        binding.getDualtext().setIsHighLighted(true);
+                        binding.dualTextHighlitedSelectionContainer.setVisibility(VISIBLE);
+                    }
+                }
+            });
+        }
     }
 
     @Override

@@ -13,7 +13,7 @@ import java.util.HashMap;
 import hasan.mohamed.shehata.myapplication.R;
 import hasan.mohamed.shehata.myapplication.types.ListItemCallbacks;
 
-public enum Language implements Serializable , ListItemBindableItemContentProvider {
+public enum Language implements  ListItemBindableItemContentProvider {
     Arabic("ar") ,
     Danish("da") ,
     German("de") ,

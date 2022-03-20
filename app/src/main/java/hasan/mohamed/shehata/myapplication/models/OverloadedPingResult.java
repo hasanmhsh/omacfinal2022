@@ -6,9 +6,10 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.gson.annotations.SerializedName;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class OverloadedPingResult {
+public class OverloadedPingResult implements Serializable {
     @JsonIgnore
     @SerializedName("id")
     private int id;

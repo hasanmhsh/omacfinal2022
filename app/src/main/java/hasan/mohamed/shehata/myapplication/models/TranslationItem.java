@@ -105,6 +105,11 @@ public class TranslationItem extends BaseObservable implements ListItemBindableI
         public SpeakerProvider provideSpeaker() {
             return null;
         }
+
+        @Override
+        public boolean isReadOnly() {
+            return false;
+        }
     };
 
     private void makeASR() {
@@ -173,6 +178,11 @@ public class TranslationItem extends BaseObservable implements ListItemBindableI
         public SpeakerProvider provideSpeaker() {
             return null;
         }
+
+        @Override
+        public boolean isReadOnly() {
+            return false;
+        }
     };
 
 
@@ -193,7 +203,7 @@ public class TranslationItem extends BaseObservable implements ListItemBindableI
             }
             case Target:{
                 if(targetLanguage == null)
-                    GeneralPopupWindow.makeSelectionWindow(context, context.getResources().getString(R.string.select_language), Arrays.asList(Language.values()), newelyCreatedResultReceiver , true,false);
+                    GeneralPopupWindow.makeSelectionWindow(context, context.getResources().getString(R.string.select_language), Arrays.asList(Language.values()), newelyCreatedResultReceiver , true,false, false);
                 else
                     newelyCreatedResultReceiver.receiveResult(targetLanguage);
                 break;
@@ -209,7 +219,7 @@ public class TranslationItem extends BaseObservable implements ListItemBindableI
 
     public void changeSourceLanguage(){// Ok
         if(translationItemType == TranslationItemType.Source){
-            GeneralPopupWindow.makeSelectionWindow(context, context.getResources().getString(R.string.select_language), Arrays.asList(Language.values()), changeSourceLanguageResultReceiver, true , false);
+            GeneralPopupWindow.makeSelectionWindow(context, context.getResources().getString(R.string.select_language), Arrays.asList(Language.values()), changeSourceLanguageResultReceiver, true , false, false);
         }
     }
 

@@ -38,6 +38,7 @@ import hasan.mohamed.shehata.myapplication.types.Callable;
 import hasan.mohamed.shehata.myapplication.types.FabActionType;
 import hasan.mohamed.shehata.myapplication.types.FabSource;
 import hasan.mohamed.shehata.myapplication.types.BindableListItemContentProviderDiffUtilsCallback;
+import hasan.mohamed.shehata.myapplication.types.ImageReady;
 import hasan.mohamed.shehata.myapplication.types.NewGroupsMessagesConsumer;
 import hasan.mohamed.shehata.myapplication.types.NewMessagesConsumer;
 import hasan.mohamed.shehata.myapplication.types.SearchCallbacks;
@@ -78,6 +79,7 @@ public class GeneralRecyclerViewAdapter<T extends BindableItem> extends Recycler
     private List<ListItemBindableItemContentProvider> initialDataSet;
     private SearchCallbacks searchCallbacks;
     private String searchQuery = "";
+    private boolean isReadOnly = false;
     interface GenericListCallable{
         public void call(List<ListItemBindableItemContentProvider> list);
     }
@@ -92,7 +94,7 @@ public class GeneralRecyclerViewAdapter<T extends BindableItem> extends Recycler
      * @param usersViewType
      **************************************/
 
-    public GeneralRecyclerViewAdapter(Context context, List<ListItemBindableItemContentProvider> dataset1, ResultReceiver selectionReceiver, Class<T> itemViewClass, FabActionType fabActionType, TranslatorCapabilities capabilities, User buddy, SpeakerProvider speakerProvider, RecyclerView recyclerView, User me, boolean isViewForGroupChat, Group chatGroup, UsersViewType usersViewType, boolean isMultiChoices, SearchCallbacks searchCallbacks     ) {
+    public GeneralRecyclerViewAdapter(Context context, List<ListItemBindableItemContentProvider> dataset1, ResultReceiver selectionReceiver, Class<T> itemViewClass, FabActionType fabActionType, TranslatorCapabilities capabilities, User buddy, SpeakerProvider speakerProvider, RecyclerView recyclerView, User me, boolean isViewForGroupChat, Group chatGroup, UsersViewType usersViewType, boolean isMultiChoices, SearchCallbacks searchCallbacks   , boolean isReadOnly  ) {
         this.fabActionType = fabActionType;
         this.recyclerView = recyclerView;
         this.context = context;
@@ -111,6 +113,7 @@ public class GeneralRecyclerViewAdapter<T extends BindableItem> extends Recycler
         this.usersViewType = usersViewType;
         this.isMultipleChoicesItems = isMultiChoices;
         this.searchCallbacks = searchCallbacks;
+        this.isReadOnly = isReadOnly;
         if(searchCallbacks != null){
             searchCallbacks.setSearchable(new SearchCallbacks.Searchable() {
                 @Override
@@ -178,7 +181,19 @@ public class GeneralRecyclerViewAdapter<T extends BindableItem> extends Recycler
                 @Override
                 public void deleteItem(ListItemBindableItemContentProvider item) {
                     dataset.remove(item);
+                    recyclerViewState = recyclerView.getLayoutManager().onSaveInstanceState();
+
                     notifyDataSetChanged();
+
+                    Utils.runOnUIThreadPostDelayedSpeceific(new Runnable() {
+                        @Override
+                        public void run() {
+                            recyclerView.getLayoutManager().onRestoreInstanceState(recyclerViewState);
+                        }
+                    },100);
+
+
+
                 }
 
                 @Override
@@ -194,6 +209,11 @@ public class GeneralRecyclerViewAdapter<T extends BindableItem> extends Recycler
                 @Override
                 public SpeakerProvider provideSpeaker() {
                     return speakerProvider;
+                }
+
+                @Override
+                public boolean isReadOnly() {
+                    return isReadOnly;
                 }
             };
 
@@ -334,6 +354,7 @@ public class GeneralRecyclerViewAdapter<T extends BindableItem> extends Recycler
         if (holder != null) {
             BindableItem bindableItem = null;
             try {
+                ((View) holder.getItemView()).setEnabled(!isReadOnly);
                 bindableItem = (BindableItem) holder.getItemView();
                 bindableItem.bind(dataset.get(position));
             } catch (Exception e) {
@@ -598,7 +619,7 @@ public class GeneralRecyclerViewAdapter<T extends BindableItem> extends Recycler
                             }, 500);
                         }
                     }
-                    if (speakerProvider.isForCall() && message.getSenderid() != myUserId) {
+                    if ((speakerProvider.isForCall() || Utils.isContinuousSpeaking) && message.getSenderid() != myUserId) {
                         speakerProvider.speak(message);
                     }
                 }
@@ -730,4 +751,25 @@ public class GeneralRecyclerViewAdapter<T extends BindableItem> extends Recycler
         }
         return selection;
     }
+
+
+
+    private ImageReady groupImageUpdater = null;
+    public void setGroupImageUpdater(ImageReady imageUpdater){
+        groupImageUpdater = imageUpdater;
+    }
+
+    @Override
+    public void updateGroupImage() {
+        if(groupImageUpdater != null && isGroupChatMessageView && chatGroup!=null&& chatGroup.getGroupid()!= 0){
+            TranslationMainActivity activity = (TranslationMainActivity) context;
+            if(activity!=null){
+                AsyncPinger pinger = activity.getCurrentPinger();
+                if(pinger != null){
+                    pinger.registerImageReadyListenerOrGetImageIfExistForGroups(chatGroup.getGroupid(),groupImageUpdater);
+                }
+            }
+        }
+    }
+
 }

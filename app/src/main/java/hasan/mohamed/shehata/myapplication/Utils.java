@@ -56,10 +56,12 @@ import hasan.mohamed.shehata.myapplication.storage.PreferenceKey;
 import hasan.mohamed.shehata.myapplication.storage.ModelStatus;
 import hasan.mohamed.shehata.myapplication.types.ContinuousRecognitionObserver;
 import hasan.mohamed.shehata.myapplication.types.HighContrastObserver;
+import hasan.mohamed.shehata.myapplication.types.ImageReady;
 import hasan.mohamed.shehata.myapplication.types.JSONKey;
 import hasan.mohamed.shehata.myapplication.types.MessageSendingCallbacks;
 import hasan.mohamed.shehata.myapplication.types.ResultReceiver;
 import hasan.mohamed.shehata.myapplication.types.UsersViewType;
+import hasan.mohamed.shehata.myapplication.ui.messages.MessageFragment;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -75,7 +77,10 @@ public class Utils {
 
     public static List<ResultReceiver> deletedMessagesResultReceivers = new ArrayList<>();
     public  static List<Message> messagesToDelete = new ArrayList<>();
+    public static ImageReady lastMessageFragmentImageUpdater = null;
+    public static MessageFragment lastMessageFragment;
 
+    public static Context myCurrentContext = null;
     public static void setLastAsyncPinger(AsyncPinger asyncPinger){
         lastAsyncPinger = asyncPinger;
     }
@@ -102,8 +107,11 @@ public class Utils {
             return overloadedPingResult;
         }
     }
+
     public final transient static String MESSAGE_DELETE_COMMAND = "deletemessage";
-    public static final String MESSAGE_IMAGE_CMD = "image";
+    public final transient static  String MESSAGE_IMAGE_CMD = "image";
+    public final transient static  long MESSAGE_UPDATE_GROUP_IMAGE_CONTROL_CODE_CMD = 400;
+    public final transient static  long MESSAGE_IMAGE_CONTROL_CODE_CMD = 500;
 
     public static long currentOpenedBuddyIdChatView = 0;
     public static long currentOpenedGroupIdChatView = 0;
@@ -249,6 +257,11 @@ public class Utils {
     public static void runOnUIThreadPostDelayed(Runnable runnable){
         if(poster!=null)
             poster.postDelayed(runnable,1000);
+    }
+
+    public static void runOnUIThreadPostDelayedSpeceific(Runnable runnable, int delay){
+        if(poster!=null)
+            poster.postDelayed(runnable,delay);
     }
 
     public static FragmentManager getSupportFragmentManager(Context context){
@@ -514,16 +527,18 @@ public class Utils {
         PreferenceKey preferenceKey = new PreferenceKey(key, "false");
         PreferenceItem<String> preferenceItem = new PreferenceItem<String>(context, preferenceKey);
         if(preferenceItem.get().equals("true")){
+            isContinuousRecognition = true;
             return true;
         }
         else{
+            isContinuousRecognition = false;
             return false;
         }
     }
 
 
 
-
+    public static boolean isContinuousRecognition = false;
     private static List<ContinuousRecognitionObserver> continuousRecognitionObservers = new ArrayList<>();
     public static void registerContinuousRecognitionObserver(ContinuousRecognitionObserver observer){
         if(continuousRecognitionObservers == null){
@@ -538,9 +553,11 @@ public class Utils {
         PreferenceItem<String> preferenceItem = new PreferenceItem<String>(context, preferenceKey);
         if(isContinuousRecognitionEnabled){
             preferenceItem.set("true");
+            isContinuousRecognition = true;
         }
         else{
             preferenceItem.set("false");
+            isContinuousRecognition = false;
         }
         if(continuousRecognitionObservers != null){
             for(ContinuousRecognitionObserver observer : continuousRecognitionObservers){
@@ -701,4 +718,31 @@ public class Utils {
 
 
 
+    public static boolean isContinuousSpeaking = false;
+    public static boolean getIsContinuousSpeaking(Context context){
+        String key = "hasan.mohamed.shehata.myapplication.getIsContinuousSpeaking";
+        PreferenceKey preferenceKey = new PreferenceKey(key, "false");
+        PreferenceItem<String> preferenceItem = new PreferenceItem<String>(context, preferenceKey);
+        if(preferenceItem.get().equals("true")){
+            isContinuousSpeaking = true;
+            return true;
+        }
+        else{
+            isContinuousSpeaking = false;
+            return false;
+        }
+    }
+    public static void setIsContinuousSpeaking(Context context, boolean isContinuousSpeakingEnabled){
+        String key = "hasan.mohamed.shehata.myapplication.getIsContinuousSpeaking";
+        PreferenceKey preferenceKey = new PreferenceKey(key, "false");
+        PreferenceItem<String> preferenceItem = new PreferenceItem<String>(context, preferenceKey);
+        if(isContinuousSpeakingEnabled){
+            preferenceItem.set("true");
+            isContinuousSpeaking = true;
+        }
+        else{
+            preferenceItem.set("false");
+            isContinuousSpeaking = false;
+        }
+    }
 }

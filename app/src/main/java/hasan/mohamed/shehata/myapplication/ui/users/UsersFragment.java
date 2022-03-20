@@ -160,7 +160,7 @@ public class UsersFragment extends Fragment implements TranslationMainActivity.M
             SearchCallbacks searchCallbacks = null;
             if(this != null && this.getActivity() != null)
                 searchCallbacks = ((TranslationMainActivity)getActivity()).getSearchableCallBacks();
-            GeneralRecyclerViewAdapter<UserItemView> adapter = new GeneralRecyclerViewAdapter<UserItemView>(getContext(), items, null, UserItemView.class, FabActionType.None, null, null, null, binding.fragmentRecyclerView, null, false, null, usersViewType,false,searchCallbacks);
+            GeneralRecyclerViewAdapter<UserItemView> adapter = new GeneralRecyclerViewAdapter<UserItemView>(getContext(), items, null, UserItemView.class, FabActionType.None, null, null, null, binding.fragmentRecyclerView, null, false, null, usersViewType,false,searchCallbacks, false);
 
             binding.fragmentRecyclerView.setAdapter(adapter);
         }
@@ -176,7 +176,7 @@ public class UsersFragment extends Fragment implements TranslationMainActivity.M
             SearchCallbacks searchCallbacks = null;
             if(this != null && this.getActivity() != null)
                 searchCallbacks = ((TranslationMainActivity)getActivity()).getSearchableCallBacks();
-            GeneralRecyclerViewAdapter<UserItemView> adapter = new GeneralRecyclerViewAdapter<UserItemView>(getContext(), items, null, UserItemView.class, FabActionType.None, null, null, null, binding.fragmentRecyclerView, null, true, null, usersViewType ,false,searchCallbacks);
+            GeneralRecyclerViewAdapter<UserItemView> adapter = new GeneralRecyclerViewAdapter<UserItemView>(getContext(), items, null, UserItemView.class, FabActionType.None, null, null, null, binding.fragmentRecyclerView, null, true, null, usersViewType ,false,searchCallbacks, false);
             binding.fragmentRecyclerView.setAdapter(adapter);
         }
     }

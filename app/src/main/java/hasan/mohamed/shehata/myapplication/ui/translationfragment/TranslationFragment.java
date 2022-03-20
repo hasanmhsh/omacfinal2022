@@ -43,7 +43,7 @@ public class TranslationFragment extends Fragment {
         mViewModel.getLngList().observe(getViewLifecycleOwner(), new Observer<List<ListItemBindableItemContentProvider>>() {
             @Override
             public void onChanged(List<ListItemBindableItemContentProvider> listItemBindableItemContentProviders) {
-                GeneralRecyclerViewAdapter<TranslationItemView> adapter = new GeneralRecyclerViewAdapter<TranslationItemView>(getActivity(), listItemBindableItemContentProviders, null, TranslationItemView.class, FabActionType.AddNewItem, TranslatorCapabilities.TextAndTTSAndASR, null,null,binding.generalFragmentRecyclerView,null, false, null, null,false,null);
+                GeneralRecyclerViewAdapter<TranslationItemView> adapter = new GeneralRecyclerViewAdapter<TranslationItemView>(getActivity(), listItemBindableItemContentProviders, null, TranslationItemView.class, FabActionType.AddNewItem, TranslatorCapabilities.TextAndTTSAndASR, null,null,binding.generalFragmentRecyclerView,null, false, null, null,false,null,false);
                 binding.generalFragmentRecyclerView.setAdapter(adapter);
             }
         });

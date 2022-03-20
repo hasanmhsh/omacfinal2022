@@ -63,6 +63,9 @@ public interface APIInterface {
     @POST("groups/groups/group")
     Call<Group> replaceOrSaveFullGroup(@Body Group group);
 
+    @DELETE("groups/group/{groupid}")
+    Call<JSONResult> deleteGroupById(@Path("groupid") long groupid);
+
 
 
 

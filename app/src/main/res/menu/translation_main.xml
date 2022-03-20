@@ -21,11 +21,25 @@
         app:showAsAction="never" />
 
     <item
+        android:id="@+id/action_continious_tts"
+        android:orderInCategory="100"
+        android:checkable="true"
+        android:title="Continuous Speaking"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_attach_messages"
+        android:orderInCategory="100"
+        android:checkable="true"
+        android:visible="true"
+        android:icon="@drawable/ic_baseline_attach_file_24"
+        android:title="attach"
+        app:showAsAction="always" />
+    <item
         android:id="@+id/action_delete_messages"
         android:orderInCategory="100"
         android:checkable="true"
         android:visible="false"
         android:icon="@drawable/ic_baseline_delete_24"
-        android:title="Continuous Recognition"
+        android:title="delete"
         app:showAsAction="always" />
 </menu>

@@ -48,8 +48,21 @@
             android:textSize="@dimen/message_item_sender_name_text_size"
 
 />
+
+        <ImageView
+            android:adjustViewBounds="true"
+            android:visibility="@{message.messageImageViewVisibility}"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/message_image_messages"
+            app:layout_constraintTop_toBottomOf="@id/sender_name_tv"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_margin="@dimen/margin_m"
+            android:src="@drawable/technology1"/>
         <TextView
             android:id="@+id/textOfMessageTv"
+            android:visibility="@{message.messageTextVisibility}"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/margin_m"
@@ -83,7 +96,7 @@
             app:layout_constraintTop_toBottomOf="@id/textOfMessageTv"
             app:layout_constraintStart_toStartOf="parent"/>
         <ImageButton
-            android:visibility="visible"
+            android:visibility="gone"
             android:id="@+id/delete_message_but"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

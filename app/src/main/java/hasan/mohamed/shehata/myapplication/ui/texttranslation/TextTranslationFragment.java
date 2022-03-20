@@ -65,6 +65,11 @@ public class TextTranslationFragment extends Fragment {
         public SpeakerProvider provideSpeaker() {
             return null;
         }
+
+        @Override
+        public boolean isReadOnly() {
+            return false;
+        }
     };
 
     private ResultReceiver toLanguageResultReceiver = new ResultReceiver() {
@@ -96,6 +101,11 @@ public class TextTranslationFragment extends Fragment {
         @Override
         public SpeakerProvider provideSpeaker() {
             return null;
+        }
+
+        @Override
+        public boolean isReadOnly() {
+            return false;
         }
     };
 
@@ -140,7 +150,7 @@ public class TextTranslationFragment extends Fragment {
         binding.textTranslationTranslateFromChooseLanguageBut.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                GeneralPopupWindow.makeSelectionWindow(getContext(), getResources().getString(R.string.select_language), Arrays.asList(Language.values()), fromLanguageResultReceiver , true,false);
+                GeneralPopupWindow.makeSelectionWindow(getContext(), getResources().getString(R.string.select_language), Arrays.asList(Language.values()), fromLanguageResultReceiver , true,false,false);
 //                DownloadStickyNotification.make(getContext(), new Canceler() {
 //                }, "filename");
             }
@@ -148,7 +158,7 @@ public class TextTranslationFragment extends Fragment {
         binding.textTranslationTranslateToChooseLanguageBut.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                GeneralPopupWindow.makeSelectionWindow(getContext(), getResources().getString(R.string.select_language), Arrays.asList(Language.values()), toLanguageResultReceiver, true,false );
+                GeneralPopupWindow.makeSelectionWindow(getContext(), getResources().getString(R.string.select_language), Arrays.asList(Language.values()), toLanguageResultReceiver, true,false, false );
             }
         });
         binding.checkModelExistanceDownloadIfNotExistBut.setOnClickListener(new View.OnClickListener() {

@@ -2,7 +2,9 @@ package hasan.mohamed.shehata.myapplication.models;
 
 import com.google.gson.annotations.SerializedName;
 
-public class SMS {
+import java.io.Serializable;
+
+public class SMS implements Serializable {
     @SerializedName("destinationnumber")
     private String destinationnumber;
 

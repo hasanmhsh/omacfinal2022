@@ -192,6 +192,11 @@ public class LoginFragment extends Fragment implements BindableItem, StartedActi
                             public SpeakerProvider provideSpeaker() {
                                 return null;
                             }
+
+                            @Override
+                            public boolean isReadOnly() {
+                                return false;
+                            }
                         }
                         ,false);
             }
@@ -679,8 +684,13 @@ public class LoginFragment extends Fragment implements BindableItem, StartedActi
                             public SpeakerProvider provideSpeaker() {
                                 return null;
                             }
+
+                            @Override
+                            public boolean isReadOnly() {
+                                return false;
+                            }
                         }
-                        ,true,false);
+                        ,true,false, false);
             }
         });
 
@@ -1293,12 +1303,14 @@ public class LoginFragment extends Fragment implements BindableItem, StartedActi
         Utils.runOnUIThreadPostDelayed(new Runnable() {
             @Override
             public void run() {
-                Glide
-                        .with(getContext())
-                        .load(uri)
-                        .circleCrop()
-                        .placeholder(R.drawable.ic_baseline_photo_camera_100)
-                        .into(binding.selectPhotoBut);
+                if (getContext() != null) {
+                    Glide
+                            .with(getContext())
+                            .load(uri)
+                            .circleCrop()
+                            .placeholder(R.drawable.ic_baseline_photo_camera_100)
+                            .into(binding.selectPhotoBut);
+                }
             }
         });
 //        if(getActivity() != null && binding != null && binding.selectPhotoBut!= null) {
@@ -1321,6 +1333,8 @@ public class LoginFragment extends Fragment implements BindableItem, StartedActi
     private void compressImage(String url){
 //        Bitmap b = BitmapFactory.decodeFile("Pass your file path");
 // original measurements
+        if(url == null || url.length()==0)
+            return;
         Uri uri = Uri.parse(url);
 //        pickedPhotoPath = uri.getEncodedPath();
 //        url=pickedPhotoPath;
@@ -1337,11 +1351,22 @@ public class LoginFragment extends Fragment implements BindableItem, StartedActi
         catch(Exception e){
             return;
         }
+        if(bitmap ==null){
+            if(getContext() != null){
+                Toast.makeText(getContext(), "Unsupported image format!",Toast.LENGTH_SHORT).show();
+            }
+            return;
+        }
         int origWidth = bitmap.getWidth();
         int origHeight = bitmap.getHeight();
         if(origWidth > destWidth) {
             Bitmap scaledBm = Bitmap.createScaledBitmap(bitmap, destWidth, destWidth * origHeight / origWidth, true);
-
+            if(scaledBm ==null){
+                if(getContext() != null){
+                    Toast.makeText(getContext(), "Unsupported image format!",Toast.LENGTH_SHORT).show();
+                }
+                return;
+            }
             finalizeCompression(scaledBm);
         }
         else

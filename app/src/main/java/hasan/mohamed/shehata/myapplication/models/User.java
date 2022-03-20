@@ -36,7 +36,7 @@ import hasan.mohamed.shehata.myapplication.types.ListItemCallbacks;
 import hasan.mohamed.shehata.myapplication.types.StatusOfServerObject;
 
 @Entity
-public class User extends BaseObservable implements ListItemBindableItemContentProvider, Serializable, ImageReady,Comparable<User> {
+public class User extends BaseObservable implements ListItemBindableItemContentProvider, ImageReady,Comparable<User> {
     /*
     {
         "country": "egypt",
@@ -516,7 +516,7 @@ public class User extends BaseObservable implements ListItemBindableItemContentP
 
     @JsonIgnore
     @Ignore
-    private ImageView lastInstanceOfImageView;
+    private transient ImageView lastInstanceOfImageView;
 
     @JsonIgnore
     @Override
@@ -585,7 +585,8 @@ public class User extends BaseObservable implements ListItemBindableItemContentP
 
 
     @JsonIgnore
-    private transient Group group;// thisIsNotUserObjectItAnInstanceUsedByGroupToUseItsUiView;
+    @Ignore
+    private Group group;// thisIsNotUserObjectItAnInstanceUsedByGroupToUseItsUiView;
 
 
     @JsonIgnore
@@ -644,7 +645,7 @@ public class User extends BaseObservable implements ListItemBindableItemContentP
 
 
     @JsonIgnore
-    @Ignore
+    @Ignore //For ui update only on selection menu
     private transient boolean isHighLighted;
 
     @JsonIgnore
@@ -683,7 +684,7 @@ public class User extends BaseObservable implements ListItemBindableItemContentP
 
 
     @JsonIgnore
-    @Ignore
+    @Ignore // For ui update only during group dialog creation and update
     private transient boolean isGroupAdmin;
 
     @JsonIgnore

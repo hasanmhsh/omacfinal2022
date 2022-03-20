@@ -2,7 +2,9 @@ package hasan.mohamed.shehata.myapplication.types;
 
 import android.graphics.Bitmap;
 
-public interface ImageReady {
+import java.io.Serializable;
+
+public interface ImageReady extends Serializable {
     public void imageReady(long userid, Bitmap image);
     public long getUserId();
 }

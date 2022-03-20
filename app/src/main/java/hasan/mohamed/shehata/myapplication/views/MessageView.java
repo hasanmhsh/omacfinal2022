@@ -87,6 +87,8 @@ public class MessageView  extends FrameLayout implements BindableItem, HighContr
                         call.cancel();
                     }
                 });
+
+
             }
         });
 
@@ -102,6 +104,10 @@ public class MessageView  extends FrameLayout implements BindableItem, HighContr
         binding.messageViewContainer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if(Utils.messagesToDelete.size() != 0){
+                    handleMessageSelection();
+                    return;
+                }
                 // Start tts
 //                Toast.makeText(getContext() , binding.getMessage().getMessagetext(), Toast.LENGTH_SHORT).show();
                 selectionReceiver.provideSpeaker().speak(binding.getMessage());
@@ -121,26 +127,7 @@ public class MessageView  extends FrameLayout implements BindableItem, HighContr
         this.binding.messageViewContainer.setOnLongClickListener(new OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
-                if(binding.getMessage() != null) {
-                    binding.getMessage().toggleHighLight();
-                    if(binding.getMessage().getIsHighLighted()){
-                        Utils.messagesToDelete.add(binding.getMessage());
-                        Utils.deletedMessagesResultReceivers.add(selectionReceiver);
-                    }
-                    else{
-                        Utils.messagesToDelete.remove(binding.getMessage());
-                        Utils.deletedMessagesResultReceivers.remove(selectionReceiver);
-
-                    }
-
-                    if(Utils.messagesToDelete.size() ==0){
-                        ((TranslationMainActivity)getContext()).hideDeleteMenuButton();
-                    }
-                    else {
-
-                        ((TranslationMainActivity)getContext()).showDeleteMenuButton();
-                    }
-                }
+                handleMessageSelection();
                 return true;
             }
         });
@@ -150,6 +137,37 @@ public class MessageView  extends FrameLayout implements BindableItem, HighContr
 
     }
 
+    private void handleMessageSelection() {
+        if(binding.getMessage() != null) {
+            binding.getMessage().toggleHighLight();
+            if(binding.getMessage().getIsHighLighted()){
+                synchronized (Utils.messagesToDelete) {
+                    Utils.messagesToDelete.add(binding.getMessage());
+                }
+                synchronized (Utils.deletedMessagesResultReceivers) {
+                    Utils.deletedMessagesResultReceivers.add(selectionReceiver);
+                }
+            }
+            else{
+                synchronized (Utils.messagesToDelete) {
+                    Utils.messagesToDelete.remove(binding.getMessage());
+                }
+                synchronized (Utils.deletedMessagesResultReceivers) {
+                    Utils.deletedMessagesResultReceivers.remove(selectionReceiver);
+                }
+
+            }
+
+            synchronized (Utils.messagesToDelete) {
+                if (Utils.messagesToDelete.size() == 0) {
+                    ((TranslationMainActivity) getContext()).hideDeleteMenuButton();
+                } else {
+
+                    ((TranslationMainActivity) getContext()).showDeleteMenuButton();
+                }
+            }
+        }
+    }
 
 
     @Override
@@ -187,6 +205,9 @@ public class MessageView  extends FrameLayout implements BindableItem, HighContr
             return;
         binding.setMessage(msg);
 
+        if(binding.getMessage().getControlnumber() == Utils.MESSAGE_IMAGE_CONTROL_CODE_CMD && binding.messageImageMessages != null){
+            binding.getMessage().bindImageView(binding.messageImageMessages);
+        }
 //        if(checkIfControlMessage(msg)){
 //            binding.messageViewContainer.setVisibility(View.GONE);
 //        }

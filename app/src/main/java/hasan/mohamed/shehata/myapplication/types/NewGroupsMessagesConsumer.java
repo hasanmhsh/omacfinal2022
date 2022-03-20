@@ -10,4 +10,5 @@ public interface NewGroupsMessagesConsumer {
     public void deleteMessage(long messageid);
     public void unreadMessages(List<Message> unreadMessages);
     public long getGroupId();
+    void updateGroupImage();
 }
