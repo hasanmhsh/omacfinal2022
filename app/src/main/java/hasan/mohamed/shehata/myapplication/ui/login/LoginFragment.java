@@ -267,7 +267,7 @@ public class LoginFragment extends Fragment implements BindableItem, StartedActi
                 selectPhoto();
             }
         });
-        ((StartedACtivityResultsProvider)getActivity()).registerStartedActivityResultsListener(this);
+//        ((StartedACtivityResultsProvider)getActivity()).registerStartedActivityResultsListener(this);
         thiz = this;
 
 
@@ -1270,6 +1270,7 @@ public class LoginFragment extends Fragment implements BindableItem, StartedActi
     private void selectPhoto(){
 
         if(getActivity() != null) {
+            ((StartedACtivityResultsProvider)getActivity()).registerStartedActivityResultsListener(this);
             ((PermissionRequestProvider) getActivity()).requireStoragePermissions(new PermissionRequestCallbacks() {
                 @Override
                 public void granted() {

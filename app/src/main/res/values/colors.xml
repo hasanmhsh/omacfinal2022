@@ -206,6 +206,9 @@
 
 
 
+        <!--    splash-->
+        <color name="color0">#4b6858</color>
+
         <!--    splash buttons-->
         <color name="color1">#498c8a</color>
         <color name="color2">#4b6858</color>

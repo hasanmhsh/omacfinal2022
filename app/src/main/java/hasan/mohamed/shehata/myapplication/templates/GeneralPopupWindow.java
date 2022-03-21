@@ -1379,6 +1379,8 @@ public abstract class GeneralPopupWindow extends DialogFragment {
             binding.addGroupMembersBut.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+
+                    Utils.hideKeybaord(view);
                     List<ListItemBindableItemContentProvider> preparedUserList = prepareUserGroupList(group.getGroupusers());
                     if(preparedUserList == null){
                         if(getContext() != null)
@@ -1400,6 +1402,8 @@ public abstract class GeneralPopupWindow extends DialogFragment {
             binding.saveGroupBut.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+
+                    Utils.hideKeybaord(view);
                     String gname = binding.groupName.getText().toString();
                     if(gname == null || gname.length() == 0){
                         if(getContext() != null)
@@ -1422,7 +1426,15 @@ public abstract class GeneralPopupWindow extends DialogFragment {
                                 groupUser.setGrouprole(defaultRole);
                         }
                     }
+                    if(group.getGroupusers() == null || group.getGroupusers().size()==0){
+                        List<GroupUser> groupUsers = new ArrayList<>();
+                        User me = new User();
+                        me.setUserid(getUserId());
+                        GroupUser myGrU = new GroupUser(group,me,GroupRole.ADMIN);
+                        groupUsers.add(myGrU);
+                        group.setGroupusers(groupUsers);
 
+                    }
                     ((TranslationMainActivity)getActivity()).postGroup(group,pickedPhotoContentUri, getGroupReceiver());
 
 
@@ -1437,6 +1449,8 @@ public abstract class GeneralPopupWindow extends DialogFragment {
             binding.cancelGroupBut.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+
+                    Utils.hideKeybaord(view);
                     closeDialog();
                 }
             });
@@ -1444,6 +1458,7 @@ public abstract class GeneralPopupWindow extends DialogFragment {
             binding.deleteGroupBut.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+                    Utils.hideKeybaord(view);
                     TranslationMainActivity activity = (TranslationMainActivity) getActivity();
                     if(activity != null){
                         activity.deleteGroup(group.getGroupid());
@@ -1583,7 +1598,9 @@ public abstract class GeneralPopupWindow extends DialogFragment {
 
 
         private void selectPhoto(){
-
+            if(getActivity() != null){
+                ((StartedACtivityResultsProvider)getActivity()).registerStartedActivityResultsListener(this);
+            }
             if(getActivity() != null) {
                 ((PermissionRequestProvider) getActivity()).requireStoragePermissions(new PermissionRequestCallbacks() {
                     @Override

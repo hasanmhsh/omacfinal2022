@@ -229,7 +229,9 @@ public class GroupPostRequest implements Serializable {
                 public void onResponse(Call<JSONResult> call, Response<JSONResult> response) {
 //                    Toast.makeText(getContext(), response.body().getResult(), Toast.LENGTH_LONG).show();
                     if(!response.isSuccessful()){
-                        postPhoto(myid);
+                        if(context != null){
+                            Toast.makeText(context, "Failed to add group!", Toast.LENGTH_LONG).show();
+                        }
                     }
                     else{
 //                        if(groupReceiver != null){
@@ -271,7 +273,9 @@ public class GroupPostRequest implements Serializable {
                 @Override
                 public void onFailure(Call<JSONResult> call, Throwable t) {
                     call.cancel();
-                    postPhoto(myid);
+                    if(context != null){
+                        Toast.makeText(context, "Failed to add group!", Toast.LENGTH_LONG).show();
+                    }
                 }
             });
 
