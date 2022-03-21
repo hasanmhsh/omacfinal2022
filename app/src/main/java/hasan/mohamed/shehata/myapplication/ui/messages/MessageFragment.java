@@ -857,7 +857,7 @@ public class MessageFragment extends Fragment implements SpeakerProvider, Messag
                                                 }
                                             }
 
-                                            if(myGroupUser != null){
+                                            if(myGroupUser != null && binding!= null && binding.fragmentRecyclerView!=null){
                                                 if(myGroupUser.getGrouprole() != GroupRole.ADMIN &&
                                                 myGroupUser.getGrouprole() != GroupRole.SEND_RECEIVE){
                                                     binding.readOnlyGroupTvMessagesFragment.setVisibility(View.VISIBLE);
@@ -1181,25 +1181,30 @@ public class MessageFragment extends Fragment implements SpeakerProvider, Messag
 
     }
 
-    public void sendImageMessage(byte [] bytes){
-        if(bytes == null) {
-            if(getContext() != null){
-                Toast.makeText(getContext(),"Unsupported image format!",Toast.LENGTH_SHORT).show();
+    int lastImageSize = 0;
+    public void sendImageMessage(byte [] bytes) {
+        if (bytes == null || bytes.length == 0) {
+            if (getContext() != null) {
+                Toast.makeText(getContext(), "Unsupported image format!", Toast.LENGTH_SHORT).show();
             }
             return;
         }
-        else {
-            final Message newMessage = new Message(getContext());
-            newMessage.setSenderid(me.getUserid());
-            if (buddy != null && !isViewForGroupChat)
-                newMessage.setReceiverid(buddy.getUserid());
-            if (isViewForGroupChat && chatGroup != null)
-                newMessage.setGroupid(chatGroup.getGroupid());
-            newMessage.setMessagetext("image");
-            newMessage.setControlnumber(Utils.MESSAGE_IMAGE_CONTROL_CODE_CMD);
-            newMessage.setIsToShowTranslatedText(false);
-            newMessage.setImage(bytes);
-            shakkelha(newMessage);
-        }
+        if (bytes.length == lastImageSize)
+            return;
+        lastImageSize = bytes.length;
+
+
+        final Message newMessage = new Message(getContext());
+        newMessage.setSenderid(me.getUserid());
+        if (buddy != null && !isViewForGroupChat)
+            newMessage.setReceiverid(buddy.getUserid());
+        if (isViewForGroupChat && chatGroup != null)
+            newMessage.setGroupid(chatGroup.getGroupid());
+        newMessage.setMessagetext("image");
+        newMessage.setControlnumber(Utils.MESSAGE_IMAGE_CONTROL_CODE_CMD);
+        newMessage.setIsToShowTranslatedText(false);
+        newMessage.setImage(bytes);
+        shakkelha(newMessage);
+
     }
 }

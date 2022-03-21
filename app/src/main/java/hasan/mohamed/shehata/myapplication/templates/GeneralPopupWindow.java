@@ -1325,7 +1325,7 @@ public abstract class GeneralPopupWindow extends DialogFragment {
             }
 
             if(getActivity() != null){
-                ((StartedACtivityResultsProvider)getActivity()).registerStartedActivityResultsListener(this);
+//                ((StartedACtivityResultsProvider)getActivity()).registerStartedActivityResultsListener(this);
             }
             else{
                 closeDialog();

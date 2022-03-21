@@ -51,11 +51,16 @@ public class User extends BaseObservable implements ListItemBindableItemContentP
      */
 
     public User(User user) {
-        this.userid = user.userid;
-        this.username = user.username;
-        this.userlanguage = user.userlanguage;
-        this.isOnline = user.isOnline;
-        this.isExist = user.isExist;
+        try {
+            if (this == null)
+                return;
+            this.userid = user.userid;
+            this.username = user.username;
+            this.userlanguage = user.userlanguage;
+            this.isOnline = user.isOnline;
+            this.isExist = user.isExist;
+        }
+        catch (Exception e){}
     }
 
 

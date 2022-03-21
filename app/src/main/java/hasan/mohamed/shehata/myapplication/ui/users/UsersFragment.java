@@ -29,12 +29,13 @@ import hasan.mohamed.shehata.myapplication.templates.GeneralRecyclerViewAdapter;
 import hasan.mohamed.shehata.myapplication.types.AsyncPingerProvider;
 import hasan.mohamed.shehata.myapplication.types.FabActionType;
 import hasan.mohamed.shehata.myapplication.types.FabSource;
+import hasan.mohamed.shehata.myapplication.types.HighContrastObserver;
 import hasan.mohamed.shehata.myapplication.types.SearchCallbacks;
 import hasan.mohamed.shehata.myapplication.types.UserListConsumer;
 import hasan.mohamed.shehata.myapplication.types.UsersViewType;
 import hasan.mohamed.shehata.myapplication.views.UserItemView;
 
-public class UsersFragment extends Fragment implements TranslationMainActivity.MeListener, UserListConsumer {
+public class UsersFragment extends Fragment implements TranslationMainActivity.MeListener, UserListConsumer, HighContrastObserver {
 
     public static final String FRAGMENT_TYPE_ALL_USERS = "hasan.mohamed.shehata.myapplication.ui.users.FRAGMENT_TYPE_ALL_USERS";
     public static final String FRAGMENT_TYPE_CONTACTS = "hasan.mohamed.shehata.myapplication.ui.users.FRAGMENT_TYPE_CONTACTS";
@@ -152,7 +153,7 @@ public class UsersFragment extends Fragment implements TranslationMainActivity.M
 
     private boolean isListInitialized = false;
     private void initList(List<ListItemBindableItemContentProvider> users) {
-        if(usersViewType != UsersViewType.groups) {
+        if(getUsersViewType() != UsersViewType.groups) {
             ArrayList<ListItemBindableItemContentProvider> items = null;
             if (users != null) {
                 isListInitialized = true;
@@ -161,14 +162,14 @@ public class UsersFragment extends Fragment implements TranslationMainActivity.M
             SearchCallbacks searchCallbacks = null;
             if(this != null && this.getActivity() != null)
                 searchCallbacks = ((TranslationMainActivity)getActivity()).getSearchableCallBacks();
-            GeneralRecyclerViewAdapter<UserItemView> adapter = new GeneralRecyclerViewAdapter<UserItemView>(getContext(), items, null, UserItemView.class, FabActionType.None, null, null, null, binding.fragmentRecyclerView, null, false, null, usersViewType,false,searchCallbacks, false);
+            GeneralRecyclerViewAdapter<UserItemView> adapter = new GeneralRecyclerViewAdapter<UserItemView>(getContext(), items, null, UserItemView.class, FabActionType.None, null, null, null, binding.fragmentRecyclerView, null, false, null, getUsersViewType(),false,searchCallbacks, false);
 
             binding.fragmentRecyclerView.setAdapter(adapter);
         }
     }
 
     private void initGroupList(List<ListItemBindableItemContentProvider> groups) {
-        if(usersViewType == UsersViewType.groups) {
+        if(getUsersViewType() == UsersViewType.groups) {
             ArrayList<ListItemBindableItemContentProvider> items = null;
             if (groups != null) {
                 isListInitialized = true;
@@ -177,7 +178,7 @@ public class UsersFragment extends Fragment implements TranslationMainActivity.M
             SearchCallbacks searchCallbacks = null;
             if(this != null && this.getActivity() != null)
                 searchCallbacks = ((TranslationMainActivity)getActivity()).getSearchableCallBacks();
-            GeneralRecyclerViewAdapter<UserItemView> adapter = new GeneralRecyclerViewAdapter<UserItemView>(getContext(), items, null, UserItemView.class, FabActionType.None, null, null, null, binding.fragmentRecyclerView, null, true, null, usersViewType ,false,searchCallbacks, false);
+            GeneralRecyclerViewAdapter<UserItemView> adapter = new GeneralRecyclerViewAdapter<UserItemView>(getContext(), items, null, UserItemView.class, FabActionType.None, null, null, null, binding.fragmentRecyclerView, null, true, null, getUsersViewType() ,false,searchCallbacks, false);
             binding.fragmentRecyclerView.setAdapter(adapter);
         }
     }
@@ -220,6 +221,11 @@ public class UsersFragment extends Fragment implements TranslationMainActivity.M
             adapter.release();
         binding = null;
 
+        if(this != null && getActivity()!=null){
+
+            ((TranslationMainActivity)getActivity()).clearSerchText();
+        }
+
     }
 
 
@@ -227,7 +233,9 @@ public class UsersFragment extends Fragment implements TranslationMainActivity.M
     @Override
     public void onResume() {
         super.onResume();
+        refresh(Utils.getIsHighContrastTheme(getContext()));
         ((FabSource)getActivity()).disableFab();
+
 
         if(usersViewType == UsersViewType.groups && getActivity() !=null)
             ((FabSource)getActivity()).showFab();
@@ -303,4 +311,39 @@ public class UsersFragment extends Fragment implements TranslationMainActivity.M
     }
 
 
+    private UsersViewType getUsersViewType(){
+        if(getActivity() != null){
+            switch (((TranslationMainActivity)getActivity()).getCurrentDestenationId()){
+
+                case R.id.nav_contacts:
+                    return  UsersViewType.contacts;
+                case R.id.nav_groups:
+                    return UsersViewType.groups;
+                case R.id.nav_calls:
+                    return UsersViewType.calls;
+                default:
+                case R.id.nav_users:
+                    return UsersViewType.allusers;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public void refresh(boolean isHighContrast) {
+        if(isHighContrast){
+            if(binding != null){
+                if(binding.mainContainer != null){
+                    binding.mainContainer.setBackgroundResource(R.color.high_contrast_background_color);
+                }
+            }
+        }
+        else {
+            if(binding != null){
+                if(binding.mainContainer != null){
+                    binding.mainContainer.setBackgroundResource(R.color.usersListBackgroundColor);
+                }
+            }
+        }
+    }
 }

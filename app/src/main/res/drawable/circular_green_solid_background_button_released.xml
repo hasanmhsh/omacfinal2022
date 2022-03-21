@@ -6,7 +6,7 @@
             android:shape="oval">
 
             <solid
-                android:color="#4CAF84"/>
+                android:color="@color/send_msg_but_color"/>
 
         </shape>
     </item>

@@ -80,11 +80,14 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
                     android:fitsSystemWindows="true"
-                    android:text="Please confirm your country code and enter your phune number."
+                    android:fontFamily="@font/nunito"
+                    android:text="Please confirm your country code and enter your phone number."
                     android:textColor="@color/generalHintTextColor"
                     app:layout_constraintTop_toTopOf="parent"
                     tools:layout_editor_absoluteX="5dp" />
                 <TextView
+                    android:fontFamily="@font/nunito"
+                    android:padding="5dp"
                     android:id="@+id/country_selection_tv_phone_number_verification_fragment"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -93,11 +96,11 @@
                     android:textColorHint="@color/generalHintTextColor"
                     android:hint="Select country"
                     android:text="Select country...▼"
+                    android:background="@drawable/lightcontourbackground"
                     app:layout_constraintTop_toBottomOf="@id/confirm_message_phone_verification_fragment"
                     android:layout_marginTop="20dp"
                     />
                 <LinearLayout
-
                     android:id="@+id/linear_layout_phonenumbergroup_verification_fragment"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -108,15 +111,17 @@
 
 
                     <TextView
+                        android:fontFamily="@font/nunito"
                         android:id="@+id/plus_sign_"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="+"
                         android:fitsSystemWindows="true"
-                        android:textSize="20sp"
+                        android:textSize="14sp"
                         android:textColor="@color/generalTextColor"
                         />
                     <EditText
+                        android:fontFamily="@font/nunito"
                         android:id="@+id/country_code_et_phone_verification_login_fragment"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -130,6 +135,7 @@
                         android:fitsSystemWindows="true"
                         />
                     <EditText
+                        android:fontFamily="@font/nunito"
                         android:id="@+id/phonenumber_et_phone_number_verification_fragmnet"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -143,13 +149,16 @@
 
                         android:fitsSystemWindows="true"/>
                     <Button
+                        android:background="@drawable/lightcontourbackground"
                         android:id="@+id/ok_but_phone_verification_fragment"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="OK"
                         android:textSize="17sp"
-                        android:minHeight="0dp"
+                        android:minHeight="40dp"
                         android:minWidth="55sp"
+                        android:textColor="@color/generalTextColor"
+                        android:fontFamily="@font/nunito"
                         android:fitsSystemWindows="true"/>
 
 
@@ -161,6 +170,7 @@
                 </LinearLayout>
 
                 <TextView
+                    android:fontFamily="@font/nunito"
                     android:visibility="gone"
                     android:id="@+id/verification_number_label_tv_verification_fragment"
                     android:layout_width="wrap_content"
@@ -176,6 +186,7 @@
                     />
 
                 <EditText
+                    android:fontFamily="@font/nunito"
                     android:visibility="gone"
                     android:id="@+id/verificationnumber_et_phone_number_verification_fragmnet"
                     android:layout_width="wrap_content"
@@ -195,6 +206,8 @@
                     android:fitsSystemWindows="true"/>
 
                 <Button
+                    android:textColor="@color/generalTextColor"
+                    android:background="@drawable/lightcontourbackground"
                     android:visibility="gone"
                     android:id="@+id/resend_sms_but_phone_verification_fragment"
                     android:layout_width="wrap_content"
@@ -203,6 +216,7 @@
                     android:textSize="17sp"
                     android:minHeight="0dp"
                     android:minWidth="55sp"
+                    android:padding="4dp"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     android:fitsSystemWindows="true"

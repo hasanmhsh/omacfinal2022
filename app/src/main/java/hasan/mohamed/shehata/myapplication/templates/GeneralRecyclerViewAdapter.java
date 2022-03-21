@@ -315,8 +315,7 @@ public class GeneralRecyclerViewAdapter<T extends BindableItem> extends Recycler
 
                 }
                 break;
-                default:
-                case R.id.nav_users: {
+                default: {
                     if(then != null)
                         then.call(dataset1);
                 }

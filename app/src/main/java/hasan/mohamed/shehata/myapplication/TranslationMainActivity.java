@@ -113,6 +113,18 @@ public class TranslationMainActivity extends AppCompatActivity implements FabSou
 
     private boolean isFabShown = false;
 
+    public void clearSerchText() {
+        if(this != null && actionBarMenuHost!= null){
+            MenuItem item = actionBarMenuHost.findItem(R.id.search_menu_item);
+            if(item != null){
+                SearchView searchView = (SearchView) item.getActionView();
+                if(searchView!= null){
+                    searchView.setQuery("",true);
+                }
+            }
+        }
+    }
+
 
     public static interface MeListener{
         public void meReady(User me);
@@ -331,6 +343,30 @@ public class TranslationMainActivity extends AppCompatActivity implements FabSou
                 Utils.getPhoneNumberList(getApplicationContext());
             }
         });
+
+        drawer.addDrawerListener(new DrawerLayout.DrawerListener() {
+            @Override
+            public void onDrawerSlide(@NonNull View drawerView, float slideOffset) {
+
+            }
+
+            @Override
+            public void onDrawerOpened(@NonNull View drawerView) {
+                Utils.hideKeybaord(drawerView);
+            }
+
+            @Override
+            public void onDrawerClosed(@NonNull View drawerView) {
+                Utils.hideKeybaord(drawerView);
+            }
+
+            @Override
+            public void onDrawerStateChanged(int newState) {
+
+            }
+        });
+
+
 
     }
 
@@ -1206,8 +1242,14 @@ public class TranslationMainActivity extends AppCompatActivity implements FabSou
             synchronized (Utils.deletedMessagesResultReceivers) {
                 Utils.deletedMessagesResultReceivers.clear();
             }
-            actionBarMenuHost.findItem(R.id.search_menu_item).setVisible(false);
-            actionBarMenuHost.findItem(R.id.action_delete_messages).setVisible(false);
+            if (actionBarMenuHost != null) {
+                MenuItem item = actionBarMenuHost.findItem(R.id.search_menu_item);
+                if(item!=null)
+                    item.setVisible(false);
+                item = actionBarMenuHost.findItem(R.id.action_delete_messages);
+                if(item != null)
+                    item.setVisible(false);
+            }
 
         }
 
@@ -1223,19 +1265,33 @@ public class TranslationMainActivity extends AppCompatActivity implements FabSou
             synchronized (Utils.deletedMessagesResultReceivers) {
                 Utils.deletedMessagesResultReceivers.clear();
             }
-            actionBarMenuHost.findItem(R.id.search_menu_item).setVisible(true);
-            actionBarMenuHost.findItem(R.id.action_delete_messages).setVisible(false);
+            if(actionBarMenuHost != null) {
+                MenuItem item = actionBarMenuHost.findItem(R.id.search_menu_item);
+                if(item != null)
+                    item.setVisible(true);
+                item = actionBarMenuHost.findItem(R.id.action_delete_messages);
+                if(item != null){
+                    item.setVisible(false);
+                }
+            }
         }
     }
 
     public void showDeleteMenuButton(){
 
-        actionBarMenuHost.findItem(R.id.action_delete_messages).setVisible(true);
+        if(actionBarMenuHost != null) {
+            MenuItem item = actionBarMenuHost.findItem(R.id.action_delete_messages);
+            if (item != null)
+                item.setVisible(true);
+        }
     }
 
     public void hideDeleteMenuButton(){
-
-        actionBarMenuHost.findItem(R.id.action_delete_messages).setVisible(false);
+        if(actionBarMenuHost != null) {
+            MenuItem item = actionBarMenuHost.findItem(R.id.action_delete_messages);
+            if (item != null)
+                item.setVisible(false);
+        }
     }
 
 
@@ -1463,6 +1519,7 @@ public class TranslationMainActivity extends AppCompatActivity implements FabSou
     private HashSet<StartedActivityResultsListener> startedActivityResultsListeners = new HashSet<>();
     @Override
     public void registerStartedActivityResultsListener(StartedActivityResultsListener startedActivityResultsListener) {
+        startedActivityResultsListeners.clear();
         startedActivityResultsListeners.add(startedActivityResultsListener);
     }
 
@@ -1553,9 +1610,11 @@ public class TranslationMainActivity extends AppCompatActivity implements FabSou
 
     }
 
+    private boolean isToRemoveImagePickupLiteneres = false;
     @Override
     protected void onResume() {
         super.onResume();
+        isToRemoveImagePickupLiteneres = true;
         refresh(isHighContrastEnabled);
 //        if(binding != null && binding.fab != null && binding.fab.getVisibility() != View.VISIBLE){
 //            binding.fab.postDelayed(new Runnable() {
@@ -1656,16 +1715,29 @@ public class TranslationMainActivity extends AppCompatActivity implements FabSou
 
 
     public void setContinousRecognitionMenuCheckbox(boolean isChecked){
-        actionBarMenuHost.findItem(R.id.action_continious_recognition).setChecked(isChecked);
+        if(actionBarMenuHost != null){
+            MenuItem item = actionBarMenuHost.findItem(R.id.action_continious_recognition);
+            if(item != null)
+                item.setChecked(isChecked);
+        }
+
     }
 
 
     public void setContinousSpeakingMenuCheckbox(boolean isChecked){
-        actionBarMenuHost.findItem(R.id.action_continious_tts).setChecked(isChecked);
+        if(actionBarMenuHost != null){
+            MenuItem item = actionBarMenuHost.findItem(R.id.action_continious_tts);
+            if(item != null)
+                item.setChecked(isChecked);
+        }
     }
 
     public void setAttachActionButtonVeisibility(boolean isVisible){
-        actionBarMenuHost.findItem(R.id.action_attach_messages).setVisible(isVisible);
+        if(actionBarMenuHost != null){
+            MenuItem item = actionBarMenuHost.findItem(R.id.action_attach_messages);
+            if(item != null)
+                item.setVisible(isVisible);
+        }
     }
 
 

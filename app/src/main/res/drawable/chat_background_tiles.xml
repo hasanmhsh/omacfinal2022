@@ -3,4 +3,4 @@
     android:src="@drawable/tiles1"
     android:tileMode="repeat"
     android:tintMode="multiply"
-    android:tint="#32C7B0FF"/>
+    android:tint="@color/color9"/>

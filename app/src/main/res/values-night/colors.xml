@@ -34,7 +34,7 @@
     <color name="buddy_message_released_background_color_night">#373A37</color>
     <color name="buddy_message_text_color">@color/darkTextColor</color>
     <color name="buddy_message_label_text_color">#737373</color>
-    <color name="huddle_background_color">#481885</color>
+    <color name="huddle_background_color">#554945</color>
     <color name="lightTextColor2">#969696</color>
     <color name="high_contrast_background_color">#000000</color>
     <color name="high_contrast_text_color">#FFFFFF</color>
@@ -46,7 +46,7 @@
     <color name="message_edit_box_background_color">#5A5A5A</color>
     <color name="send_msg_but_color">#00574F</color>
     <color name="status_bar_color">@color/myAccent1</color>
-    <color name="usersListBackgroundColor">#202020</color>
+    <color name="usersListBackgroundColor">#443333</color>
     <color name="usernameTextColor">#F1F1F1</color>
     <color name="userLanguageTextColor">#E4E4E4</color>
     <color name="nav_door_background_color">@color/myAccent1</color>
@@ -63,5 +63,7 @@
     <color name="login_button_color">#2196F3</color>
     <color name="login_button_color_pressed">#B02196F3</color>
     <color name="selection_filter_color">#6500B35F</color>
+    <color name="light_contour_color_pressed">#E1E1E1</color>
+    <color name="light_contour_color_released">#B3B3B3</color>
 
 </resources>

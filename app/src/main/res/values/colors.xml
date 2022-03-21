@@ -1,67 +1,423 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="purple_200">#FFBB86FC</color>
-    <color name="purple_500">#FF6200EE</color>
-    <color name="purple_700">#FF3700B3</color>
-    <color name="teal_200">#FF03DAC5</color>
-    <color name="teal_700">#FF018786</color>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
-    <color name="light_gray">#33EEEEEE</color>
-    <color name="dark_gray">#33FFFFFF</color>
-    <color name="newsItemReleasedBackgroundColorLight">#FBF6FF</color>
-    <color name="newsItemReleasedBackgroundColorNight">#FF3700B3</color>
-    <color name="transparent">#00F44336</color>
-    <color name="sent_message_color">#9CD3FF</color>
-    <color name="received_message_color">#FFB0CB</color>
-    <color name="light_blue_600">#FF039BE5</color>
-    <color name="light_blue_900">#FF01579B</color>
-    <color name="light_blue_A200">#FF40C4FF</color>
-    <color name="light_blue_A400">#FF00B0FF</color>
-    <color name="black_overlay">#66000000</color>
-    <color name="red">#FF1100</color>
-    <color name="myAccent1">@color/huddle_background_color</color>
-    <color name="myAccent1_pressed">#5A00B1</color>
-    <color name="darkTextColor1">@color/huddle_background_color</color>
-    <color name="darkTextColor">#404040</color>
-    <color name="lightTextColor">#CACACA</color>
-    <color name="extraLightPurbleBackground">#FBF6FF</color>
-    <color name="my_message_released_background_color">#4D485A</color>
-    <color name="my_message_pressed_background_color">@color/myAccent1</color>
-    <color name="my_message_text_color">@color/white</color>
-    <color name="my_message_label_text_color">#E3E3E3</color>
-    <color name="buddy_message_released_background_color">#D5D5D5</color>
-    <color name="buddy_message_released_background_color_night">#373A37</color>
-    <color name="buddy_message_text_color">@color/darkTextColor</color>
-    <color name="buddy_message_label_text_color">#737373</color>
-    <color name="huddle_background_color">#481885</color>
-    <color name="lightTextColor2">#969696</color>
-    <color name="high_contrast_background_color">#FFFFFF</color>
-    <color name="high_contrast_text_color">#000000</color>
-    <color name="high_contrast_pressed_contour_color">#FF0000</color>
-    <color name="high_contrast_released_contour_color">#0041FF</color>
-    <color name="high_contrast_unpressable_contour1_color">#000000</color>
-    <color name="high_contrast_unpressable_contour2_color">#000000</color>
-    <color name="message_fragment_msget_text_color">#000000</color>
-    <color name="message_edit_box_background_color">#FFFFFF</color>
-    <color name="send_msg_but_color">#481885</color>
-    <color name="status_bar_color">@color/myAccent1</color>
-    <color name="usersListBackgroundColor">@color/extraLightPurbleBackground</color>
-    <color name="usernameTextColor">@color/darkTextColor</color>
-    <color name="userLanguageTextColor">@color/lightTextColor</color>
-    <color name="nav_door_background_color">@color/extraLightPurbleBackground</color>
-    <color name="nav_door_item_text_color" >@color/darkTextColor</color>
-    <color name="nav_header_info_box_background_color">@color/upsdk_white</color>
-    <color name="nav_header_name_text_color">@color/darkTextColor</color>
-    <color name="nav_header_language_text_color">@color/darkTextColor</color>
-    <color name="nav_door_items_icons_tint_color" >@color/darkTextColor</color>
-    <color name="phone_verification_background_color">#FFFFFF</color>
-    <color name="wecome_text_color_phone_number_view_login_fragment">#2196F3</color>
-    <color name="generalTextColor">#000000</color>
-    <color name="generalHintTextColor">#686868</color>
-    <color name="pupup_window_background_color">#FFFFFF</color>
-    <color name="login_button_color">#2196F3</color>
-    <color name="login_button_color_pressed">#B02196F3</color>
-    <color name="selection_filter_color">#4F005DFF</color>
+
+
+<!--    &lt;!&ndash;    splash buttons&ndash;&gt;-->
+<!--    <color name="color1">#44355b</color>-->
+<!--    <color name="color2">#31263e</color>-->
+<!--    &lt;!&ndash;    userlist item&ndash;&gt;-->
+<!--    <color name="color3">#221e22</color>-->
+<!--    &lt;!&ndash;    user list background &ndash;&gt;-->
+<!--    <color name="color4">#eca72c</color>-->
+<!--    <color name="color5">#ee5622</color>-->
+<!--    &lt;!&ndash;    action bar color&ndash;&gt;-->
+<!--    <color name="color6">@color/color2</color>-->
+<!--    &lt;!&ndash;    text colors of list items&ndash;&gt;-->
+<!--    &lt;!&ndash;    username tv&ndash;&gt;-->
+<!--    <color name="color7">@color/color4</color>-->
+<!--    &lt;!&ndash;    lng tv&ndash;&gt;-->
+<!--    <color name="color8">@color/color5</color>-->
+<!--    &lt;!&ndash;    msgs bkgrnd tint&ndash;&gt;-->
+
+<!--                <color name="color9">#66eca72c</color>-->
+
+<!--                &lt;!&ndash;    nav list bkgrnd tint&ndash;&gt;-->
+<!--                <color name="color10">@color/color4</color>-->
+
+
+
+
+
+
+
+<!--    &lt;!&ndash;    splash buttons&ndash;&gt;-->
+<!--    <color name="color1">#241E4E</color>-->
+<!--    <color name="color2">#960200</color>-->
+<!--    &lt;!&ndash;    userlist item&ndash;&gt;-->
+<!--    <color name="color3">#CE6C47</color>-->
+<!--    &lt;!&ndash;    user list background &ndash;&gt;-->
+<!--    <color name="color4">#FFD046</color>-->
+<!--    <color name="color5">#EADAA2</color>-->
+<!--    &lt;!&ndash;    action bar color&ndash;&gt;-->
+<!--    <color name="color6">@color/color2</color>-->
+<!--    &lt;!&ndash;    text colors of list items&ndash;&gt;-->
+<!--    &lt;!&ndash;    username tv&ndash;&gt;-->
+<!--    <color name="color7">@color/color4</color>-->
+<!--    &lt;!&ndash;    lng tv&ndash;&gt;-->
+<!--    <color name="color8">@color/color5</color>-->
+<!--    &lt;!&ndash;    msgs bkgrnd tint&ndash;&gt;-->
+
+<!--                <color name="color9">#77EADAA2</color>-->
+
+<!--                &lt;!&ndash;    nav list bkgrnd tint&ndash;&gt;-->
+<!--                <color name="color10">@color/color4</color>-->
+
+
+
+
+
+
+<!--    &lt;!&ndash;    splash buttons&ndash;&gt;-->
+<!--    <color name="color1">#592941</color>-->
+<!--    <color name="color2">#498467</color>-->
+<!--    &lt;!&ndash;    userlist item&ndash;&gt;-->
+<!--    <color name="color3">#52B788</color>-->
+<!--    &lt;!&ndash;    user list background &ndash;&gt;-->
+<!--    <color name="color4">#B2D3A8</color>-->
+<!--    <color name="color5">#EDE5A6</color>-->
+<!--    &lt;!&ndash;    action bar color&ndash;&gt;-->
+<!--    <color name="color6">@color/color2</color>-->
+<!--    &lt;!&ndash;    text colors of list items&ndash;&gt;-->
+<!--    &lt;!&ndash;    username tv&ndash;&gt;-->
+<!--    <color name="color7">@color/color1</color>-->
+<!--    &lt;!&ndash;    lng tv&ndash;&gt;-->
+<!--    <color name="color8">@color/color2</color>-->
+<!--    &lt;!&ndash;    msgs bkgrnd tint&ndash;&gt;-->
+<!--                <color name="color9">#66B2D3A8</color>-->
+
+<!--                &lt;!&ndash;    nav list bkgrnd tint&ndash;&gt;-->
+<!--                <color name="color10">@color/color4</color>-->
+
+
+
+<!--    &lt;!&ndash;    splash buttons&ndash;&gt;-->
+<!--    <color name="color1">#0E103D</color>-->
+<!--    <color name="color2">#69306D</color>-->
+<!--    &lt;!&ndash;    userlist item&ndash;&gt;-->
+<!--    <color name="color3">#A5668B</color>-->
+<!--    &lt;!&ndash;    user list background &ndash;&gt;-->
+<!--    <color name="color4">#D3BCC0</color>-->
+<!--    <color name="color5">#F2D7EE</color>-->
+<!--    &lt;!&ndash;    action bar color&ndash;&gt;-->
+<!--    <color name="color6">@color/color2</color>-->
+<!--    &lt;!&ndash;    text colors of list items&ndash;&gt;-->
+<!--    &lt;!&ndash;    username tv&ndash;&gt;-->
+<!--    <color name="color7">@color/color1</color>-->
+<!--    &lt;!&ndash;    lng tv&ndash;&gt;-->
+<!--    <color name="color8">@color/color2</color>-->
+<!--    &lt;!&ndash;    msgs bkgrnd tint&ndash;&gt;-->
+<!--                <color name="color9">#66D3BCC0</color>-->
+
+<!--                &lt;!&ndash;    nav list bkgrnd tint&ndash;&gt;-->
+<!--                <color name="color10">@color/color4</color>-->
+
+
+
+
+
+
+<!--    &lt;!&ndash;    splash buttons&ndash;&gt;-->
+<!--    <color name="color1">#595959</color>-->
+<!--    <color name="color2">#7F7F7F</color>-->
+<!--    &lt;!&ndash;    userlist item&ndash;&gt;-->
+<!--    <color name="color4">#A5A5A5</color>-->
+<!--    &lt;!&ndash;    user list background &ndash;&gt;-->
+<!--    <color name="color3">#CCCCCC</color>-->
+<!--    <color name="color5">#F2F2F2</color>-->
+<!--    &lt;!&ndash;    action bar color&ndash;&gt;-->
+<!--    <color name="color6">@color/color2</color>-->
+<!--    &lt;!&ndash;    text colors of list items&ndash;&gt;-->
+<!--    &lt;!&ndash;    username tv&ndash;&gt;-->
+<!--    <color name="color7">@color/color1</color>-->
+<!--    &lt;!&ndash;    lng tv&ndash;&gt;-->
+<!--    <color name="color8">@color/color2</color>-->
+<!--    &lt;!&ndash;    msgs bkgrnd tint&ndash;&gt;-->
+<!--                <color name="color9">#66A5A5A5</color>-->
+
+<!--                &lt;!&ndash;    nav list bkgrnd tint&ndash;&gt;-->
+<!--                <color name="color10">@color/color4</color>-->
+
+
+
+
+
+
+<!--    &lt;!&ndash;    splash buttons&ndash;&gt;-->
+<!--    <color name="color1">#2E6171</color>-->
+<!--    <color name="color2">#556F7A</color>-->
+<!--    &lt;!&ndash;    userlist item&ndash;&gt;-->
+<!--    <color name="color4">#798086</color>-->
+<!--    &lt;!&ndash;    user list background &ndash;&gt;-->
+<!--    <color name="color3">#B79FAD</color>-->
+<!--    <color name="color5">#D4AFCD</color>-->
+<!--    &lt;!&ndash;    action bar color&ndash;&gt;-->
+<!--    <color name="color6">@color/color2</color>-->
+<!--    &lt;!&ndash;    text colors of list items&ndash;&gt;-->
+<!--    &lt;!&ndash;    username tv&ndash;&gt;-->
+<!--    <color name="color7">@color/color1</color>-->
+<!--    &lt;!&ndash;    lng tv&ndash;&gt;-->
+<!--    <color name="color8">@color/color2</color>-->
+<!--    &lt;!&ndash;    msgs bkgrnd tint&ndash;&gt;-->
+<!--                <color name="color9">#66B79FAD</color>-->
+
+<!--                &lt;!&ndash;    nav list bkgrnd tint&ndash;&gt;-->
+<!--                <color name="color10">@color/color4</color>-->
+
+
+
+
+
+
+<!--    &lt;!&ndash;    splash buttons&ndash;&gt;-->
+<!--    <color name="color1">#555358</color>-->
+<!--    <color name="color2">#5F6062</color>-->
+<!--    &lt;!&ndash;    userlist item&ndash;&gt;-->
+<!--    <color name="color3">#7B7263</color>-->
+<!--    &lt;!&ndash;    user list background &ndash;&gt;-->
+<!--    <color name="color4">#C6CA53</color>-->
+<!--    <color name="color5">#C9DCB3</color>-->
+<!--    &lt;!&ndash;    action bar color&ndash;&gt;-->
+<!--    <color name="color6">@color/color2</color>-->
+<!--    &lt;!&ndash;    text colors of list items&ndash;&gt;-->
+<!--    &lt;!&ndash;    username tv&ndash;&gt;-->
+<!--    <color name="color7">@color/color4</color>-->
+<!--    &lt;!&ndash;    lng tv&ndash;&gt;-->
+<!--    <color name="color8">@color/color5</color>-->
+<!--    &lt;!&ndash;    msgs bkgrnd tint&ndash;&gt;-->
+<!--                <color name="color9">#66C6CA53</color>-->
+
+<!--                &lt;!&ndash;    nav list bkgrnd tint&ndash;&gt;-->
+<!--                <color name="color10">@color/color4</color>-->
+
+
+
+
+<!--        &lt;!&ndash;    splash buttons&ndash;&gt;-->
+<!--        <color name="color1">#0B4F6C</color>-->
+<!--        <color name="color2">#20BF55</color>-->
+<!--        &lt;!&ndash;    userlist item&ndash;&gt;-->
+<!--        <color name="color3">#FBFBFF</color>-->
+<!--        &lt;!&ndash;    user list background &ndash;&gt;-->
+<!--        <color name="color4">#01BAEF</color>-->
+<!--        <color name="color5">#757575</color>-->
+<!--        &lt;!&ndash;    action bar color&ndash;&gt;-->
+<!--        <color name="color6">@color/color2</color>-->
+<!--        &lt;!&ndash;    text colors of list items&ndash;&gt;-->
+<!--        &lt;!&ndash;    username tv&ndash;&gt;-->
+<!--        <color name="color7">@color/color1</color>-->
+<!--        &lt;!&ndash;    lng tv&ndash;&gt;-->
+<!--        <color name="color8">@color/color2</color>-->
+<!--        &lt;!&ndash;    msgs bkgrnd tint&ndash;&gt;-->
+<!--        <color name="color9">#66BFDBF7</color>-->
+
+<!--        &lt;!&ndash;    nav list bkgrnd tint&ndash;&gt;-->
+<!--        <color name="color10">#EBEDEF</color>-->
+
+
+
+
+        <!--    splash buttons-->
+        <color name="color1">#498c8a</color>
+        <color name="color2">#4b6858</color>
+        <!--    userlist item-->
+        <color name="color3">#FBFBFF</color>
+        <!--    user list background -->
+        <color name="color4">#DFEFF3</color>
+        <color name="color5">#757575</color>
+        <!--    action bar color-->
+        <color name="color6">@color/color2</color>
+        <!--    text colors of list items-->
+        <!--    username tv-->
+        <color name="color7">@color/color1</color>
+        <!--    lng tv-->
+        <color name="color8">@color/color2</color>
+        <!--    msgs bkgrnd tint-->
+        <color name="color9">#66BFDBF7</color>
+
+        <!--    nav list bkgrnd tint-->
+        <color name="color10">#EBEDEF</color>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        <color name="purple_200">#FFBB86FC</color>
+        <color name="purple_500">#FF6200EE</color>
+        <color name="purple_700">#FF3700B3</color>
+        <color name="teal_200">#FF03DAC5</color>
+        <color name="teal_700">#FF018786</color>
+        <color name="black">#FF000000</color>
+        <color name="white">#FFFFFFFF</color>
+        <color name="light_gray">#33EEEEEE</color>
+        <color name="dark_gray">#33FFFFFF</color>
+        <color name="newsItemReleasedBackgroundColorLight">#FBF6FF</color>
+        <color name="newsItemReleasedBackgroundColorNight">#FF3700B3</color>
+        <color name="transparent">#00F44336</color>
+        <color name="sent_message_color">#9CD3FF</color>
+        <color name="received_message_color">#FFB0CB</color>
+        <color name="light_blue_600">#FF039BE5</color>
+        <color name="light_blue_900">#FF01579B</color>
+        <color name="light_blue_A200">#FF40C4FF</color>
+        <color name="light_blue_A400">#FF00B0FF</color>
+        <color name="black_overlay">#66000000</color>
+        <color name="red">#FF1100</color>
+        <color name="myAccent1">@color/color2</color>
+        <color name="myAccent1_pressed">#5A00B1</color>
+        <color name="darkTextColor1">@color/huddle_background_color</color>
+        <color name="darkTextColor">#514b23</color>
+        <color name="lightTextColor">#EBEFDE</color>
+        <color name="extraLightPurbleBackground">#FBF6FF</color>
+        <color name="my_message_released_background_color">#4D485A</color>
+        <color name="my_message_pressed_background_color">@color/myAccent1</color>
+        <color name="my_message_text_color">@color/white</color>
+        <color name="my_message_label_text_color">#E3E3E3</color>
+        <color name="buddy_message_released_background_color">#D5D5D5</color>
+        <color name="buddy_message_released_background_color_night">#373A37</color>
+        <color name="buddy_message_text_color">@color/darkTextColor</color>
+        <color name="buddy_message_label_text_color">#737373</color>
+        <color name="huddle_background_color">@color/color1</color>
+        <color name="lightTextColor2">#969696</color>
+        <color name="high_contrast_background_color">#FFFFFF</color>
+        <color name="high_contrast_text_color">#000000</color>
+        <color name="high_contrast_pressed_contour_color">#FF0000</color>
+        <color name="high_contrast_released_contour_color">#0041FF</color>
+        <color name="high_contrast_unpressable_contour1_color">#000000</color>
+        <color name="high_contrast_unpressable_contour2_color">#000000</color>
+        <color name="message_fragment_msget_text_color">#000000</color>
+        <color name="message_edit_box_background_color">#FFFFFF</color>
+        <color name="send_msg_but_color">@color/color1</color>
+        <color name="status_bar_color">@color/color6</color>
+        <color name="usersListBackgroundColor">@color/color4</color>
+        <color name="usernameTextColor">@color/color7</color>
+        <color name="userLanguageTextColor">@color/color8</color>
+        <color name="nav_door_background_color">@color/color10</color>
+        <color name="nav_door_item_text_color" >@color/darkTextColor</color>
+
+
+
+
+        <color name="nav_header_info_box_background_color">@color/color6</color>
+        <color name="nav_header_name_text_color">@color/white</color>
+        <color name="nav_header_language_text_color">@color/white</color>
+        <color name="nav_door_items_icons_tint_color" >@color/white</color>
+
+
+
+
+
+
+        <color name="phone_verification_background_color">@color/color3</color>
+        <color name="wecome_text_color_phone_number_view_login_fragment">@color/huddle_background_color</color>
+        <color name="generalTextColor">#000000</color>
+        <color name="generalHintTextColor">#686868</color>
+        <color name="pupup_window_background_color">@color/color4</color>
+        <color name="login_button_color">#2196F3</color>
+        <color name="login_button_color_pressed">#B02196F3</color>
+        <color name="selection_filter_color">#4F005DFF</color>
+        <color name="light_contour_color_pressed">#EEEEEE</color>
+        <color name="light_contour_color_released">#11000000</color>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <!--    <color name="purple_200">#FFBB86FC</color>-->
+<!--    <color name="purple_500">#FF6200EE</color>-->
+<!--    <color name="purple_700">#FF3700B3</color>-->
+<!--    <color name="teal_200">#FF03DAC5</color>-->
+<!--    <color name="teal_700">#FF018786</color>-->
+<!--    <color name="black">#FF000000</color>-->
+<!--    <color name="white">#FFFFFFFF</color>-->
+<!--    <color name="light_gray">#33EEEEEE</color>-->
+<!--    <color name="dark_gray">#33FFFFFF</color>-->
+<!--    <color name="newsItemReleasedBackgroundColorLight">#FBF6FF</color>-->
+<!--    <color name="newsItemReleasedBackgroundColorNight">#FF3700B3</color>-->
+<!--    <color name="transparent">#00F44336</color>-->
+<!--    <color name="sent_message_color">#9CD3FF</color>-->
+<!--    <color name="received_message_color">#FFB0CB</color>-->
+<!--    <color name="light_blue_600">#FF039BE5</color>-->
+<!--    <color name="light_blue_900">#FF01579B</color>-->
+<!--    <color name="light_blue_A200">#FF40C4FF</color>-->
+<!--    <color name="light_blue_A400">#FF00B0FF</color>-->
+<!--    <color name="black_overlay">#66000000</color>-->
+<!--    <color name="red">#FF1100</color>-->
+<!--    <color name="myAccent1">#7a6c5d</color>-->
+<!--    <color name="myAccent1_pressed">#5A00B1</color>-->
+<!--    <color name="darkTextColor1">@color/huddle_background_color</color>-->
+<!--    <color name="darkTextColor">#514b23</color>-->
+<!--    <color name="lightTextColor">#EBEFDE</color>-->
+<!--    <color name="extraLightPurbleBackground">#FBF6FF</color>-->
+<!--    <color name="my_message_released_background_color">#4D485A</color>-->
+<!--    <color name="my_message_pressed_background_color">@color/myAccent1</color>-->
+<!--    <color name="my_message_text_color">@color/white</color>-->
+<!--    <color name="my_message_label_text_color">#E3E3E3</color>-->
+<!--    <color name="buddy_message_released_background_color">#D5D5D5</color>-->
+<!--    <color name="buddy_message_released_background_color_night">#373A37</color>-->
+<!--    <color name="buddy_message_text_color">@color/darkTextColor</color>-->
+<!--    <color name="buddy_message_label_text_color">#737373</color>-->
+<!--    <color name="huddle_background_color">#554945</color>-->
+<!--    <color name="lightTextColor2">#969696</color>-->
+<!--    <color name="high_contrast_background_color">#FFFFFF</color>-->
+<!--    <color name="high_contrast_text_color">#000000</color>-->
+<!--    <color name="high_contrast_pressed_contour_color">#FF0000</color>-->
+<!--    <color name="high_contrast_released_contour_color">#0041FF</color>-->
+<!--    <color name="high_contrast_unpressable_contour1_color">#000000</color>-->
+<!--    <color name="high_contrast_unpressable_contour2_color">#000000</color>-->
+<!--    <color name="message_fragment_msget_text_color">#000000</color>-->
+<!--    <color name="message_edit_box_background_color">#FFFFFF</color>-->
+<!--    <color name="send_msg_but_color">#2a3d45</color>-->
+<!--    <color name="status_bar_color">@color/myAccent1</color>-->
+<!--    <color name="usersListBackgroundColor">#ddc9b4</color>-->
+<!--    <color name="usernameTextColor">@color/darkTextColor</color>-->
+<!--    <color name="userLanguageTextColor">@color/myAccent1</color>-->
+<!--    <color name="nav_door_background_color">#ddc9b4</color>-->
+<!--    <color name="nav_door_item_text_color" >@color/darkTextColor</color>-->
+<!--    <color name="nav_header_info_box_background_color">@color/upsdk_white</color>-->
+<!--    <color name="nav_header_name_text_color">@color/darkTextColor</color>-->
+<!--    <color name="nav_header_language_text_color">@color/darkTextColor</color>-->
+<!--    <color name="nav_door_items_icons_tint_color" >@color/darkTextColor</color>-->
+<!--    <color name="phone_verification_background_color">#F8F5F2</color>-->
+<!--    <color name="wecome_text_color_phone_number_view_login_fragment">@color/huddle_background_color</color>-->
+<!--    <color name="generalTextColor">#000000</color>-->
+<!--    <color name="generalHintTextColor">#686868</color>-->
+<!--    <color name="pupup_window_background_color">#FFFFFF</color>-->
+<!--    <color name="login_button_color">#2196F3</color>-->
+<!--    <color name="login_button_color_pressed">#B02196F3</color>-->
+<!--    <color name="selection_filter_color">#4F005DFF</color>-->
+<!--    <color name="light_contour_color_pressed">#EEEEEE</color>-->
+<!--    <color name="light_contour_color_released">#11000000</color>-->
+
 
 </resources>

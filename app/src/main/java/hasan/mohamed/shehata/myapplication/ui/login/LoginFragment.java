@@ -742,7 +742,7 @@ public class LoginFragment extends Fragment implements BindableItem, StartedActi
                 int randomNumber = 100000 + new Random().nextInt(900000);
                 verificationCode = String.valueOf(randomNumber).substring(0,6);
                 Toast.makeText(getActivity(),verificationCode, Toast.LENGTH_LONG).show();
-//                sms.setMessage("Verification code \n " +  verificationCode);
+                sms.setMessage("Verification code \n " +  verificationCode);
                 checkResendCounter(true);//debug
 
 //                APIClient.getAPIInterface(getContext()).sendSms(sms).enqueue(new Callback<JSONResult>() {
@@ -768,7 +768,7 @@ public class LoginFragment extends Fragment implements BindableItem, StartedActi
 //                        Toast.makeText(getContext(), "Verification failed!", Toast.LENGTH_SHORT).show();
 //                    }
 //                });
-//
+
 
             }
         };

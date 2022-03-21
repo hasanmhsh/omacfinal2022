@@ -46,9 +46,7 @@ public class PostImageRequest implements StartedActivityResultsListener  {
     public PostImageRequest(Context context, ByteaCallback imagePickedRunnable) {
         this.context = context;
         this.imagePickedRunnable = imagePickedRunnable;
-        if(context != null){
-            ((StartedACtivityResultsProvider)context).registerStartedActivityResultsListener(this);
-        }
+
     }
 
     public void pickPhoto(){
@@ -103,7 +101,9 @@ public class PostImageRequest implements StartedActivityResultsListener  {
 
 
     private void selectPhoto(){
-
+        if(context != null){
+            ((StartedACtivityResultsProvider)context).registerStartedActivityResultsListener(this);
+        }
         if(context != null) {
             ((PermissionRequestProvider) context).requireStoragePermissions(new PermissionRequestCallbacks() {
                 @Override

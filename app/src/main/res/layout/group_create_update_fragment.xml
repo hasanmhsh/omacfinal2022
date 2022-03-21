@@ -7,6 +7,7 @@
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="@color/phone_verification_background_color"
         android:padding="@dimen/general_text_padding">
 
         <FrameLayout
@@ -22,7 +23,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:fitsSystemWindows="true"
-                android:background="@color/phone_verification_background_color"
                 android:padding="@dimen/margin_l">
                 <TextView
                     android:id="@+id/group_welcome_tv"

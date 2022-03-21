@@ -8,6 +8,7 @@ import java.util.List;
 
 import hasan.mohamed.shehata.myapplication.models.ListItemBindableItemContentProvider;
 import hasan.mohamed.shehata.myapplication.models.User;
+import hasan.mohamed.shehata.myapplication.types.UsersViewType;
 
 public class UsersViewModel extends ViewModel {
 
@@ -15,6 +16,9 @@ public class UsersViewModel extends ViewModel {
     private MutableLiveData<User> meUser;
     private MutableLiveData<List<ListItemBindableItemContentProvider>> userList;
     private MutableLiveData<List<ListItemBindableItemContentProvider>> groupList;
+
+
+
 
 
 
@@ -27,6 +31,8 @@ public class UsersViewModel extends ViewModel {
         groupList.setValue(null);
         meUser = new MutableLiveData<>();
         meUser.setValue(null);
+
+
 
     }
 
