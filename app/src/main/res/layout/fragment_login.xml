@@ -252,7 +252,6 @@
             android:id="@+id/huddlebanner"
             android:layout_width="match_parent"
             android:layout_height="198dp"
-            android:background="@drawable/technology1"
             android:scaleType="centerCrop"
             android:src="@drawable/huddle_banner"
             android:fitsSystemWindows="true"

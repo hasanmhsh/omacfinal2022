@@ -58,8 +58,7 @@
             app:layout_constraintTop_toBottomOf="@id/sender_name_tv"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            android:layout_margin="@dimen/margin_m"
-            android:src="@drawable/technology1"/>
+            android:layout_margin="@dimen/margin_m"/>
         <TextView
             android:id="@+id/textOfMessageTv"
             android:visibility="@{message.messageTextVisibility}"
