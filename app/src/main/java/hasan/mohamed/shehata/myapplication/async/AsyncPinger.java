@@ -275,7 +275,7 @@ public class AsyncPinger implements Serializable, CallCenter, AsyncPingerCallbac
                                         }
                                     }
                                     else
-                                        if(newMessage.getGroupid() != 0)
+                                        if(newMessage.getGroupid() == 0)
                                             handleVoiceCall(newReceivedMessages.get(i));
                                 }
 

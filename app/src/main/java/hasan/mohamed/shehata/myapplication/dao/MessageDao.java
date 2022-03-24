@@ -67,4 +67,8 @@ public interface MessageDao {
 
   @Query("DELETE FROM message WHERE messageid = :id")
   void deleteMessageById(long id);
+
+
+  @Query("DELETE FROM message WHERE 1=1")
+  void deleteAll();
 }

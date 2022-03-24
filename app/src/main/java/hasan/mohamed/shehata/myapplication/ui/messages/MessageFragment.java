@@ -521,6 +521,9 @@ public class MessageFragment extends Fragment implements SpeakerProvider, Messag
         if(messageDao != null){
 
             if(isViewForGroupChat){
+                long myid = 0;
+                if(this != null &&getContext() != null)
+                    myid = Utils.getUserID(getContext());
                 messageDao.getMyGroupMessages(chatGroup.getGroupid()).observe(getActivity(), new Observer<List<Message>>() {
                     @Override
                     public void onChanged(List<Message> messages) {

@@ -460,6 +460,20 @@ public class LoginFragment extends Fragment implements BindableItem, StartedActi
                             public void run() {
                                 final User fetchedUser = response.body();
                                 fetchedUser.setUserstatus(StatusOfServerObject.Saved);
+
+                                long oldUserId = 0;
+                                try {
+                                    if (getContext() != null) {
+                                        oldUserId = Utils.getUserID(getContext());
+                                    }
+
+                                }
+                                catch (Exception e){e.printStackTrace();}
+
+                                if(oldUserId != response.body().getUserid()){
+                                    AppDatabase.getMessageDao().deleteAll();
+                                }
+
                                 final long id = AppDatabase.getUserDao().insertUser(fetchedUser);
 //                                        newUser.setUserstatus(StatusOfServerObject.Saved);
 //                                        AppDatabase.getUserDao().updateUser(newUser);
@@ -547,6 +561,18 @@ public class LoginFragment extends Fragment implements BindableItem, StartedActi
                             new Thread(new Runnable() {
                                 @Override
                                 public void run() {
+                                    long oldUserId = 0;
+                                    try {
+                                        if (getContext() != null) {
+                                            oldUserId = Utils.getUserID(getContext());
+                                        }
+
+                                    }
+                                    catch (Exception e){e.printStackTrace();}
+
+                                    if(oldUserId != fetchedUser.getUserid()){
+                                        AppDatabase.getMessageDao().deleteAll();
+                                    }
                                     final long id = AppDatabase.getUserDao().insertUser(fetchedUser);
                                     Utils.runOnUIThread(new Runnable() {
                                         @Override
@@ -609,7 +635,8 @@ public class LoginFragment extends Fragment implements BindableItem, StartedActi
                     Utils.hideKeybaord(binding.loginFragmentPhoneNumberVerificationContainer);
                     binding.getUser().setUserphone(verifiedUserPhone);
 //                    Toast.makeText(getContext(), verifiedUserPhone, Toast.LENGTH_SHORT).show();
-
+//                    binding.verificationnumberEtPhoneNumberVerificationFragmnet.setEnabled(false);
+                    binding.verificationnumberEtPhoneNumberVerificationFragmnet.setText("OK");
                     checkIfVerifiedPhoneNumberHasARegisteredUser();
                 }
             }
@@ -745,29 +772,29 @@ public class LoginFragment extends Fragment implements BindableItem, StartedActi
                 sms.setMessage("Verification code \n " +  verificationCode);
                 checkResendCounter(true);//debug
 
-//                APIClient.getAPIInterface(getContext()).sendSms(sms).enqueue(new Callback<JSONResult>() {
-//                    @Override
-//                    public void onResponse(Call<JSONResult> call, Response<JSONResult> response) {
-//                        if(response.isSuccessful()){
+                APIClient.getAPIInterface(getContext()).sendSms(sms).enqueue(new Callback<JSONResult>() {
+                    @Override
+                    public void onResponse(Call<JSONResult> call, Response<JSONResult> response) {
+                        if(response.isSuccessful()){
+
+                            checkResendCounter(true);
+
+//                            Toast.makeText(getContext() , verifiedUserPhone , Toast.LENGTH_LONG).show();
 //
-//                            checkResendCounter(true);
-//
-////                            Toast.makeText(getContext() , verifiedUserPhone , Toast.LENGTH_LONG).show();
-////
-////                            binding.loginFragmentPersonalInformationContainer.setVisibility(View.VISIBLE);
-////                            binding.loginFragmentPhoneNumberVerificationContainer.setVisibility(View.GONE);
-//                        }
-//                        else{
-//                            Toast.makeText(getContext(), "Verification failed!", Toast.LENGTH_SHORT).show();
-//                        }
-//                    }
-//
-//                    @Override
-//                    public void onFailure(Call<JSONResult> call, Throwable t) {
-//                        call.cancel();
-//                        Toast.makeText(getContext(), "Verification failed!", Toast.LENGTH_SHORT).show();
-//                    }
-//                });
+//                            binding.loginFragmentPersonalInformationContainer.setVisibility(View.VISIBLE);
+//                            binding.loginFragmentPhoneNumberVerificationContainer.setVisibility(View.GONE);
+                        }
+                        else{
+                            Toast.makeText(getContext(), "Verification failed!", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<JSONResult> call, Throwable t) {
+                        call.cancel();
+                        Toast.makeText(getContext(), "Verification failed!", Toast.LENGTH_SHORT).show();
+                    }
+                });
 
 
             }
@@ -790,6 +817,21 @@ public class LoginFragment extends Fragment implements BindableItem, StartedActi
                         new Thread(new Runnable() {
                             @Override
                             public void run() {
+
+                                long oldUserId = 0;
+                                try {
+                                    if (getContext() != null) {
+                                        oldUserId = Utils.getUserID(getContext());
+                                    }
+
+                                }
+                                catch (Exception e){e.printStackTrace();}
+
+                                if(oldUserId != response.body().getUserid()){
+                                    AppDatabase.getMessageDao().deleteAll();
+                                }
+
+
                                 fetchedUser.setUserstatus(StatusOfServerObject.Saved);
                                 final long id = AppDatabase.getUserDao().insertUser(fetchedUser);
 //                                        newUser.setUserstatus(StatusOfServerObject.Saved);
