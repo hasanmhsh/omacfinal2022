@@ -26,6 +26,15 @@
     android:layout_marginStart="10dp"
     android:layout_marginEnd="10dp"
     >
+    <TextView
+        android:shadowColor="@color/transparent"
+        android:translationZ="4dp"
+        android:layout_width="@dimen/online_notch_width"
+        android:layout_height="@dimen/online_notch_width"
+        android:visibility="@{user.onlineNotchVisibility}"
+        android:background="@drawable/online_circle"
+        app:layout_constraintStart_toStartOf="@+id/user_image_view"
+        app:layout_constraintTop_toTopOf="@+id/user_image_view"/>
     <ImageView
         android:translationZ="3dp"
         android:id="@+id/user_image_view"
@@ -116,7 +125,7 @@
         android:text="@{user.numberOfUnreadMessagesString}"
         android:padding="3dp"
         android:gravity="center"
-        android:background="@drawable/circular_notification_red_background"
+        android:background="@drawable/online_circle"
         android:textColor="@color/white"
         android:textSize="12sp"
         android:visibility="@{user.selectUnreadMessagesTVVisibility}"

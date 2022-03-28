@@ -336,6 +336,7 @@ public class User extends BaseObservable implements ListItemBindableItemContentP
             isOnline = online;
             notifyPropertyChanged(BR.isOnline);
             notifyPropertyChanged(BR.callButtonVisibility);
+            notifyPropertyChanged(BR.onlineNotchVisibility);
         }
     }
 
@@ -482,6 +483,20 @@ public class User extends BaseObservable implements ListItemBindableItemContentP
     }
 
     @JsonIgnore
+    @Bindable
+    public int getOnlineNotchVisibility(){
+        if(isThisAGroup()){
+            return View.GONE;
+        }
+        else{
+            if (isOnline)
+                return View.VISIBLE;
+            else
+                return View.GONE;
+        }
+    }
+
+    @JsonIgnore
     @Override
     public boolean equals(@Nullable Object obj) {
         User other = (User)obj;
@@ -618,6 +633,7 @@ public class User extends BaseObservable implements ListItemBindableItemContentP
             notifyPropertyChanged(BR.languageBoxVisibility);
             notifyPropertyChanged(BR.username);
             notifyPropertyChanged(BR.callButtonVisibility);
+            notifyPropertyChanged(BR.onlineNotchVisibility);
         }
     }
 

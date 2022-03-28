@@ -329,6 +329,8 @@
         <color name="selection_filter_color">#4F005DFF</color>
         <color name="light_contour_color_pressed">#EEEEEE</color>
         <color name="light_contour_color_released">#11000000</color>
+        <color name="online_circle_contour_color">@color/color3</color>
+        <color name="online_circle_contour_color_message_fragment_header">@color/nav_header_info_box_background_color</color>
 
 
 

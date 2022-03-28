@@ -37,4 +37,6 @@
     <dimen name="message_fragment_header_buddy_name_text_size">13sp</dimen>
     <dimen name="message_fragment_header_buddy_language_text_size">10sp</dimen>
     <dimen name="fab_translation">100dp</dimen>
+    <dimen name="online_notch_width">15dp</dimen>
+    <dimen name="online_notch_stroke_width">1dp</dimen>
 </resources>

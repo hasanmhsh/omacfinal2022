@@ -66,4 +66,7 @@
     <color name="light_contour_color_pressed">#E1E1E1</color>
     <color name="light_contour_color_released">#B3B3B3</color>
 
+
+    <color name="online_circle_contour_color">@color/myAccent1</color>
+    <color name="online_circle_contour_color_message_fragment_header">@color/myAccent1</color>
 </resources>

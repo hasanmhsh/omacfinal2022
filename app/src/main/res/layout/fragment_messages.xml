@@ -47,6 +47,17 @@
         android:translationZ="7dp"
         android:fitsSystemWindows="true"
         android:padding="10dp">
+
+        <TextView
+            android:translationZ="16dp"
+            android:shadowColor="@color/transparent"
+            android:layout_width="@dimen/online_notch_width"
+            android:layout_height="@dimen/online_notch_width"
+            android:visibility="@{user.onlineNotchVisibility}"
+            android:background="@drawable/online_circle_msg_frgmnt_hdr"
+            app:layout_constraintStart_toStartOf="@+id/header_my_msg_image_view"
+            app:layout_constraintTop_toTopOf="@+id/header_my_msg_image_view"/>
+
         <ImageView
             android:translationZ="15dp"
             android:id="@+id/header_my_msg_image_view"
@@ -178,6 +189,7 @@
         <!--        app:layout_constraintWidth_default="spread"-->
         <!--        android:scaleType="fitXY"-->
     <ImageButton
+        android:translationZ="4dp"
         android:id="@+id/send_but"
         android:layout_width="50dp"
         android:layout_height="50dp"
